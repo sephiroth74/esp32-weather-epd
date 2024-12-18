@@ -158,9 +158,9 @@ const char *TXT_FAILED_TO_GET_TIME = "Failed to get the time!";
 const char *TXT_HIBERNATING_INDEFINITELY_NOTICE = "Hibernating without wake time!";
 const char *TXT_REFERENCING_OLDER_TIME_NOTICE = "Failed to synchronize time before deep-sleep, referencing older time.";
 const char *TXT_WAITING_FOR_SNTP = "Waiting for SNTP synchronization.";
-const char *TXT_LOW_BATTERY_VOLTAGE = "Low battery voltage!";
-const char *TXT_VERY_LOW_BATTERY_VOLTAGE = "Very low battery voltage!";
-const char *TXT_CRIT_LOW_BATTERY_VOLTAGE = "Critically low battery voltage!";
+const char *TXT_LOW_BATTERY_VOLTAGE = "Livello batteria basso!";
+const char *TXT_VERY_LOW_BATTERY_VOLTAGE = "Batteria scarica!";
+const char *TXT_CRIT_LOW_BATTERY_VOLTAGE = "Bateria quasi scarica!";
 
 // ALERTS
 // The display can show up to 2 alerts, but alerts can be unpredictable in

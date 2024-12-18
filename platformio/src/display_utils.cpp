@@ -41,13 +41,21 @@
  */
 uint32_t readBatteryVoltage()
 {
+#if DEBUG_LEVEL >= 1
+  Serial.println("[debug] Reading battery voltage.");
+#endif
+
   esp_adc_cal_characteristics_t adc_chars;
   // __attribute__((unused)) disables compiler warnings about this variable
   // being unused (Clang, GCC) which is the case when DEBUG_LEVEL == 0.
   esp_adc_cal_value_t val_type __attribute__((unused));
   adc_power_acquire();
-  uint16_t adc_val = analogRead(PIN_BAT_ADC);
+  uint16_t adc_val = analogReadMilliVolts(PIN_BAT_ADC);
   adc_power_release();
+
+#if DEBUG_LEVEL >= 1
+  Serial.println("millivolts: " + String(adc_val));
+#endif
 
   // We will use the eFuse ADC calibration bits, to get accurate voltage
   // readings. The DFRobot FireBeetle Esp32-E V1.0's ADC is 12 bit, and uses
@@ -55,6 +63,11 @@ uint32_t readBatteryVoltage()
   // to 2450mV.
   val_type = esp_adc_cal_characterize(ADC_UNIT_1, ADC_ATTEN_11db,
                                       ADC_WIDTH_BIT_12, 1100, &adc_chars);
+
+#if DEBUG_LEVEL >= 1
+  Serial.println("ADC val: " + String(adc_val));
+  Serial.println("val_type: " + String(val_type));
+#endif
 
 #if DEBUG_LEVEL >= 1
   if (val_type == ESP_ADC_CAL_VAL_EFUSE_VREF)

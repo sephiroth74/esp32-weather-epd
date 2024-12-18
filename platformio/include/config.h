@@ -21,6 +21,13 @@
 #include <cstdint>
 #include <Arduino.h>
 
+// BME-280
+// The BME-280 sensor is an optional feature that can be enabled by setting
+// USE_BME280 to 1. The BME-280 sensor provides temperature, humidity, and
+// pressure data. The BME-280 sensor is not required for the project to
+// function.
+#define USE_BME280 0
+
 // E-PAPER PANEL
 // This project supports the following E-Paper panels:
 //   DISP_BW_V2 - 7.5in e-Paper (v2)      800x480px  Black/White
@@ -39,8 +46,8 @@
 // The Waveshare rev2.2 is no longer in production.
 // Users of the Waveshare rev2.3 have reported experiencing low contrast issues.
 // Uncomment the macro that identifies your driver board hardware.
-#define DRIVER_DESPI_C02
-// #define DRIVER_WAVESHARE
+// #define DRIVER_DESPI_C02
+#define DRIVER_WAVESHARE
 
 // 3 COLOR E-INK ACCENT COLOR
 // Defines the 3rd color to be used when a 3+ color display is selected.
@@ -64,10 +71,10 @@
 //   Estonian (Estonia)              et_EE
 //   Finnish (Finland)               fi_FI
 //   French (France)                 fr_FR
-//   Italiano (Italia)               it_IT
+  // Italiano (Italia)               it_IT
 //   Dutch (Belgium)                 nl_BE
 //   Portuguese (Brazil)             pt_BR
-#define LOCALE en_US
+#define LOCALE it_IT
 
 // UNITS
 // Define exactly one macro for each measurement type below.
@@ -76,16 +83,16 @@
 //   Metric   : Celsius
 //   Imperial : Fahrenheit
 // #define UNITS_TEMP_KELVIN
-// #define UNITS_TEMP_CELSIUS
-#define UNITS_TEMP_FAHRENHEIT
+#define UNITS_TEMP_CELSIUS
+// #define UNITS_TEMP_FAHRENHEIT
 
 // UNITS - WIND SPEED
 //   Metric   : Kilometers per Hour
 //   Imperial : Miles per Hour
 // #define UNITS_SPEED_METERSPERSECOND
 // #define UNITS_SPEED_FEETPERSECOND
-// #define UNITS_SPEED_KILOMETERSPERHOUR
-#define UNITS_SPEED_MILESPERHOUR
+#define UNITS_SPEED_KILOMETERSPERHOUR
+// #define UNITS_SPEED_MILESPERHOUR
 // #define UNITS_SPEED_KNOTS
 // #define UNITS_SPEED_BEAUFORT
 
@@ -95,8 +102,8 @@
 // #define UNITS_PRES_HECTOPASCALS
 // #define UNITS_PRES_PASCALS
 // #define UNITS_PRES_MILLIMETERSOFMERCURY
-#define UNITS_PRES_INCHESOFMERCURY
-// #define UNITS_PRES_MILLIBARS
+// #define UNITS_PRES_INCHESOFMERCURY
+#define UNITS_PRES_MILLIBARS
 // #define UNITS_PRES_ATMOSPHERES
 // #define UNITS_PRES_GRAMSPERSQUARECENTIMETER
 // #define UNITS_PRES_POUNDSPERSQUAREINCH
@@ -104,16 +111,16 @@
 // UNITS - VISIBILITY DISTANCE
 //   Metric   : Kilometers
 //   Imperial : Miles
-// #define UNITS_DIST_KILOMETERS
-#define UNITS_DIST_MILES
+#define UNITS_DIST_KILOMETERS
+// #define UNITS_DIST_MILES
 
 // UNITS - PRECIPITATION (HOURLY)
 // Measure of precipitation.
 // This can either be Probability of Precipitation (PoP) or hourly volume.
 //   Metric   : Millimeters
 //   Imperial : Inches
-#define UNITS_HOURLY_PRECIP_POP
-// #define UNITS_HOURLY_PRECIP_MILLIMETERS
+// #define UNITS_HOURLY_PRECIP_POP
+#define UNITS_HOURLY_PRECIP_MILLIMETERS
 // #define UNITS_HOURLY_PRECIP_CENTIMETERS
 // #define UNITS_HOURLY_PRECIP_INCHES
 
@@ -123,9 +130,9 @@
 //   Metric   : Millimeters
 //   Imperial : Inches
 // #define UNITS_DAILY_PRECIP_POP
-// #define UNITS_DAILY_PRECIP_MILLIMETERS
+#define UNITS_DAILY_PRECIP_MILLIMETERS
 // #define UNITS_DAILY_PRECIP_CENTIMETERS
-#define UNITS_DAILY_PRECIP_INCHES
+// #define UNITS_DAILY_PRECIP_INCHES
 
 // Hypertext Transfer Protocol (HTTP)
 // HTTP
@@ -147,8 +154,8 @@
 //   2030-12-31 23:59:59.
 // (uncomment exactly one)
 // #define USE_HTTP
-// #define USE_HTTPS_NO_CERT_VERIF
-#define USE_HTTPS_WITH_CERT_VERIF
+#define USE_HTTPS_NO_CERT_VERIF
+// #define USE_HTTPS_WITH_CERT_VERIF
 
 // WIND DIRECTION INDICATOR
 // Choose whether the wind direction indicator should be an arrow, number, or
@@ -217,7 +224,7 @@
 //   FreeSans font, but this project supports the ability to modularly swap
 //   fonts. Using a font other than FreeSans may result in undesired spacing or
 //   other artifacts.
-#define FONT_HEADER "fonts/FreeSans.h"
+#define FONT_HEADER "fonts/Lato_Regular.h"
 
 // DAILY PRECIPITATION
 // Daily precipitation indicated under Hi|Lo can optionally be configured using
@@ -239,7 +246,7 @@
 // STATUS BAR EXTRAS
 //   Extra information that can be displayed on the status bar. Set to 1 to
 //   enable.
-#define STATUS_BAR_EXTRAS_BAT_VOLTAGE 0
+#define STATUS_BAR_EXTRAS_BAT_VOLTAGE 1
 #define STATUS_BAR_EXTRAS_WIFI_RSSI   0
 
 // BATTERY MONITORING
@@ -247,6 +254,15 @@
 //   Low power behavior can be controlled in config.cpp.
 //   If you wish to disable battery monitoring set this macro to 0.
 #define BATTERY_MONITORING 1
+
+// ENABLE BATTERY POWER SAVING
+// The ESP32 will deep-sleep when the battery voltage falls below the
+// LOW_BATTERY_VOLTAGE. The ESP32 will hibernate when the battery voltage falls
+// below the CRIT_LOW_BATTERY_VOLTAGE. The ESP32 will wake up at the
+// LOW_BATTERY_SLEEP_INTERVAL or VERY_LOW_BATTERY_SLEEP_INTERVAL intervals to
+// check the battery voltage. The battery voltage is measured using the
+// PIN_BAT_ADC pin.
+// #define ENABLED_POWER_SAVING 1
 
 // NON-VOLATILE STORAGE (NVS) NAMESPACE
 #define NVS_NAMESPACE "weather_epd"
@@ -256,7 +272,7 @@
 //   level 0: basic status information, assists troubleshooting (default)
 //   level 1: increased verbosity for debugging
 //   level 2: print api responses to serial monitor
-#define DEBUG_LEVEL 0
+#define DEBUG_LEVEL 1
 
 // Set the below constants in "config.cpp"
 extern const uint8_t PIN_BAT_ADC;

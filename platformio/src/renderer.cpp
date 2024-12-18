@@ -1221,9 +1221,18 @@ void drawStatusBar(const String &statusStr, const String &refreshTimeStr,
 
 #if BATTERY_MONITORING
   // battery - (expecting 3.7v LiPo)
+
+  Serial.println("Calculating battery percentage");
+  Serial.println("Battery voltage: " + String(batVoltage));
+  Serial.println("Min battery voltage: " + String(MIN_BATTERY_VOLTAGE));
+  Serial.println("Max battery voltage: " + String(MAX_BATTERY_VOLTAGE));
+
   uint32_t batPercent = calcBatPercent(batVoltage,
                                        MIN_BATTERY_VOLTAGE,
                                        MAX_BATTERY_VOLTAGE);
+
+  Serial.println("Battery percentage: " + String(batPercent));
+
 #if defined(DISP_3C_B) || defined(DISP_7C_F)
   if (batVoltage < WARN_BATTERY_VOLTAGE)
   {

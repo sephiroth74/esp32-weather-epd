@@ -31,14 +31,14 @@
 #include "icons/icons_196x196.h"
 #include "renderer.h"
 #if defined(USE_HTTPS_WITH_CERT_VERIF) || defined(USE_HTTPS_WITH_CERT_VERIF)
-  #include <WiFiClientSecure.h>
+#include <WiFiClientSecure.h>
 #endif
 #ifdef USE_HTTPS_WITH_CERT_VERIF
-  #include "cert.h"
+#include "cert.h"
 #endif
 
 // too large to allocate locally on stack
-static owm_resp_onecall_t       owm_onecall;
+static owm_resp_onecall_t owm_onecall;
 static owm_resp_air_pollution_t owm_air_pollution;
 
 Preferences prefs;
@@ -68,17 +68,14 @@ void beginDeepSleep(unsigned long startTime, tm *timeInfo)
   // time is relative to wake time
   int curHour = (timeInfo->tm_hour - WAKE_TIME + 24) % 24;
   const int curMinute = curHour * 60 + timeInfo->tm_min;
-  const int curSecond = curHour * 3600
-                      + timeInfo->tm_min * 60
-                      + timeInfo->tm_sec;
+  const int curSecond = curHour * 3600 + timeInfo->tm_min * 60 + timeInfo->tm_sec;
   const int desiredSleepSeconds = SLEEP_DURATION * 60;
   const int offsetMinutes = curMinute % SLEEP_DURATION;
   const int offsetSeconds = curSecond % desiredSleepSeconds;
 
   // align wake time to nearest multiple of SLEEP_DURATION
   int sleepMinutes = SLEEP_DURATION - offsetMinutes;
-  if (desiredSleepSeconds - offsetSeconds < 120
-   || offsetSeconds / (float)desiredSleepSeconds > 0.95f)
+  if (desiredSleepSeconds - offsetSeconds < 120 || offsetSeconds / (float)desiredSleepSeconds > 0.95f)
   { // if we have a sleep time less than 2 minutes OR less 5% SLEEP_DURATION,
     // skip to next alignment
     sleepMinutes += SLEEP_DURATION;
@@ -96,8 +93,7 @@ void beginDeepSleep(unsigned long startTime, tm *timeInfo)
   else
   {
     const int hoursUntilWake = 24 - curHour;
-    sleepDuration = hoursUntilWake * 3600ULL
-                    - (timeInfo->tm_min * 60ULL + timeInfo->tm_sec);
+    sleepDuration = hoursUntilWake * 3600ULL - (timeInfo->tm_min * 60ULL + timeInfo->tm_sec);
   }
 
   // add extra delay to compensate for esp32's with fast RTCs.
@@ -110,7 +106,7 @@ void beginDeepSleep(unsigned long startTime, tm *timeInfo)
 
   esp_sleep_enable_timer_wakeup(sleepDuration * 1000000ULL);
   Serial.print(TXT_AWAKE_FOR);
-  Serial.println(" "  + String((millis() - startTime) / 1000.0, 3) + "s");
+  Serial.println(" " + String((millis() - startTime) / 1000.0, 3) + "s");
   Serial.print(TXT_ENTERING_DEEP_SLEEP_FOR);
   Serial.println(" " + String(sleepDuration) + "s");
   esp_deep_sleep_start();
@@ -122,6 +118,7 @@ void setup()
 {
   unsigned long startTime = millis();
   Serial.begin(115200);
+  delay(200);
 
 #if DEBUG_LEVEL >= 1
   printHeapUsage();
@@ -132,7 +129,7 @@ void setup()
   // Open namespace for read/write to non-volatile storage
   prefs.begin(NVS_NAMESPACE, false);
 
-#if BATTERY_MONITORING
+#if 1
   uint32_t batteryVoltage = readBatteryVoltage();
   Serial.print(TXT_BATTERY_VOLTAGE);
   Serial.println(": " + String(batteryVoltage) + "mv");
@@ -142,6 +139,10 @@ void setup()
   // refresh is when voltage is no longer low. To keep track of that we will
   // make use of non-volatile storage.
   bool lowBat = prefs.getBool("lowBat", false);
+
+  Serial.println("lowBat: " + String(lowBat));
+
+#ifdef ENABLED_POWER_SAVING
 
   // low battery, deep sleep now
   if (batteryVoltage <= LOW_BATTERY_VOLTAGE)
@@ -167,16 +168,14 @@ void setup()
     }
     else if (batteryVoltage <= VERY_LOW_BATTERY_VOLTAGE)
     { // very low battery
-      esp_sleep_enable_timer_wakeup(VERY_LOW_BATTERY_SLEEP_INTERVAL
-                                    * 60ULL * 1000000ULL);
+      esp_sleep_enable_timer_wakeup(VERY_LOW_BATTERY_SLEEP_INTERVAL * 60ULL * 1000000ULL);
       Serial.println(TXT_VERY_LOW_BATTERY_VOLTAGE);
       Serial.print(TXT_ENTERING_DEEP_SLEEP_FOR);
       Serial.println(" " + String(VERY_LOW_BATTERY_SLEEP_INTERVAL) + "min");
     }
     else
     { // low battery
-      esp_sleep_enable_timer_wakeup(LOW_BATTERY_SLEEP_INTERVAL
-                                    * 60ULL * 1000000ULL);
+      esp_sleep_enable_timer_wakeup(LOW_BATTERY_SLEEP_INTERVAL * 60ULL * 1000000ULL);
       Serial.println(TXT_LOW_BATTERY_VOLTAGE);
       Serial.print(TXT_ENTERING_DEEP_SLEEP_FOR);
       Serial.println(" " + String(LOW_BATTERY_SLEEP_INTERVAL) + "min");
@@ -188,6 +187,7 @@ void setup()
   {
     prefs.putBool("lowBat", false);
   }
+#endif
 #else
   uint32_t batteryVoltage = UINT32_MAX;
 #endif
@@ -283,19 +283,20 @@ void setup()
   killWiFi(); // WiFi no longer needed
 
   // GET INDOOR TEMPERATURE AND HUMIDITY, start BME280...
+#if USE_BME280
   pinMode(PIN_BME_PWR, OUTPUT);
   digitalWrite(PIN_BME_PWR, HIGH);
-  float inTemp     = NAN;
+  float inTemp = NAN;
   float inHumidity = NAN;
   Serial.print(String(TXT_READING_FROM) + " BME280... ");
   TwoWire I2C_bme = TwoWire(0);
   Adafruit_BME280 bme;
 
   I2C_bme.begin(PIN_BME_SDA, PIN_BME_SCL, 100000); // 100kHz
-  if(bme.begin(BME_ADDRESS, &I2C_bme))
+  if (bme.begin(BME_ADDRESS, &I2C_bme))
   {
-    inTemp     = bme.readTemperature(); // Celsius
-    inHumidity = bme.readHumidity();    // %
+    inTemp = bme.readTemperature();  // Celsius
+    inHumidity = bme.readHumidity(); // %
 
     // check if BME readings are valid
     // note: readings are checked again before drawing to screen. If a reading
@@ -317,6 +318,11 @@ void setup()
     Serial.println(statusStr);
   }
   digitalWrite(PIN_BME_PWR, LOW);
+#else
+  float inTemp = NAN;
+  float inHumidity = NAN;
+  statusStr = "BME " + String(TXT_NOT_FOUND); // check wiring
+#endif
 
   String refreshTimeStr;
   getRefreshTimeStr(refreshTimeStr, timeConfigured, &timeInfo);
@@ -348,4 +354,3 @@ void setup()
 void loop()
 {
 } // end loop
-
