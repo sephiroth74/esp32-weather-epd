@@ -26,7 +26,7 @@
 // USE_BME280 to 1. The BME-280 sensor provides temperature, humidity, and
 // pressure data. The BME-280 sensor is not required for the project to
 // function.
-#define USE_BME280 0
+#define USE_BME280 1
 
 // E-PAPER PANEL
 // This project supports the following E-Paper panels:
