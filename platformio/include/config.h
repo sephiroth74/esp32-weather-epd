@@ -274,6 +274,11 @@
 //   level 2: print api responses to serial monitor
 #define DEBUG_LEVEL 1
 
+// NUMBER OF LOCATIONS
+//   The number of locations to cycle through. The locations are defined in
+//   config.cpp. It must be greater than 0.
+#define NUM_LOCATIONS 2
+
 // Set the below constants in "config.cpp"
 extern const uint8_t PIN_BAT_ADC;
 extern const uint8_t PIN_EPD_BUSY;
@@ -295,10 +300,10 @@ extern const unsigned HTTP_CLIENT_TCP_TIMEOUT;
 extern const String OWM_APIKEY;
 extern const String OWM_ENDPOINT;
 extern const String OWM_ONECALL_VERSION;
-extern const String LAT;
-extern const String LON;
-extern const String CITY_STRING;
-extern const char *TIMEZONE;
+extern const String LAT[];
+extern const String LON[];
+extern const String CITY_STRING[];
+extern const String TIMEZONE[];
 extern const char *TIME_FORMAT;
 extern const char *HOUR_FORMAT;
 extern const char *DATE_FORMAT;

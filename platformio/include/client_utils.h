@@ -32,11 +32,11 @@ void killWiFi();
 bool waitForSNTPSync(tm *timeInfo);
 bool printLocalTime(tm *timeInfo);
 #ifdef USE_HTTP
-  int getOWMonecall(WiFiClient &client, owm_resp_onecall_t &r);
-  int getOWMairpollution(WiFiClient &client, owm_resp_air_pollution_t &r);
+  int getOWMonecall(WiFiClient &client, owm_resp_onecall_t &r, String &latitude, String &longitude);
+  int getOWMairpollution(WiFiClient &client, owm_resp_air_pollution_t &r, String &latitude, String &longitude);
 #else
-  int getOWMonecall(WiFiClientSecure &client, owm_resp_onecall_t &r);
-  int getOWMairpollution(WiFiClientSecure &client, owm_resp_air_pollution_t &r);
+  int getOWMonecall(WiFiClientSecure &client, owm_resp_onecall_t &r, String &latitude, String &longitude);
+  int getOWMairpollution(WiFiClientSecure &client, owm_resp_air_pollution_t &r, String &latitude, String &longitude);
 #endif
 
 

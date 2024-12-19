@@ -129,6 +129,31 @@ void setup()
   // Open namespace for read/write to non-volatile storage
   prefs.begin(NVS_NAMESPACE, false);
 
+  int locationsIndex = prefs.getInt("locationsIndex", 0);
+
+  static_assert(NUM_LOCATIONS > 0, "NUM_LOCATIONS must be greater than 0");
+
+  if (locationsIndex < 0 || locationsIndex >= NUM_LOCATIONS)
+  {
+    locationsIndex = 0;
+  }
+
+  prefs.putInt("locationsIndex", locationsIndex + 1);
+
+  String currentLat = LAT[locationsIndex];
+  String currentLon = LON[locationsIndex];
+  String currentCity = CITY_STRING[locationsIndex];
+  String currentTimeZone = TIMEZONE[locationsIndex];
+
+  if(DEBUG_LEVEL >= 1)
+  {
+    Serial.println("Location index: " + String(locationsIndex));
+    Serial.println("Location: " + currentCity);
+    Serial.println("Latitude: " + currentLat);
+    Serial.println("Longitude: " + currentLon);
+    Serial.println("Timezone: " + currentTimeZone);
+  }
+
 #if 1
   uint32_t batteryVoltage = readBatteryVoltage();
   Serial.print(TXT_BATTERY_VOLTAGE);
@@ -227,7 +252,7 @@ void setup()
   }
 
   // TIME SYNCHRONIZATION
-  configTzTime(TIMEZONE, NTP_SERVER_1, NTP_SERVER_2);
+  configTzTime(currentTimeZone.c_str(), NTP_SERVER_1, NTP_SERVER_2);
   bool timeConfigured = waitForSNTPSync(&timeInfo);
   if (!timeConfigured)
   {
@@ -252,7 +277,7 @@ void setup()
   WiFiClientSecure client;
   client.setCACert(cert_Sectigo_RSA_Domain_Validation_Secure_Server_CA);
 #endif
-  int rxStatus = getOWMonecall(client, owm_onecall);
+  int rxStatus = getOWMonecall(client, owm_onecall, currentLat, currentLon);
   if (rxStatus != HTTP_CODE_OK)
   {
     killWiFi();
@@ -266,7 +291,7 @@ void setup()
     powerOffDisplay();
     beginDeepSleep(startTime, &timeInfo);
   }
-  rxStatus = getOWMairpollution(client, owm_air_pollution);
+  rxStatus = getOWMairpollution(client, owm_air_pollution, currentLat, currentLon);
   if (rxStatus != HTTP_CODE_OK)
   {
     killWiFi();
@@ -336,10 +361,10 @@ void setup()
     drawCurrentConditions(owm_onecall.current, owm_onecall.daily[0],
                           owm_air_pollution, inTemp, inHumidity);
     drawForecast(owm_onecall.daily, timeInfo);
-    drawLocationDate(CITY_STRING, dateStr);
+    drawLocationDate(currentCity, dateStr);
     drawOutlookGraph(owm_onecall.hourly, timeInfo);
 #if DISPLAY_ALERTS
-    drawAlerts(owm_onecall.alerts, CITY_STRING, dateStr);
+    drawAlerts(owm_onecall.alerts, currentCity, dateStr);
 #endif
     drawStatusBar(statusStr, refreshTimeStr, wifiRSSI, batteryVoltage);
   } while (display.nextPage());

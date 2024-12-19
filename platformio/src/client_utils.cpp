@@ -144,16 +144,16 @@ bool waitForSNTPSync(tm *timeInfo)
  * Returns the HTTP Status Code.
  */
 #ifdef USE_HTTP
-  int getOWMonecall(WiFiClient &client, owm_resp_onecall_t &r)
+  int getOWMonecall(WiFiClient &client, owm_resp_onecall_t &r, String &latitude, String &longitude)
 #else
-  int getOWMonecall(WiFiClientSecure &client, owm_resp_onecall_t &r)
+  int getOWMonecall(WiFiClientSecure &client, owm_resp_onecall_t &r, String &latitude, String & longitude)
 #endif
 {
   int attempts = 0;
   bool rxSuccess = false;
   DeserializationError jsonErr = {};
   String uri = "/data/" + OWM_ONECALL_VERSION
-               + "/onecall?lat=" + LAT + "&lon=" + LON + "&lang=" + OWM_LANG
+               + "/onecall?lat=" + latitude + "&lon=" + longitude + "&lang=" + OWM_LANG
                + "&units=standard&exclude=minutely";
 #if !DISPLAY_ALERTS
   // exclude alerts
@@ -210,9 +210,9 @@ bool waitForSNTPSync(tm *timeInfo)
  * Returns the HTTP Status Code.
  */
 #ifdef USE_HTTP
-  int getOWMairpollution(WiFiClient &client, owm_resp_air_pollution_t &r)
+  int getOWMairpollution(WiFiClient &client, owm_resp_air_pollution_t &r, String &latitude, String &longitude)
 #else
-  int getOWMairpollution(WiFiClientSecure &client, owm_resp_air_pollution_t &r)
+  int getOWMairpollution(WiFiClientSecure &client, owm_resp_air_pollution_t &r, String &latitude, String &longitude)
 #endif
 {
   int attempts = 0;
@@ -229,13 +229,13 @@ bool waitForSNTPSync(tm *timeInfo)
   char startStr[22];
   sprintf(endStr, "%lld", end);
   sprintf(startStr, "%lld", start);
-  String uri = "/data/2.5/air_pollution/history?lat=" + LAT + "&lon=" + LON
+  String uri = "/data/2.5/air_pollution/history?lat=" + latitude + "&lon=" + longitude
                + "&start=" + startStr + "&end=" + endStr
                + "&appid=" + OWM_APIKEY;
   // This string is printed to terminal to help with debugging. The API key is
   // censored to reduce the risk of users exposing their key.
   String sanitizedUri = OWM_ENDPOINT +
-               "/data/2.5/air_pollution/history?lat=" + LAT + "&lon=" + LON
+               "/data/2.5/air_pollution/history?lat=" + latitude + "&lon=" + longitude
                + "&start=" + startStr + "&end=" + endStr
                + "&appid={API key}";
 
