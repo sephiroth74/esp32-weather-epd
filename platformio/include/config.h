@@ -28,9 +28,9 @@
 //   DISP_7C_F  - 7.3in ACeP e-Paper (F)  800x480px  7-Color
 //   DISP_BW_V1 - 7.5in e-Paper (v1)      640x384px  Black/White
 // Uncomment the macro that identifies your physical panel.
-#define DISP_BW_V2 // <-- questo quello bianco e nero
+// #define DISP_BW_V2 // <-- questo quello bianco e nero
 // #define DISP_3C_B
-// #define DISP_7C_F // <-- questo quello a 7 colori
+#define DISP_7C_F // <-- questo quello a 7 colori
 // #define DISP_BW_V1
 
 // E-PAPER DRIVER BOARD
@@ -46,8 +46,8 @@
 // Defines the 3rd color to be used when a 3+ color display is selected.
 #if defined(DISP_3C_B) || defined(DISP_7C_F)
   // #define ACCENT_COLOR GxEPD_BLACK
-  // #define ACCENT_COLOR GxEPD_RED
-  #define ACCENT_COLOR GxEPD_GREEN
+  #define ACCENT_COLOR GxEPD_RED
+  // #define ACCENT_COLOR GxEPD_GREEN
   // #define ACCENT_COLOR GxEPD_BLUE
   // #define ACCENT_COLOR GxEPD_YELLOW
   // #define ACCENT_COLOR GxEPD_ORANGE
@@ -270,7 +270,7 @@
 // NUMBER OF LOCATIONS
 //   The number of locations to cycle through. The locations are defined in
 //   config.cpp. It must be greater than 0.
-#define NUM_LOCATIONS 2
+#define NUM_LOCATIONS 3
 
 // Set the below constants in "config.cpp"
 extern const uint8_t PIN_BAT_ADC;

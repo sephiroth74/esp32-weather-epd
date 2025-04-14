@@ -123,6 +123,9 @@ void setup()
   unsigned long startTime = millis();
   Serial.begin(115200);
 
+  delay(1000); // wait for serial monitor to open
+  Serial.println("Starting up...");
+
 #if DEBUG_LEVEL >= 1
   printHeapUsage();
 #endif

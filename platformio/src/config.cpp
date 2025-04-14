@@ -17,6 +17,8 @@
 
 #include <Arduino.h>
 #include "config.h"
+#include "config.local.h"
+
 
 // PINS
 // The configuration below is intended for use with the project's official 
@@ -46,8 +48,8 @@ const uint8_t PIN_BME_PWR =  5;   // Irrelevant if directly connected to 3.3V
 const uint8_t BME_ADDRESS = 0x76; // If sensor does not work, try 0x77
 
 // WIFI
-const char *WIFI_SSID = "";
-const char *WIFI_PASSWORD = "";
+// const char *WIFI_SSID = "";
+// const char *WIFI_PASSWORD = "";
 const unsigned long WIFI_TIMEOUT = 10000; // ms, WiFi connection timeout.
 
 // HTTP
@@ -60,7 +62,7 @@ const unsigned HTTP_CLIENT_TCP_TIMEOUT = 10000; // ms
 
 // OPENWEATHERMAP API
 // OpenWeatherMap API key, https://openweathermap.org/
-const String OWM_APIKEY = "";
+// const String OWM_APIKEY = "";
 const String OWM_ENDPOINT = "api.openweathermap.org";
 // OpenWeatherMap One Call 2.5 API is deprecated for all new free users
 // (accounts created after Summer 2022).
@@ -81,15 +83,17 @@ const String OWM_ONECALL_VERSION = "3.0";
 // LOCATION
 // Set your latitude and longitude.
 // (used to get weather data as part of API requests to OpenWeatherMap)
-const String LAT[NUM_LOCATIONS] = {"45.844692", "47.325170"};
-const String LON[NUM_LOCATIONS] = {"8.715117", "8.514795"};
+const String LAT[NUM_LOCATIONS] = {"45.844692", "47.325170", "43.877537"};
+const String LON[NUM_LOCATIONS] = {"8.715117", "8.514795", "8.017133"};
 // City name that will be shown in the top-right corner of the display.
-const String CITY_STRING[NUM_LOCATIONS] = {"Gavirate, VA", "Zurich, CH"};
+const String CITY_STRING[NUM_LOCATIONS] = {"Gavirate, VA", "Zurich, CH", "Imperia, IM"};
 
 // TIME
 // For list of time zones see
 // https://github.com/nayarsystems/posix_tz_db/blob/master/zones.csv
-const String TIMEZONE[NUM_LOCATIONS] = {"CET-1CEST,M3.5.0,M10.5.0/3", "CET-1CEST,M3.5.0,M10.5.0/3"};
+const String TIMEZONE[NUM_LOCATIONS] = {"CET-1CEST,M3.5.0,M10.5.0/3",
+                                        "CET-1CEST,M3.5.0,M10.5.0/3",
+                                        "CET-1CEST,M3.5.0,M10.5.0/3"};
 // Time format used when displaying sunrise/set times. (Max 11 characters)
 // For more information about formatting see
 // https://man7.org/linux/man-pages/man3/strftime.3.html
@@ -138,7 +142,7 @@ const int WAKE_TIME = 06; // Hour of first update after BED_TIME, 06:00.
 
 // HOURLY OUTLOOK GRAPH
 // Number of hours to display on the outlook graph. (range: [8-48])
-const int HOURLY_GRAPH_MAX = 24;
+const int HOURLY_GRAPH_MAX = 36;
 
 // BATTERY
 // To protect the battery upon LOW_BATTERY_VOLTAGE, the display will cease to
