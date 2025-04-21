@@ -1,5 +1,5 @@
 /* Configuration options for esp32-weather-epd.
- * Copyright (C) 2022-2024  Luke Marzen
+ * Copyright (C) 2022-2025  Luke Marzen
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,9 +29,8 @@
 //       functionality.
 //
 // ADC pin used to measure battery voltage
-// const uint8_t PIN_BAT_ADC  = A2; // A0 for micro-usb firebeetle
+const uint8_t PIN_BAT_ADC  = A0; // A0 for micro-usb firebeetle
 // Pins for E-Paper Driver Board
-const uint8_t PIN_BAT_ADC = A0; // A0 for micro-usb firebeetle
 const uint8_t PIN_EPD_BUSY = 14; // 5 for micro-usb firebeetle
 const uint8_t PIN_EPD_CS   = 13;
 const uint8_t PIN_EPD_RST  = 21;
@@ -39,13 +38,13 @@ const uint8_t PIN_EPD_DC   = 22;
 const uint8_t PIN_EPD_SCK  = 18;
 const uint8_t PIN_EPD_MISO = 19; // 19 Master-In Slave-Out not used, as no data from display
 const uint8_t PIN_EPD_MOSI = 23;
-const uint8_t PIN_EPD_PWR  = 5; // Irrelevant if directly connected to 3.3V
+const uint8_t PIN_EPD_PWR  = 26; // Irrelevant if directly connected to 3.3V
 
 // I2C Pins used for BME280
 const uint8_t PIN_BME_SDA = 26;
 const uint8_t PIN_BME_SCL = 25;
 const uint8_t PIN_BME_PWR =  5;   // Irrelevant if directly connected to 3.3V
-const uint8_t BME_ADDRESS = 0x76; // If sensor does not work, try 0x77
+const uint8_t BME_ADDRESS = 0x76; // 0x76 if SDO -> GND; 0x77 if SDO -> VCC
 
 // WIFI
 // const char *WIFI_SSID = "";
@@ -83,16 +82,15 @@ const String OWM_ONECALL_VERSION = "3.0";
 // LOCATION
 // Set your latitude and longitude.
 // (used to get weather data as part of API requests to OpenWeatherMap)
-const String LAT[NUM_LOCATIONS] = {"45.844692", "47.325170", "43.877537"};
-const String LON[NUM_LOCATIONS] = {"8.715117", "8.514795", "8.017133"};
+const String LAT[NUM_LOCATIONS] = {"45.844692", "43.877537"};
+const String LON[NUM_LOCATIONS] = {"8.715117", "8.017133"};
 // City name that will be shown in the top-right corner of the display.
-const String CITY_STRING[NUM_LOCATIONS] = {"Gavirate, VA", "Zurich, CH", "Imperia, IM"};
+const String CITY_STRING[NUM_LOCATIONS] = {"Gavirate, VA", "Imperia, IM"};
 
 // TIME
 // For list of time zones see
 // https://github.com/nayarsystems/posix_tz_db/blob/master/zones.csv
 const String TIMEZONE[NUM_LOCATIONS] = {"CET-1CEST,M3.5.0,M10.5.0/3",
-                                        "CET-1CEST,M3.5.0,M10.5.0/3",
                                         "CET-1CEST,M3.5.0,M10.5.0/3"};
 // Time format used when displaying sunrise/set times. (Max 11 characters)
 // For more information about formatting see
@@ -126,7 +124,7 @@ const unsigned long NTP_TIMEOUT = 20000; // ms
 // minutes past the hour. (range: [2-1440])
 // Note: The OpenWeatherMap model is updated every 10 minutes, so updating more
 //       frequently than that is unnessesary.
-const int SLEEP_DURATION = 60; // minutes
+const int SLEEP_DURATION = 30; // minutes
 // Bed Time Power Savings.
 // If BED_TIME == WAKE_TIME, then this battery saving feature will be disabled.
 // (range: [0-23])
@@ -142,7 +140,7 @@ const int WAKE_TIME = 06; // Hour of first update after BED_TIME, 06:00.
 
 // HOURLY OUTLOOK GRAPH
 // Number of hours to display on the outlook graph. (range: [8-48])
-const int HOURLY_GRAPH_MAX = 36;
+const int HOURLY_GRAPH_MAX = 24;
 
 // BATTERY
 // To protect the battery upon LOW_BATTERY_VOLTAGE, the display will cease to

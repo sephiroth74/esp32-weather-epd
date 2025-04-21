@@ -82,7 +82,7 @@ uint32_t readBatteryVoltage()
   uint32_t batteryVoltage = esp_adc_cal_raw_to_voltage(adc_val, &adc_chars);
   // DFRobot FireBeetle Esp32-E V1.0 voltage divider (1M+1M), so readings are
   // multiplied by 2.
-  batteryVoltage *= 20;
+  batteryVoltage *= 2;
   return batteryVoltage;
 } // end readBatteryVoltage
 

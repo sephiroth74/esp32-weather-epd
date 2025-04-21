@@ -28,9 +28,9 @@
 //   DISP_7C_F  - 7.3in ACeP e-Paper (F)  800x480px  7-Color
 //   DISP_BW_V1 - 7.5in e-Paper (v1)      640x384px  Black/White
 // Uncomment the macro that identifies your physical panel.
-// #define DISP_BW_V2 // <-- questo quello bianco e nero
+#define DISP_BW_V2 // <-- questo quello bianco e nero
 // #define DISP_3C_B
-#define DISP_7C_F // <-- questo quello a 7 colori
+// #define DISP_7C_F // <-- questo quello a 7 colori
 // #define DISP_BW_V1
 
 // E-PAPER DRIVER BOARD
@@ -41,6 +41,12 @@
 // Uncomment the macro that identifies your driver board hardware.
 // #define DRIVER_DESPI_C02
 #define DRIVER_WAVESHARE
+
+
+// INDOOR ENVIRONMENT SENSOR
+// Uncomment the macro that identifies your sensor.
+#define SENSOR_BME280
+// #define SENSOR_BME680
 
 // 3 COLOR E-INK ACCENT COLOR
 // Defines the 3rd color to be used when a 3+ color display is selected.
@@ -64,7 +70,7 @@
 //   Estonian (Estonia)              et_EE
 //   Finnish (Finland)               fi_FI
 //   French (France)                 fr_FR
-  // Italiano (Italia)               it_IT
+//   Italiano (Italia)               it_IT
 //   Dutch (Belgium)                 nl_BE
 //   Portuguese (Brazil)             pt_BR
 #define LOCALE it_IT
@@ -144,7 +150,7 @@
 //   update the certificates in cert.h and reflash this software.
 //   Running cert.py will generate an updated cert.h file.
 //   The current certificate for api.openweathermap.org is valid until
-//   2030-12-31 23:59:59.
+//   2026-04-10 23:59:59+00:00
 // (uncomment exactly one)
 // #define USE_HTTP
 #define USE_HTTPS_NO_CERT_VERIF
@@ -270,7 +276,7 @@
 // NUMBER OF LOCATIONS
 //   The number of locations to cycle through. The locations are defined in
 //   config.cpp. It must be greater than 0.
-#define NUM_LOCATIONS 3
+#define NUM_LOCATIONS 2
 
 // Set the below constants in "config.cpp"
 extern const uint8_t PIN_BAT_ADC;
@@ -327,6 +333,10 @@ extern const uint32_t MIN_BATTERY_VOLTAGE;
 #if !(  defined(DRIVER_WAVESHARE) \
       ^ defined(DRIVER_DESPI_C02))
   #error Invalid configuration. Exactly one driver board must be selected.
+#endif
+#if !(  defined(SENSOR_BME280) \
+      ^ defined(SENSOR_BME680))
+  #error Invalid configuration. Exactly one sensor must be selected.
 #endif
 #if !(defined(LOCALE))
   #error Invalid configuration. Locale not selected.
