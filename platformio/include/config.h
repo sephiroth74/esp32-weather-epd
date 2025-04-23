@@ -223,7 +223,7 @@
 //   FreeSans font, but this project supports the ability to modularly swap
 //   fonts. Using a font other than FreeSans may result in undesired spacing or
 //   other artifacts.
-#define FONT_HEADER "fonts/Montserrat_Regular.h"
+#define FONT_HEADER "fonts/Ubuntu_R.h"
 
 // DAILY PRECIPITATION
 // Daily precipitation indicated under Hi|Lo can optionally be configured using
