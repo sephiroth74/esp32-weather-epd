@@ -82,16 +82,15 @@ const String OWM_ONECALL_VERSION = "3.0";
 // LOCATION
 // Set your latitude and longitude.
 // (used to get weather data as part of API requests to OpenWeatherMap)
-const String LAT[NUM_LOCATIONS] = {"45.844692", "43.877537"};
-const String LON[NUM_LOCATIONS] = {"8.715117", "8.017133"};
+const String LAT[NUM_LOCATIONS] = {"47.312031"};
+const String LON[NUM_LOCATIONS] = {"8.525573"};
 // City name that will be shown in the top-right corner of the display.
-const String CITY_STRING[NUM_LOCATIONS] = {"Gavirate, VA", "Imperia, IM"};
+const String CITY_STRING[NUM_LOCATIONS] = {"Zurigo, CH"};
 
 // TIME
 // For list of time zones see
 // https://github.com/nayarsystems/posix_tz_db/blob/master/zones.csv
-const String TIMEZONE[NUM_LOCATIONS] = {"CET-1CEST,M3.5.0,M10.5.0/3",
-                                        "CET-1CEST,M3.5.0,M10.5.0/3"};
+const String TIMEZONE[NUM_LOCATIONS] = {"CET-1CEST,M3.5.0,M10.5.0/3"};
 // Time format used when displaying sunrise/set times. (Max 11 characters)
 // For more information about formatting see
 // https://man7.org/linux/man-pages/man3/strftime.3.html
@@ -124,7 +123,7 @@ const unsigned long NTP_TIMEOUT = 20000; // ms
 // minutes past the hour. (range: [2-1440])
 // Note: The OpenWeatherMap model is updated every 10 minutes, so updating more
 //       frequently than that is unnessesary.
-const int SLEEP_DURATION = 30; // minutes
+const int SLEEP_DURATION = 60; // minutes
 // Bed Time Power Savings.
 // If BED_TIME == WAKE_TIME, then this battery saving feature will be disabled.
 // (range: [0-23])

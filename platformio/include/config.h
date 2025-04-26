@@ -28,9 +28,9 @@
 //   DISP_7C_F  - 7.3in ACeP e-Paper (F)  800x480px  7-Color
 //   DISP_BW_V1 - 7.5in e-Paper (v1)      640x384px  Black/White
 // Uncomment the macro that identifies your physical panel.
-#define DISP_BW_V2 // <-- questo quello bianco e nero
+// #define DISP_BW_V2 // <-- questo quello bianco e nero
 // #define DISP_3C_B
-// #define DISP_7C_F // <-- questo quello a 7 colori
+#define DISP_7C_F // <-- questo quello a 7 colori
 // #define DISP_BW_V1
 
 // E-PAPER DRIVER BOARD
@@ -253,7 +253,7 @@
 //   Extra information that can be displayed on the status bar. Set to 1 to
 //   enable.
 #define STATUS_BAR_EXTRAS_BAT_VOLTAGE 1
-#define STATUS_BAR_EXTRAS_WIFI_RSSI   0
+#define STATUS_BAR_EXTRAS_WIFI_RSSI   1
 
 // BATTERY MONITORING
 //   You may choose to power your weather display with or without a battery.
@@ -276,7 +276,7 @@
 // NUMBER OF LOCATIONS
 //   The number of locations to cycle through. The locations are defined in
 //   config.cpp. It must be greater than 0.
-#define NUM_LOCATIONS 2
+#define NUM_LOCATIONS 1
 
 // Set the below constants in "config.cpp"
 extern const uint8_t PIN_BAT_ADC;
