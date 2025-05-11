@@ -261,7 +261,8 @@
 //   If you wish to disable battery monitoring set this macro to 0.
 #define BATTERY_MONITORING 1
 
-// #define BATTERY_POWER_SAVING
+#define BATTERY_POWER_SAVING 1
+#define USE_BAT_WITH_RESISTORS 1 ///< Read battery voltage with resistors
 
 // NON-VOLATILE STORAGE (NVS) NAMESPACE
 #define NVS_NAMESPACE "weather_epd"
@@ -322,6 +323,8 @@ extern const unsigned long LOW_BATTERY_SLEEP_INTERVAL;
 extern const unsigned long VERY_LOW_BATTERY_SLEEP_INTERVAL;
 extern const uint32_t MAX_BATTERY_VOLTAGE;
 extern const uint32_t MIN_BATTERY_VOLTAGE;
+extern const uint32_t BATTERY_MONITORING_R1; // 100kΩ
+extern const uint32_t BATTERY_MONITORING_R2; // 100kΩ
 
 // CONFIG VALIDATION - DO NOT MODIFY
 #if !(  defined(DISP_BW_V2)  \

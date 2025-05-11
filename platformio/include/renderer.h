@@ -23,6 +23,7 @@
 #include <time.h>
 #include "api_response.h"
 #include "config.h"
+#include "battery.h"
 
 #ifdef DISP_BW_V2
   #define DISP_WIDTH  800
@@ -81,7 +82,7 @@ void drawLocationDate(const String &city, const String &date);
 void drawOutlookGraph(const owm_hourly_t *hourly, const owm_daily_t *daily,
                       tm timeInfo);
 void drawStatusBar(const String &statusStr, const String &refreshTimeStr,
-                   int rssi, uint32_t batVoltage);
+                   int rssi, battery_t &battery);
 void drawError(const uint8_t *bitmap_196x196,
                const String &errMsgLn1, const String &errMsgLn2="");
 

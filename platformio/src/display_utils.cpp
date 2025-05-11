@@ -34,57 +34,57 @@
 
 /* Returns battery voltage in millivolts (mv).
  */
-uint32_t readBatteryVoltage()
-{
-#if DEBUG_LEVEL >= 1
-  Serial.println("[debug] Reading battery voltage.");
-#endif
+// uint32_t readBatteryVoltage()
+// {
+// #if DEBUG_LEVEL >= 1
+//   Serial.println("[debug] Reading battery voltage.");
+// #endif
 
-  esp_adc_cal_characteristics_t adc_chars;
-  // __attribute__((unused)) disables compiler warnings about this variable
-  // being unused (Clang, GCC) which is the case when DEBUG_LEVEL == 0.
-  esp_adc_cal_value_t val_type __attribute__((unused));
-  adc_power_acquire();
-  uint16_t adc_val = analogRead(PIN_BAT_ADC);
-  adc_power_release();
+//   esp_adc_cal_characteristics_t adc_chars;
+//   // __attribute__((unused)) disables compiler warnings about this variable
+//   // being unused (Clang, GCC) which is the case when DEBUG_LEVEL == 0.
+//   esp_adc_cal_value_t val_type __attribute__((unused));
+//   adc_power_acquire();
+//   uint16_t adc_val = analogRead(PIN_BAT_ADC);
+//   adc_power_release();
 
-#if DEBUG_LEVEL >= 1
-  Serial.println("millivolts: " + String(adc_val));
-#endif
+// #if DEBUG_LEVEL >= 1
+//   Serial.println("millivolts: " + String(adc_val));
+// #endif
 
-  // We will use the eFuse ADC calibration bits, to get accurate voltage
-  // readings. The DFRobot FireBeetle Esp32-E V1.0's ADC is 12 bit, and uses
-  // 11db attenuation, which gives it a measurable input voltage range of 150mV
-  // to 2450mV.
-  val_type = esp_adc_cal_characterize(ADC_UNIT_1, ADC_ATTEN_11db,
-                                      ADC_WIDTH_BIT_12, 1100, &adc_chars);
+//   // We will use the eFuse ADC calibration bits, to get accurate voltage
+//   // readings. The DFRobot FireBeetle Esp32-E V1.0's ADC is 12 bit, and uses
+//   // 11db attenuation, which gives it a measurable input voltage range of 150mV
+//   // to 2450mV.
+//   val_type = esp_adc_cal_characterize(ADC_UNIT_1, ADC_ATTEN_11db,
+//                                       ADC_WIDTH_BIT_12, 1100, &adc_chars);
 
-#if DEBUG_LEVEL >= 1
-  Serial.println("ADC val: " + String(adc_val));
-  Serial.println("val_type: " + String(val_type));
-#endif
+// #if DEBUG_LEVEL >= 1
+//   Serial.println("ADC val: " + String(adc_val));
+//   Serial.println("val_type: " + String(val_type));
+// #endif
 
-#if DEBUG_LEVEL >= 1
-  if (val_type == ESP_ADC_CAL_VAL_EFUSE_VREF)
-  {
-    Serial.println("[debug] ADC Cal eFuse Vref");
-  }
-  else if (val_type == ESP_ADC_CAL_VAL_EFUSE_TP)
-  {
-    Serial.println("[debug] ADC Cal Two Point");
-  }
-  else
-  {
-    Serial.println("[debug] ADC Cal Default");
-  }
-#endif
+// #if DEBUG_LEVEL >= 1
+//   if (val_type == ESP_ADC_CAL_VAL_EFUSE_VREF)
+//   {
+//     Serial.println("[debug] ADC Cal eFuse Vref");
+//   }
+//   else if (val_type == ESP_ADC_CAL_VAL_EFUSE_TP)
+//   {
+//     Serial.println("[debug] ADC Cal Two Point");
+//   }
+//   else
+//   {
+//     Serial.println("[debug] ADC Cal Default");
+//   }
+// #endif
 
-  uint32_t batteryVoltage = esp_adc_cal_raw_to_voltage(adc_val, &adc_chars);
-  // DFRobot FireBeetle Esp32-E V1.0 voltage divider (1M+1M), so readings are
-  // multiplied by 2.
-  batteryVoltage *= 2;
-  return batteryVoltage;
-} // end readBatteryVoltage
+//   uint32_t batteryVoltage = esp_adc_cal_raw_to_voltage(adc_val, &adc_chars);
+//   // DFRobot FireBeetle Esp32-E V1.0 voltage divider (1M+1M), so readings are
+//   // multiplied by 2.
+//   batteryVoltage *= 2;
+//   return batteryVoltage;
+// } // end readBatteryVoltage
 
 /* Returns battery percentage, rounded to the nearest integer.
  * Takes a voltage in millivolts and uses a sigmoidal approximation to find an

@@ -29,7 +29,7 @@
 //       functionality.
 //
 // ADC pin used to measure battery voltage
-const uint8_t PIN_BAT_ADC  = A0; // A0 for micro-usb firebeetle
+const uint8_t PIN_BAT_ADC  = 34; // A0 for micro-usb firebeetle
 // Pins for E-Paper Driver Board
 const uint8_t PIN_EPD_BUSY = 14; // 5 for micro-usb firebeetle
 const uint8_t PIN_EPD_CS   = 13;
@@ -123,7 +123,7 @@ const unsigned long NTP_TIMEOUT = 20000; // ms
 // minutes past the hour. (range: [2-1440])
 // Note: The OpenWeatherMap model is updated every 10 minutes, so updating more
 //       frequently than that is unnessesary.
-const int SLEEP_DURATION = 60; // minutes
+const int SLEEP_DURATION = 90; // minutes
 // Bed Time Power Savings.
 // If BED_TIME == WAKE_TIME, then this battery saving feature will be disabled.
 // (range: [0-23])
@@ -152,11 +152,14 @@ const uint32_t WARN_BATTERY_VOLTAGE     = 3535; // (millivolts) ~20%
 const uint32_t LOW_BATTERY_VOLTAGE      = 3462; // (millivolts) ~10%
 const uint32_t VERY_LOW_BATTERY_VOLTAGE = 3442; // (millivolts)  ~8%
 const uint32_t CRIT_LOW_BATTERY_VOLTAGE = 3404; // (millivolts)  ~5%
-const unsigned long LOW_BATTERY_SLEEP_INTERVAL      = 30;  // (minutes)
-const unsigned long VERY_LOW_BATTERY_SLEEP_INTERVAL = 120; // (minutes)
+const unsigned long LOW_BATTERY_SLEEP_INTERVAL      = 240;  // (minutes)
+const unsigned long VERY_LOW_BATTERY_SLEEP_INTERVAL = 3600; // (minutes)
 // Battery voltage calculations are based on a typical 3.7v LiPo.
 const uint32_t MAX_BATTERY_VOLTAGE = 4200; // (millivolts)
 const uint32_t MIN_BATTERY_VOLTAGE = 3000; // (millivolts)
+
+const uint32_t BATTERY_MONITORING_R1 = 100000; // 100kΩ
+const uint32_t BATTERY_MONITORING_R2 = 100000; // 100kΩ
 
 // See config.h for the below options
 // E-PAPER PANEL
