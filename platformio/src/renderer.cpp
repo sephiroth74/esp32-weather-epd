@@ -190,7 +190,7 @@ void drawMultiLnString(int16_t x,
  */
 void initDisplay() {
     pinMode(PIN_EPD_PWR, OUTPUT);
-    digitalWrite(PIN_EPD_PWR, HIGH);
+    digitalWrite(PIN_EPD_PWR, HIGH);                                                                                                                          
 #ifdef DRIVER_WAVESHARE
     display.init(115200, true, 2, false);
 #endif
@@ -199,6 +199,14 @@ void initDisplay() {
 #endif
     // remap spi
     SPI.end();
+
+    Serial.println(F("initDisplay"));
+    Serial.println(F("Remapping SPI pins..."));
+    Serial.println(("  SCK: " + String(PIN_EPD_SCK)));
+    Serial.println(("  MISO: " + String(PIN_EPD_MISO)));
+    Serial.println(("  MOSI: " + String(PIN_EPD_MOSI)));
+    Serial.println(("  CS: " + String(PIN_EPD_CS)));
+
     SPI.begin(PIN_EPD_SCK, PIN_EPD_MISO, PIN_EPD_MOSI, PIN_EPD_CS);
 
     display.setRotation(0);
@@ -228,6 +236,7 @@ void drawCurrentConditions(const owm_current_t& current,
                            const owm_resp_air_pollution_t& owm_air_pollution,
                            float inTemp,
                            float inHumidity) {
+                            Serial.println(F("[debug] drawCurrentConditions called"));
     String dataStr, unitStr;
     // current weather icon
     display.drawInvertedBitmap(
@@ -571,6 +580,7 @@ void drawCurrentConditions(const owm_current_t& current,
     /* This function is responsible for drawing the five day forecast.
      */
     void drawForecast(const owm_daily_t* daily, tm timeInfo) {
+        Serial.println(F("[debug] drawForecast called"));
         // 5 day, forecast
         String hiStr, loStr;
         String dataStr, unitStr;
@@ -756,6 +766,7 @@ void drawCurrentConditions(const owm_current_t& current,
      * information in the top right corner.
      */
     void drawLocationDate(const String& city, const String& date) {
+        Serial.println("[debug] drawLocationDate() called");
         // location, date
         display.setFont(&FONT_16pt8b);
         drawString(DISP_WIDTH - 2, 23, city, RIGHT, ACCENT_COLOR);
@@ -794,6 +805,7 @@ void drawCurrentConditions(const owm_current_t& current,
      * number of hours(up to 48).
      */
     void drawOutlookGraph(const owm_hourly_t* hourly, const owm_daily_t* daily, tm timeInfo) {
+        Serial.println("[debug] drawOutlookGraph() called");
         const int xPos0 = 350;
         int xPos1       = DISP_WIDTH;
         const int yPos0 = 216;
@@ -1096,7 +1108,8 @@ void drawCurrentConditions(const owm_current_t& current,
      * the display.
      */
     void drawStatusBar(
-        const String& statusStr, const String& refreshTimeStr, int rssi, battery_t& battery) {
+        const String& statusStr, const String& refreshTimeStr, int rssi, battery::battery_info& battery) {
+        Serial.println("[debug] drawStatusBar() called");
         String dataStr;
         uint16_t dataColor = GxEPD_BLACK;
         display.setFont(&FONT_6pt8b);
@@ -1107,29 +1120,26 @@ void drawCurrentConditions(const owm_current_t& current,
         // battery - (expecting 3.7v LiPo)
 
         Serial.println("Calculating battery percentage");
-        Serial.println("Battery voltage: " + String(battery.voltage));
-        Serial.println("Min battery voltage: " + String(MIN_BATTERY_VOLTAGE));
-        Serial.println("Max battery voltage: " + String(MAX_BATTERY_VOLTAGE));
-
-        // uint32_t batPercent = calcBatPercent(batVoltage,
-        //                                      MIN_BATTERY_VOLTAGE,
-        //                                      MAX_BATTERY_VOLTAGE);
-
+        Serial.println("Battery voltage: " + String(battery.millivolts));
         Serial.println("Battery percentage: " + String(battery.percent));
+        Serial.println("Battery raw_value: " + String(battery.raw_value));
 
 #if defined(DISP_3C_B) || defined(DISP_7C_F)
-        if (battery.voltage < WARN_BATTERY_VOLTAGE) {
+        if (battery.millivolts < WARN_BATTERY_VOLTAGE) {
             dataColor = ACCENT_COLOR;
         }
 #endif
         dataStr = String(battery.percent) + "%";
 #if STATUS_BAR_EXTRAS_BAT_VOLTAGE
-        dataStr += " (" + String(std::round(battery.voltage / 10.f) / 100.f, 2) + "v)";
+        dataStr += " (" + String(std::round(battery.millivolts / 10.f) / 100.f, 2) + "v)";
+#if DEBUG_LEVEL > 0
+        dataStr += " " + String(battery.raw_value);
+#endif
 #endif
         drawString(pos, DISP_HEIGHT - 1 - 2, dataStr, RIGHT, dataColor);
         pos -= getStringWidth(dataStr) + 25;
         display.drawInvertedBitmap(
-            pos, DISP_HEIGHT - 1 - 17, getBatBitmap24(battery.percent), 24, 24, dataColor);
+            pos, DISP_HEIGHT - 1 - 17, getBatBitmap24(battery.millivolts, battery.percent), 24, 24, dataColor);
         pos -= sp + 9;
 #endif
 

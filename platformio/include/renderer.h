@@ -82,7 +82,7 @@ void drawLocationDate(const String &city, const String &date);
 void drawOutlookGraph(const owm_hourly_t *hourly, const owm_daily_t *daily,
                       tm timeInfo);
 void drawStatusBar(const String &statusStr, const String &refreshTimeStr,
-                   int rssi, battery_t &battery);
+                   int rssi, battery::battery_info &battery);
 void drawError(const uint8_t *bitmap_196x196,
                const String &errMsgLn1, const String &errMsgLn2="");
 

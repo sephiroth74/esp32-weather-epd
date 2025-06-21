@@ -113,8 +113,14 @@ uint32_t calcBatPercent(uint32_t v, uint32_t minv, uint32_t maxv)
 
 /* Returns 24x24 bitmap incidcating battery status.
  */
-const uint8_t *getBatBitmap24(uint32_t batPercent)
+const uint8_t *getBatBitmap24(uint32_t millivolts, uint32_t batPercent)
 {
+  if (millivolts > MAX_BATTERY_VOLTAGE + 100)
+  {
+    // battery is charging
+    return battery_charging_full_90deg_24x24;
+  }
+
   if (batPercent >= 93)
   {
     return battery_full_90deg_24x24;
@@ -1537,9 +1543,11 @@ const char *getWifiStatusPhrase(wl_status_t status)
  */
 void disableBuiltinLED()
 {
+#ifdef LED_BUILTIN
   pinMode(LED_BUILTIN, OUTPUT);
   digitalWrite(LED_BUILTIN, LOW);
   gpio_hold_en(static_cast<gpio_num_t>(LED_BUILTIN));
+#endif // end LED_BUILTIN
   gpio_deep_sleep_hold_en();
   return;
 } // end disableBuiltinLED

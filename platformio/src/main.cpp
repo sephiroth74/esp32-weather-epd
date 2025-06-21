@@ -158,29 +158,21 @@ void setup() {
     }
 
 #if BATTERY_MONITORING
-    battery_t battery = {};
+    battery::BatteryReader battery_reader(PIN_BAT_ADC,
+        BATTERY_RESISTOR_DIVIDER,
+        BATTERY_NUM_SAMPLES,
+        BATTERY_DELAY_MS);
 
-#if USE_BAT_WITH_RESISTORS
+    battery_reader.init();
+    battery::battery_info_t battery_info = battery_reader.read();
 
-    read_battery_with_resistor(&battery,
-                               PIN_BAT_ADC,
-                               BATTERY_MONITORING_R1,
-                               BATTERY_MONITORING_R2,
-                               MAX_BATTERY_VOLTAGE,
-                               MIN_BATTERY_VOLTAGE);
-#else
-    read_battery(&battery, PIN_BAT_ADC, MAX_BATTERY_VOLTAGE, MIN_BATTERY_VOLTAGE);
-#endif
-
-    // uint32_t batteryVoltage = readBatteryVoltage();
-    uint32_t batteryVoltage = battery.voltage;
-
-#if DEBUG_LEVEL >= 1
-    battery.print();
-#endif
-
-    Serial.print(TXT_BATTERY_VOLTAGE);
-    Serial.println(": " + String(batteryVoltage) + "mv");
+    Serial.print(F("Battery millivolts: "));
+    Serial.print(battery_info.millivolts);
+    Serial.print(F(", raw_value: "));
+    Serial.print(battery_info.raw_value);
+    Serial.print(F(", percent: "));
+    Serial.print(battery_info.percent);
+    Serial.println(F("%"));
 
     // When the battery is low, the display should be updated to reflect that, but
     // only the first time we detect low voltage. The next time the display will
@@ -191,6 +183,8 @@ void setup() {
     Serial.println("lowBat: " + String(lowBat));
 
 #ifdef BATTERY_POWER_SAVING
+
+    auto batteryVoltage = battery_info.millivolts;
 
     // low battery, deep sleep now
     if (batteryVoltage <= LOW_BATTERY_VOLTAGE) {
@@ -236,7 +230,8 @@ void setup() {
     }
 #endif
 #else
-    uint32_t batteryVoltage = UINT32_MAX;
+    battery::battery_info battery_info = battery::battery_info(4200, 4200, 100);
+    uint32_t batteryVoltage = battery_info.millivolts;
 #endif
 
     // All data should have been loaded from NVS. Close filesystem.
@@ -321,6 +316,14 @@ void setup() {
     pinMode(PIN_BME_PWR, OUTPUT);
     digitalWrite(PIN_BME_PWR, HIGH);
     TwoWire I2C_bme = TwoWire(0);
+
+    Serial.print(F("Initializing I2C bus on SDA: "));
+    Serial.print(PIN_BME_SDA);
+    Serial.print(F(", SCL: "));
+    Serial.print(PIN_BME_SCL);
+    Serial.print(F(", frequency: 100kHz... "));
+    // Initialize I2C bus for BME sensor
+
     I2C_bme.begin(PIN_BME_SDA, PIN_BME_SCL, 100000); // 100kHz
     float inTemp     = NAN;
     float inHumidity = NAN;
@@ -355,6 +358,14 @@ void setup() {
         }
         digitalWrite(PIN_BME_PWR, LOW);
 
+        Serial.println("BME readings: ");
+        Serial.print("  Temperature: ");
+        Serial.print(inTemp);
+        Serial.println(" °C");
+        Serial.print("  Humidity: ");
+        Serial.print(inHumidity);
+        Serial.println(" %"); 
+
         String refreshTimeStr;
         getRefreshTimeStr(refreshTimeStr, timeConfigured, &timeInfo);
         String dateStr;
@@ -371,7 +382,7 @@ void setup() {
 #if DISPLAY_ALERTS
             drawAlerts(owm_onecall.alerts, currentCity, dateStr);
 #endif
-            drawStatusBar(statusStr, refreshTimeStr, wifiRSSI, battery);
+            drawStatusBar(statusStr, refreshTimeStr, wifiRSSI, battery_info);
         } while (display.nextPage());
         powerOffDisplay();
 

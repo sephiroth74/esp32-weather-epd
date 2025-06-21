@@ -28,23 +28,71 @@
 //       board's pinout to ensure you avoid using a pin with this shared 
 //       functionality.
 //
-// ADC pin used to measure battery voltage
-const uint8_t PIN_BAT_ADC  = 34; // A0 for micro-usb firebeetle
+
+#ifdef ADAFRUIT_FEATHER_ESP32_V2
+const uint8_t PIN_BAT_ADC = 35; // A0 for micro-usb firebeetle
+
 // Pins for E-Paper Driver Board
 const uint8_t PIN_EPD_BUSY = 14; // 5 for micro-usb firebeetle
-const uint8_t PIN_EPD_CS   = 13;
-const uint8_t PIN_EPD_RST  = 21;
-const uint8_t PIN_EPD_DC   = 22;
-const uint8_t PIN_EPD_SCK  = 18;
-const uint8_t PIN_EPD_MISO = 19; // 19 Master-In Slave-Out not used, as no data from display
-const uint8_t PIN_EPD_MOSI = 23;
-const uint8_t PIN_EPD_PWR  = 26; // Irrelevant if directly connected to 3.3V
+const uint8_t PIN_EPD_CS = 33;
+const uint8_t PIN_EPD_RST = 32;
+const uint8_t PIN_EPD_DC = 15;
+const uint8_t PIN_EPD_SCK = 27;
+const uint8_t PIN_EPD_MISO = -1;
+const uint8_t PIN_EPD_MOSI = 12;
+const uint8_t PIN_EPD_PWR = 0; // Irrelevant if directly connected to 3.3V
 
 // I2C Pins used for BME280
-const uint8_t PIN_BME_SDA = 26;
-const uint8_t PIN_BME_SCL = 25;
+const uint8_t PIN_BME_SDA = 22;
+const uint8_t PIN_BME_SCL = 20;
+const uint8_t PIN_BME_PWR = 0; // Irrelevant if directly connected to 3.3V
+const uint8_t BME_ADDRESS = 0x76; // 0x76 if SDO -> GND; 0x77 if SDO -> VCC
+
+#elif defined(WAVESHARE_ESP32)
+
+// ADC pin used to measure battery voltage
+// Pins for E-Paper Driver Board
+const uint8_t PIN_EPD_BUSY = 25; // 5 for micro-usb firebeetle
+const uint8_t PIN_EPD_CS = 15;
+const uint8_t PIN_EPD_RST = 26;
+const uint8_t PIN_EPD_DC = 27;
+const uint8_t PIN_EPD_SCK = 13;
+const uint8_t PIN_EPD_MISO = 19; // 19 Master-In Slave-Out not used, as no data from display
+const uint8_t PIN_EPD_MOSI = 14;
+const uint8_t PIN_EPD_PWR = 0; // Irrelevant if directly connected to 3.3V
+
+// I2C Pins used for BME280
+const uint8_t PIN_BME_SDA = 22;
+const uint8_t PIN_BME_SCL = 23;
+const uint8_t PIN_BME_PWR = 5; // Irrelevant if directly connected to 3.3V
+const uint8_t BME_ADDRESS = 0x76; // 0x76 if SDO -> GND; 0x77 if SDO -> VCC
+
+const uint8_t PIN_BAT_ADC = 4;
+const double BATTERY_RESISTOR_DIVIDER = 0.3506297229; // R1 = 330kΩ, R2 = 180kΩ (Vout = Vin * R2 / (R1 + R2))
+
+
+#else
+// ADC pin used to measure battery voltage
+const uint8_t PIN_BAT_ADC  = A0; // A0 for micro-usb firebeetle
+// Pins for E-Paper Driver Board
+const uint8_t PIN_EPD_BUSY = 25; // 5 for micro-usb firebeetle
+const uint8_t PIN_EPD_CS = 15;
+const uint8_t PIN_EPD_RST = 26;
+const uint8_t PIN_EPD_DC = 27;
+const uint8_t PIN_EPD_SCK = 13;
+const uint8_t PIN_EPD_MISO = 19; // 19 Master-In Slave-Out not used, as no data from display
+const uint8_t PIN_EPD_MOSI = 14;
+const uint8_t PIN_EPD_PWR = 0; // Irrelevant if directly connected to 3.3V
+
+// I2C Pins used for BME280
+const uint8_t PIN_BME_SDA = 22;
+const uint8_t PIN_BME_SCL = 23;
 const uint8_t PIN_BME_PWR =  5;   // Irrelevant if directly connected to 3.3V
 const uint8_t BME_ADDRESS = 0x76; // 0x76 if SDO -> GND; 0x77 if SDO -> VCC
+#endif // ADAFRUIT_FEATHER_ESP32_V2
+
+const uint8_t BATTERY_NUM_SAMPLES = 20;
+const uint32_t BATTERY_DELAY_MS = 1;
 
 // WIFI
 // const char *WIFI_SSID = "";
@@ -123,7 +171,7 @@ const unsigned long NTP_TIMEOUT = 20000; // ms
 // minutes past the hour. (range: [2-1440])
 // Note: The OpenWeatherMap model is updated every 10 minutes, so updating more
 //       frequently than that is unnessesary.
-const int SLEEP_DURATION = 90; // minutes
+const int SLEEP_DURATION = 180; // minutes
 // Bed Time Power Savings.
 // If BED_TIME == WAKE_TIME, then this battery saving feature will be disabled.
 // (range: [0-23])
@@ -148,18 +196,14 @@ const int HOURLY_GRAPH_MAX = 24;
 // minutes). Once the battery voltage has fallen to CRIT_LOW_BATTERY_VOLTAGE,
 // the esp32 will hibernate and a manual press of the reset (RST) button to
 // begin operating again.
-const uint32_t WARN_BATTERY_VOLTAGE     = 3535; // (millivolts) ~20%
-const uint32_t LOW_BATTERY_VOLTAGE      = 3462; // (millivolts) ~10%
-const uint32_t VERY_LOW_BATTERY_VOLTAGE = 3442; // (millivolts)  ~8%
-const uint32_t CRIT_LOW_BATTERY_VOLTAGE = 3404; // (millivolts)  ~5%
+const uint32_t MAX_BATTERY_VOLTAGE = 4200; // (millivolts) 100%
+const uint32_t MIN_BATTERY_VOLTAGE = 3270; // (millivolts) 0%
+const uint32_t WARN_BATTERY_VOLTAGE     = 3730; // (millivolts) ~20%
+const uint32_t LOW_BATTERY_VOLTAGE      = 3690; // (millivolts) ~10%
+const uint32_t VERY_LOW_BATTERY_VOLTAGE = 3650; // (millivolts)  ~8%
+const uint32_t CRIT_LOW_BATTERY_VOLTAGE = 3610; // (millivolts)  ~5%
 const unsigned long LOW_BATTERY_SLEEP_INTERVAL      = 240;  // (minutes)
 const unsigned long VERY_LOW_BATTERY_SLEEP_INTERVAL = 3600; // (minutes)
-// Battery voltage calculations are based on a typical 3.7v LiPo.
-const uint32_t MAX_BATTERY_VOLTAGE = 4200; // (millivolts)
-const uint32_t MIN_BATTERY_VOLTAGE = 3000; // (millivolts)
-
-const uint32_t BATTERY_MONITORING_R1 = 100000; // 100kΩ
-const uint32_t BATTERY_MONITORING_R2 = 100000; // 100kΩ
 
 // See config.h for the below options
 // E-PAPER PANEL

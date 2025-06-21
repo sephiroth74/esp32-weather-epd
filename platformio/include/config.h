@@ -1,4 +1,5 @@
 /* Configuration option declarations for esp32-weather-epd.
+/* Configuration option declarations for esp32-weather-epd.
  * Copyright (C) 2022-2025  Luke Marzen
  *
  * This program is free software: you can redistribute it and/or modify
@@ -262,7 +263,7 @@
 #define BATTERY_MONITORING 1
 
 #define BATTERY_POWER_SAVING 1
-#define USE_BAT_WITH_RESISTORS 1 ///< Read battery voltage with resistors
+
 
 // NON-VOLATILE STORAGE (NVS) NAMESPACE
 #define NVS_NAMESPACE "weather_epd"
@@ -272,7 +273,7 @@
 //   level 0: basic status information, assists troubleshooting (default)
 //   level 1: increased verbosity for debugging
 //   level 2: print api responses to serial monitor
-#define DEBUG_LEVEL 1
+#define DEBUG_LEVEL 0
 
 // NUMBER OF LOCATIONS
 //   The number of locations to cycle through. The locations are defined in
@@ -323,8 +324,9 @@ extern const unsigned long LOW_BATTERY_SLEEP_INTERVAL;
 extern const unsigned long VERY_LOW_BATTERY_SLEEP_INTERVAL;
 extern const uint32_t MAX_BATTERY_VOLTAGE;
 extern const uint32_t MIN_BATTERY_VOLTAGE;
-extern const uint32_t BATTERY_MONITORING_R1; // 100kΩ
-extern const uint32_t BATTERY_MONITORING_R2; // 100kΩ
+extern const double BATTERY_RESISTOR_DIVIDER; // 0.4719387755
+extern const uint8_t BATTERY_NUM_SAMPLES; // 20
+extern const uint32_t BATTERY_DELAY_MS; // 1
 
 // CONFIG VALIDATION - DO NOT MODIFY
 #if !(  defined(DISP_BW_V2)  \
