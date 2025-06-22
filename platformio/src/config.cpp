@@ -50,26 +50,22 @@ const uint8_t BME_ADDRESS = 0x76; // 0x76 if SDO -> GND; 0x77 if SDO -> VCC
 
 #elif defined(WAVESHARE_ESP32)
 
-// ADC pin used to measure battery voltage
-// Pins for E-Paper Driver Board
-const uint8_t PIN_EPD_BUSY = 25; // 5 for micro-usb firebeetle
-const uint8_t PIN_EPD_CS = 15;
+const uint8_t PIN_EPD_BUSY = 25;
 const uint8_t PIN_EPD_RST = 26;
 const uint8_t PIN_EPD_DC = 27;
+const uint8_t PIN_EPD_CS = 15;
 const uint8_t PIN_EPD_SCK = 13;
-const uint8_t PIN_EPD_MISO = 19; // 19 Master-In Slave-Out not used, as no data from display
+const uint8_t PIN_EPD_MISO = 19;
 const uint8_t PIN_EPD_MOSI = 14;
-const uint8_t PIN_EPD_PWR = 0; // Irrelevant if directly connected to 3.3V
+const uint8_t PIN_EPD_PWR = 0;
 
-// I2C Pins used for BME280
 const uint8_t PIN_BME_SDA = 22;
 const uint8_t PIN_BME_SCL = 23;
-const uint8_t PIN_BME_PWR = 5; // Irrelevant if directly connected to 3.3V
-const uint8_t BME_ADDRESS = 0x76; // 0x76 if SDO -> GND; 0x77 if SDO -> VCC
+const uint8_t PIN_BME_PWR = 5;
+const uint8_t BME_ADDRESS = 0x76;
 
 const uint8_t PIN_BAT_ADC = 4;
 const double BATTERY_RESISTOR_DIVIDER = 0.3506297229; // R1 = 330kΩ, R2 = 180kΩ (Vout = Vin * R2 / (R1 + R2))
-
 
 #else
 // ADC pin used to measure battery voltage
@@ -171,7 +167,7 @@ const unsigned long NTP_TIMEOUT = 20000; // ms
 // minutes past the hour. (range: [2-1440])
 // Note: The OpenWeatherMap model is updated every 10 minutes, so updating more
 //       frequently than that is unnessesary.
-const int SLEEP_DURATION = 180; // minutes
+const int SLEEP_DURATION = 120; // minutes
 // Bed Time Power Savings.
 // If BED_TIME == WAKE_TIME, then this battery saving feature will be disabled.
 // (range: [0-23])
