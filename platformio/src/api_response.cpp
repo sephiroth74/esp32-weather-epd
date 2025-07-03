@@ -250,6 +250,8 @@ DeserializationError deserializeAirQuality(WiFiClient &json,
     ++i;
   }
 
+  r.success = true; // if we got here, the request was successful
+
   return error;
 } // end deserializeAirQuality
 

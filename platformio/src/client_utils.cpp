@@ -222,25 +222,34 @@ bool waitForSNTPSync(tm *timeInfo)
   // set start and end to appropriate values so that the last 24 hours of air
   // pollution history is returned. Unix, UTC.
   time_t now;
-  int64_t end = time(&now);
+  time_t end = time(&now);
   // minus 1 is important here, otherwise we could get an extra hour of history
-  int64_t start = end - ((3600 * OWM_NUM_AIR_POLLUTION) - 1);
+  time_t start = end - ((3600 * OWM_NUM_AIR_POLLUTION) - 1);
+
   char endStr[22];
   char startStr[22];
-  sprintf(endStr, "%lld", end);
-  sprintf(startStr, "%lld", start);
+  sprintf(endStr, "%ld", end);
+  sprintf(startStr, "%ld", start);
+
+  Serial.print("Start: ");
+  Serial.println(startStr);
+  Serial.print("End: ");
+  Serial.println(endStr);
+
   String uri = "/data/2.5/air_pollution/history?lat=" + latitude + "&lon=" + longitude
                + "&start=" + startStr + "&end=" + endStr
                + "&appid=" + OWM_APIKEY;
   // This string is printed to terminal to help with debugging. The API key is
   // censored to reduce the risk of users exposing their key.
+
   String sanitizedUri = OWM_ENDPOINT +
                "/data/2.5/air_pollution/history?lat=" + latitude + "&lon=" + longitude
                + "&start=" + startStr + "&end=" + endStr
                + "&appid={API key}";
 
   Serial.print(TXT_ATTEMPTING_HTTP_REQ);
-  Serial.println(": " + sanitizedUri);
+  Serial.print(": ");
+  Serial.println(sanitizedUri);
   int httpResponse = 0;
   while (!rxSuccess && attempts < 3)
   {
@@ -248,6 +257,7 @@ bool waitForSNTPSync(tm *timeInfo)
     if (connection_status != WL_CONNECTED)
     {
       // -512 offset distinguishes these errors from httpClient errors
+      r.success = false;
       return -512 - static_cast<int>(connection_status);
     }
 
@@ -262,6 +272,7 @@ bool waitForSNTPSync(tm *timeInfo)
       if (jsonErr)
       {
         // -256 offset to distinguishes these errors from httpClient errors
+        r.success = false;
         httpResponse = -256 - static_cast<int>(jsonErr.code());
       }
       rxSuccess = !jsonErr;

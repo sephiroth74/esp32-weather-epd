@@ -205,6 +205,7 @@ typedef struct owm_components
  */
 typedef struct owm_resp_air_pollution
 {
+  bool             success = false;           // True if the request was successful, false otherwise
   owm_coord_t      coord;
   int              main_aqi[OWM_NUM_AIR_POLLUTION];   // Air Quality Index. Possible values: 1, 2, 3, 4, 5. Where 1 = Good, 2 = Fair, 3 = Moderate, 4 = Poor, 5 = Very Poor.
   owm_components_t components;

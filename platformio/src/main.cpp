@@ -299,17 +299,25 @@ void setup() {
         beginDeepSleep(startTime, &timeInfo);
     }
     rxStatus = getOWMairpollution(client, owm_air_pollution, currentLat, currentLon);
-    if (rxStatus != HTTP_CODE_OK) {
-        killWiFi();
-        statusStr = "Air Pollution API";
-        tmpStr    = String(rxStatus, DEC) + ": " + getHttpResponsePhrase(rxStatus);
-        initDisplay();
-        do {
-            drawError(wi_cloud_down_196x196, statusStr, tmpStr);
-        } while (display.nextPage());
-        powerOffDisplay();
-        beginDeepSleep(startTime, &timeInfo);
-    }
+
+    Serial.print("Air Pollution Success: ");
+    Serial.println(owm_air_pollution.success);
+
+    // if (rxStatus != HTTP_CODE_OK) {
+        // owm_air_pollution.success = false; // set success to false so that we can still render
+        // we don't want to stop the program if air pollution data is not available
+        // just avoid rendering it
+
+        // killWiFi();
+        // statusStr = "Air Pollution API";
+        // tmpStr    = String(rxStatus, DEC) + ": " + getHttpResponsePhrase(rxStatus);
+        // initDisplay();
+        // do {
+        //     drawError(wi_cloud_down_196x196, statusStr, tmpStr);
+        // } while (display.nextPage());
+        // powerOffDisplay();
+        // beginDeepSleep(startTime, &timeInfo);
+    // }
     killWiFi(); // WiFi no longer needed
 
     // GET INDOOR TEMPERATURE AND HUMIDITY, start BMEx80...
