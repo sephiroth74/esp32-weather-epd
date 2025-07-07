@@ -1,1 +1,5 @@
 platformio/include/config.local.h
+kicad/Esp32-Weather-EPD/Esp32-Weather-EPD-backups/
+kicad/Esp32-Weather-EPD/jlcpcb/gerber/
+kicad/Esp32-Weather-EPD/jlcpcb/
+kicad/Esp32-Weather-EPD/fp-info-cache
