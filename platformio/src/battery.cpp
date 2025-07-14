@@ -69,10 +69,10 @@ void BatteryReader::init() const
     analogSetPinAttenuation(pin, ADC_11db);
     delay(200); // Allow some time for the ADC to stabilize
 
-#if DEBUG_MODE
+#if DEBUG_LEVEL > 0
     Serial.print(F("BatteryReader initialized on pin "));
     Serial.println(pin);
-#endif // DEBUG_MODE
+#endif // DEBUG_LEVEL
 } // init
 
 battery_info_t BatteryReader::read() const
@@ -87,14 +87,13 @@ battery_info_t BatteryReader::read() const
     uint32_t voltage = millivolts / resistor_ratio;
     uint8_t percent = calc_battery_percentage(voltage);
 
-#if DEBUG_MODE
+    Serial.print("Battery readings: ");
     Serial.print("millivolts: ");
     Serial.print(millivolts);
     Serial.print(", voltage: ");
     Serial.print(voltage);
     Serial.print(", percent: ");
     Serial.println(percent);
-#endif // DEBUG_MODE
 
     return battery_info(
         millivolts /* raw_millivolts */, voltage /* adjusted millivolts */, percent /* percent */);

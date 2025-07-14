@@ -19,13 +19,12 @@
 #include "config.h"
 #include "config.local.h"
 
-
 // PINS
-// The configuration below is intended for use with the project's official 
+// The configuration below is intended for use with the project's official
 // wiring diagrams using the FireBeetle 2 ESP32-E microcontroller board.
 //
 // Note: LED_BUILTIN pin will be disabled to reduce power draw.  Refer to your
-//       board's pinout to ensure you avoid using a pin with this shared 
+//       board's pinout to ensure you avoid using a pin with this shared
 //       functionality.
 //
 
@@ -45,8 +44,7 @@ const uint8_t PIN_EPD_PWR = 0; // Irrelevant if directly connected to 3.3V
 // I2C Pins used for BME280
 const uint8_t PIN_BME_SDA = 22;
 const uint8_t PIN_BME_SCL = 20;
-const uint8_t PIN_BME_PWR = 0; // Irrelevant if directly connected to 3.3V
-const uint8_t BME_ADDRESS = 0x76; // 0x76 if SDO -> GND; 0x77 if SDO -> VCC
+const double BATTERY_RESISTOR_DIVIDER = 0.3506297229; // R1 = 330kΩ, R2 = 180kΩ (Vout = Vin * R2 / (R1 + R2))
 
 #elif defined(WAVESHARE_ESP32)
 
@@ -58,18 +56,36 @@ const uint8_t PIN_EPD_SCK = 13;
 const uint8_t PIN_EPD_MISO = 19;
 const uint8_t PIN_EPD_MOSI = 14;
 const uint8_t PIN_EPD_PWR = 0;
-
 const uint8_t PIN_BME_SDA = 22;
 const uint8_t PIN_BME_SCL = 23;
-const uint8_t PIN_BME_PWR = 5;
-const uint8_t BME_ADDRESS = 0x76;
-
 const uint8_t PIN_BAT_ADC = 4;
 const double BATTERY_RESISTOR_DIVIDER = 0.3506297229; // R1 = 330kΩ, R2 = 180kΩ (Vout = Vin * R2 / (R1 + R2))
 
+#elif defined(AZ_DELIVERY_ESPRESSIF32)
+
+const uint8_t PIN_EPD_BUSY = 14; // 5 for micro-usb firebeetle
+const uint8_t PIN_EPD_CS = 13;
+const uint8_t PIN_EPD_RST = 21;
+const uint8_t PIN_EPD_DC = 22;
+const uint8_t PIN_EPD_SCK = 18;
+const uint8_t PIN_EPD_MISO = 19; // 19 Master-In Slave-Out not used, as no data from display
+const uint8_t PIN_EPD_MOSI = 23;
+const uint8_t PIN_EPD_PWR = 0; // Irrelevant if directly connected to 3.3V
+
+// I2C Pins used for BME280
+const uint8_t PIN_BME_SDA = 26;
+const uint8_t PIN_BME_SCL = 25;
+const uint8_t PIN_BAT_ADC = 34;
+
+// I2C Pins used for MAX1704X
+const uint8_t PIN_MAX1704X_SDA = 16;
+const uint8_t PIN_MAX1704X_SCL = 17;
+const double BATTERY_RESISTOR_DIVIDER = 0.5004761905; //0.4738095238;
+
 #else
 // ADC pin used to measure battery voltage
-const uint8_t PIN_BAT_ADC  = A0; // A0 for micro-usb firebeetle
+const uint8_t PIN_BAT_ADC = A0; // A0 for micro-usb firebeetle
+
 // Pins for E-Paper Driver Board
 const uint8_t PIN_EPD_BUSY = 25; // 5 for micro-usb firebeetle
 const uint8_t PIN_EPD_CS = 15;
@@ -83,12 +99,19 @@ const uint8_t PIN_EPD_PWR = 0; // Irrelevant if directly connected to 3.3V
 // I2C Pins used for BME280
 const uint8_t PIN_BME_SDA = 22;
 const uint8_t PIN_BME_SCL = 23;
-const uint8_t PIN_BME_PWR =  5;   // Irrelevant if directly connected to 3.3V
+const uint8_t PIN_BME_PWR = 5; // Irrelevant if directly connected to 3.3V
 const uint8_t BME_ADDRESS = 0x76; // 0x76 if SDO -> GND; 0x77 if SDO -> VCC
 #endif // ADAFRUIT_FEATHER_ESP32_V2
 
+
+const uint8_t BME_ADDRESS = 0x76; // 0x76 if SDO -> GND; 0x77 if SDO -> VCC
+const uint8_t PIN_BME_PWR = 0; // Irrelevant if directly connected to 3.3V
+
 const uint8_t BATTERY_NUM_SAMPLES = 20;
 const uint32_t BATTERY_DELAY_MS = 1;
+
+
+
 
 // WIFI
 // const char *WIFI_SSID = "";
@@ -96,7 +119,7 @@ const uint32_t BATTERY_DELAY_MS = 1;
 const unsigned long WIFI_TIMEOUT = 10000; // ms, WiFi connection timeout.
 
 // HTTP
-// The following errors are likely the result of insuffient http client tcp 
+// The following errors are likely the result of insuffient http client tcp
 // timeout:
 //   -1   Connection Refused
 //   -11  Read Timeout
@@ -126,38 +149,38 @@ const String OWM_ONECALL_VERSION = "3.0";
 // LOCATION
 // Set your latitude and longitude.
 // (used to get weather data as part of API requests to OpenWeatherMap)
-const String LAT[NUM_LOCATIONS] = {"47.312031"};
-const String LON[NUM_LOCATIONS] = {"8.525573"};
+const String LAT[NUM_LOCATIONS] = { "47.312031" };
+const String LON[NUM_LOCATIONS] = { "8.525573" };
 // City name that will be shown in the top-right corner of the display.
-const String CITY_STRING[NUM_LOCATIONS] = {"Zurigo, CH"};
+const String CITY_STRING[NUM_LOCATIONS] = { "Zurigo, CH" };
 
 // TIME
 // For list of time zones see
 // https://github.com/nayarsystems/posix_tz_db/blob/master/zones.csv
-const String TIMEZONE[NUM_LOCATIONS] = {"CET-1CEST,M3.5.0,M10.5.0/3"};
+const String TIMEZONE[NUM_LOCATIONS] = { "CET-1CEST,M3.5.0,M10.5.0/3" };
 // Time format used when displaying sunrise/set times. (Max 11 characters)
 // For more information about formatting see
 // https://man7.org/linux/man-pages/man3/strftime.3.html
 // const char *TIME_FORMAT = "%l:%M%P"; // 12-hour ex: 1:23am  11:00pm
-const char *TIME_FORMAT = "%H:%M";   // 24-hour ex: 01:23   23:00
+const char* TIME_FORMAT = "%H:%M"; // 24-hour ex: 01:23   23:00
 // Time format used when displaying axis labels. (Max 11 characters)
 // For more information about formatting see
 // https://man7.org/linux/man-pages/man3/strftime.3.html
 // const char *HOUR_FORMAT = "%l%P"; // 12-hour ex: 1am  11pm
-const char *HOUR_FORMAT = "%H";      // 24-hour ex: 01   23
+const char* HOUR_FORMAT = "%H"; // 24-hour ex: 01   23
 // Date format used when displaying date in top-right corner.
 // For more information about formatting see
 // https://man7.org/linux/man-pages/man3/strftime.3.html
-const char *DATE_FORMAT = "%a, %B %e"; // ex: Sat, January 1
+const char* DATE_FORMAT = "%a, %B %e"; // ex: Sat, January 1
 // Date/Time format used when displaying the last refresh time along the bottom
 // of the screen.
 // For more information about formatting see
 // https://man7.org/linux/man-pages/man3/strftime.3.html
-const char *REFRESH_TIME_FORMAT = "%x %H:%M";
+const char* REFRESH_TIME_FORMAT = "%x %H:%M";
 // NTP_SERVER_1 is the primary time server, while NTP_SERVER_2 is a fallback.
 // pool.ntp.org will find the closest available NTP server to you.
-const char *NTP_SERVER_1 = "pool.ntp.org";
-const char *NTP_SERVER_2 = "time.nist.gov";
+const char* NTP_SERVER_1 = "pool.ntp.org";
+const char* NTP_SERVER_2 = "time.nist.gov";
 // If you encounter the 'Failed To Fetch The Time' error, try increasing
 // NTP_TIMEOUT or select closer/lower latency time servers.
 const unsigned long NTP_TIMEOUT = 20000; // ms
@@ -171,7 +194,7 @@ const int SLEEP_DURATION = 120; // minutes
 // Bed Time Power Savings.
 // If BED_TIME == WAKE_TIME, then this battery saving feature will be disabled.
 // (range: [0-23])
-const int BED_TIME  = 23; // Last update at 00:00 (midnight) until WAKE_TIME.
+const int BED_TIME = 23; // Last update at 00:00 (midnight) until WAKE_TIME.
 const int WAKE_TIME = 05; // Hour of first update after BED_TIME, 06:00.
 // Note that the minute alignment of SLEEP_DURATION begins at WAKE_TIME even if
 // Bed Time Power Savings is disabled.
@@ -194,11 +217,11 @@ const int HOURLY_GRAPH_MAX = 24;
 // begin operating again.
 const uint32_t MAX_BATTERY_VOLTAGE = 4200; // (millivolts) 100%
 const uint32_t MIN_BATTERY_VOLTAGE = 3270; // (millivolts) 0%
-const uint32_t WARN_BATTERY_VOLTAGE     = 3730; // (millivolts) ~20%
-const uint32_t LOW_BATTERY_VOLTAGE      = 3690; // (millivolts) ~10%
+const uint32_t WARN_BATTERY_VOLTAGE = 3730; // (millivolts) ~20%
+const uint32_t LOW_BATTERY_VOLTAGE = 3690; // (millivolts) ~10%
 const uint32_t VERY_LOW_BATTERY_VOLTAGE = 3650; // (millivolts)  ~8%
 const uint32_t CRIT_LOW_BATTERY_VOLTAGE = 3610; // (millivolts)  ~5%
-const unsigned long LOW_BATTERY_SLEEP_INTERVAL      = 240;  // (minutes)
+const unsigned long LOW_BATTERY_SLEEP_INTERVAL = 240; // (minutes)
 const unsigned long VERY_LOW_BATTERY_SLEEP_INTERVAL = 3600; // (minutes)
 
 // See config.h for the below options
@@ -209,4 +232,3 @@ const unsigned long VERY_LOW_BATTERY_SLEEP_INTERVAL = 3600; // (minutes)
 // FONTS
 // ALERTS
 // BATTERY MONITORING
-

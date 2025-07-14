@@ -1108,10 +1108,12 @@ void drawCurrentConditions(const owm_current_t& current,
 #if BATTERY_MONITORING
         // battery - (expecting 3.7v LiPo)
 
+#if DEBUG_LEVEL > 0
         Serial.println("Calculating battery percentage");
         Serial.println("Battery voltage: " + String(battery.millivolts));
         Serial.println("Battery percentage: " + String(battery.percent));
         Serial.println("Battery raw_value: " + String(battery.raw_value));
+#endif
 
 #if defined(DISP_3C_B) || defined(DISP_7C_F)
         if (battery.millivolts < WARN_BATTERY_VOLTAGE) {

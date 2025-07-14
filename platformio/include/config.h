@@ -40,8 +40,8 @@
 // The Waveshare rev2.2 is no longer in production.
 // Users of the Waveshare rev2.3 have reported experiencing low contrast issues.
 // Uncomment the macro that identifies your driver board hardware.
-#define DRIVER_DESPI_C02
-// #define DRIVER_WAVESHARE
+// #define DRIVER_DESPI_C02
+#define DRIVER_WAVESHARE
 
 
 // INDOOR ENVIRONMENT SENSOR
@@ -264,6 +264,10 @@
 
 #define BATTERY_POWER_SAVING 1
 
+// BATTERY MONITORING HARDWARE
+//   The MAX1704X battery monitor IC is used to measure the battery voltage.
+//   It is connected to the I2C bus of the ESP32. Uncomment to use battery readings through the RESISTORS
+// #define SENSOR_MAX1704X
 
 // NON-VOLATILE STORAGE (NVS) NAMESPACE
 #define NVS_NAMESPACE "weather_epd"
@@ -273,7 +277,8 @@
 //   level 0: basic status information, assists troubleshooting (default)
 //   level 1: increased verbosity for debugging
 //   level 2: print api responses to serial monitor
-#define DEBUG_LEVEL 0
+#define DEBUG_LEVEL 1
+
 
 // NUMBER OF LOCATIONS
 //   The number of locations to cycle through. The locations are defined in
@@ -293,6 +298,10 @@ extern const uint8_t PIN_EPD_PWR;
 extern const uint8_t PIN_BME_SDA;
 extern const uint8_t PIN_BME_SCL;
 extern const uint8_t PIN_BME_PWR;
+
+extern const uint8_t PIN_MAX1704X_SDA;
+extern const uint8_t PIN_MAX1704X_SCL;
+
 extern const uint8_t BME_ADDRESS;
 extern const char *WIFI_SSID;
 extern const char *WIFI_PASSWORD;
@@ -327,6 +336,7 @@ extern const uint32_t MIN_BATTERY_VOLTAGE;
 extern const double BATTERY_RESISTOR_DIVIDER; // 0.4719387755
 extern const uint8_t BATTERY_NUM_SAMPLES; // 20
 extern const uint32_t BATTERY_DELAY_MS; // 1
+
 
 // CONFIG VALIDATION - DO NOT MODIFY
 #if !(  defined(DISP_BW_V2)  \

@@ -46,6 +46,11 @@
 #include "cert.h"
 #endif
 
+#ifdef SENSOR_MAX1704X
+#include <Adafruit_MAX1704X.h>
+Adafruit_MAX17048 maxlipo;
+#endif
+
 // too large to allocate locally on stack
 static owm_resp_onecall_t owm_onecall;
 static owm_resp_air_pollution_t owm_air_pollution;
@@ -55,7 +60,8 @@ Preferences prefs;
 /* Put esp32 into ultra low-power deep sleep (<11μA).
  * Aligns wake time to the minute. Sleep times defined in config.cpp.
  */
-void beginDeepSleep(unsigned long startTime, tm* timeInfo) {
+void beginDeepSleep(unsigned long startTime, tm* timeInfo)
+{
     if (!getLocalTime(timeInfo)) {
         Serial.println(TXT_REFERENCING_OLDER_TIME_NOTICE);
     }
@@ -72,18 +78,16 @@ void beginDeepSleep(unsigned long startTime, tm* timeInfo) {
     }
 
     // time is relative to wake time
-    int curHour                   = (timeInfo->tm_hour - WAKE_TIME + 24) % 24;
-    const int curMinute           = curHour * 60 + timeInfo->tm_min;
-    const int curSecond           = curHour * 3600 + timeInfo->tm_min * 60 + timeInfo->tm_sec;
+    int curHour = (timeInfo->tm_hour - WAKE_TIME + 24) % 24;
+    const int curMinute = curHour * 60 + timeInfo->tm_min;
+    const int curSecond = curHour * 3600 + timeInfo->tm_min * 60 + timeInfo->tm_sec;
     const int desiredSleepSeconds = SLEEP_DURATION * 60;
-    const int offsetMinutes       = curMinute % SLEEP_DURATION;
-    const int offsetSeconds       = curSecond % desiredSleepSeconds;
+    const int offsetMinutes = curMinute % SLEEP_DURATION;
+    const int offsetSeconds = curSecond % desiredSleepSeconds;
 
     // align wake time to nearest multiple of SLEEP_DURATION
     int sleepMinutes = SLEEP_DURATION - offsetMinutes;
-    if (desiredSleepSeconds - offsetSeconds < 120 ||
-        offsetSeconds / (float)desiredSleepSeconds >
-            0.95f) { // if we have a sleep time less than 2 minutes OR less 5% SLEEP_DURATION,
+    if (desiredSleepSeconds - offsetSeconds < 120 || offsetSeconds / (float)desiredSleepSeconds > 0.95f) { // if we have a sleep time less than 2 minutes OR less 5% SLEEP_DURATION,
         // skip to next alignment
         sleepMinutes += SLEEP_DURATION;
     }
@@ -118,7 +122,8 @@ void beginDeepSleep(unsigned long startTime, tm* timeInfo) {
 
 /* Program entry point.
  */
-void setup() {
+void setup()
+{
     unsigned long startTime = millis();
     Serial.begin(115200);
 
@@ -128,7 +133,6 @@ void setup() {
 #if DEBUG_LEVEL >= 1
     printHeapUsage();
 #endif
-
     disableBuiltinLED();
 
     // Open namespace for read/write to non-volatile storage
@@ -144,9 +148,9 @@ void setup() {
 
     prefs.putInt("locationsIndex", locationsIndex + 1);
 
-    String currentLat      = LAT[locationsIndex];
-    String currentLon      = LON[locationsIndex];
-    String currentCity     = CITY_STRING[locationsIndex];
+    String currentLat = LAT[locationsIndex];
+    String currentLon = LON[locationsIndex];
+    String currentCity = CITY_STRING[locationsIndex];
     String currentTimeZone = TIMEZONE[locationsIndex];
 
     if (DEBUG_LEVEL >= 1) {
@@ -157,14 +161,51 @@ void setup() {
         Serial.println("Timezone: " + currentTimeZone);
     }
 
-#if BATTERY_MONITORING
+    
+    #if BATTERY_MONITORING
+    battery::battery_info_t battery_info;
+    
+    #ifdef SENSOR_MAX1704X
+    Serial.println("Initializing MAX1704X battery monitor...");
+    Wire1.setPins(PIN_MAX1704X_SDA, PIN_MAX1704X_SCL);
+
+    if (maxlipo.begin()) {
+        Serial.println("MAX1704X found. Battery monitoring enabled.");
+        delay(2000);
+
+        float cellVoltage = maxlipo.cellVoltage();
+        if (isnan(cellVoltage)) {
+            Serial.println("Failed to read cell voltage, check battery is connected!");
+
+            auto percent = maxlipo.cellPercent();
+            battery_info = battery::battery_info(maxlipo.cellVoltage() * 1000, maxlipo.cellVoltage() * 1000, percent);
+
+        } else {
+            Serial.print(F("Batt Voltage: "));
+            Serial.print(cellVoltage, 3);
+            Serial.println(" V");
+            Serial.print(F("Batt Percent: "));
+            Serial.print(maxlipo.cellPercent(), 1);
+            Serial.println(" %");
+            Serial.println();
+        }
+    } else {
+        Serial.println("MAX1704X not found. Battery monitoring disabled.");
+        battery_info = battery::battery_info(4200, 4200, 100);
+    }
+
+    Wire1.end();
+    Serial.println("I2C bus ended.");
+
+#else
+
     battery::BatteryReader battery_reader(PIN_BAT_ADC,
         BATTERY_RESISTOR_DIVIDER,
         BATTERY_NUM_SAMPLES,
         BATTERY_DELAY_MS);
 
     battery_reader.init();
-    battery::battery_info_t battery_info = battery_reader.read();
+    battery_info = battery_reader.read();
 
     Serial.print(F("Battery millivolts: "));
     Serial.print(battery_info.millivolts);
@@ -173,6 +214,7 @@ void setup() {
     Serial.print(F(", percent: "));
     Serial.print(battery_info.percent);
     Serial.println(F("%"));
+#endif
 
     // When the battery is low, the display should be updated to reflect that, but
     // only the first time we detect low voltage. The next time the display will
@@ -182,8 +224,7 @@ void setup() {
 
     Serial.println("lowBat: " + String(lowBat));
 
-#ifdef BATTERY_POWER_SAVING
-
+#if BATTERY_POWER_SAVING
     auto batteryVoltage = battery_info.millivolts;
 
     // low battery, deep sleep now
@@ -216,7 +257,7 @@ void setup() {
             Serial.println(" " + String(VERY_LOW_BATTERY_SLEEP_INTERVAL) + "min");
         } else { // low battery
             Serial.println("" + String(batteryVoltage) + " <= " + String(LOW_BATTERY_VOLTAGE));
-            
+
             esp_sleep_enable_timer_wakeup(LOW_BATTERY_SLEEP_INTERVAL * 60ULL * 1000000ULL);
             Serial.println(TXT_LOW_BATTERY_VOLTAGE);
             Serial.print(TXT_ENTERING_DEEP_SLEEP_FOR);
@@ -231,18 +272,18 @@ void setup() {
 #endif
 #else
     battery::battery_info battery_info = battery::battery_info(4200, 4200, 100);
-    uint32_t batteryVoltage = battery_info.millivolts;
+    auto batteryVoltage = battery_info.millivolts;
 #endif
 
     // All data should have been loaded from NVS. Close filesystem.
     prefs.end();
 
     String statusStr = {};
-    String tmpStr    = {};
-    tm timeInfo      = {};
+    String tmpStr = {};
+    tm timeInfo = {};
 
     // START WIFI
-    int wifiRSSI           = 0; // “Received Signal Strength Indicator"
+    int wifiRSSI = 0; // “Received Signal Strength Indicator"
     wl_status_t wifiStatus = startWiFi(wifiRSSI);
     if (wifiStatus != WL_CONNECTED) { // WiFi Connection Failed
         killWiFi();
@@ -290,7 +331,7 @@ void setup() {
     if (rxStatus != HTTP_CODE_OK) {
         killWiFi();
         statusStr = "One Call " + OWM_ONECALL_VERSION + " API";
-        tmpStr    = String(rxStatus, DEC) + ": " + getHttpResponsePhrase(rxStatus);
+        tmpStr = String(rxStatus, DEC) + ": " + getHttpResponsePhrase(rxStatus);
         initDisplay();
         do {
             drawError(wi_cloud_down_196x196, statusStr, tmpStr);
@@ -303,41 +344,21 @@ void setup() {
     Serial.print("Air Pollution Success: ");
     Serial.println(owm_air_pollution.success);
 
-    // if (rxStatus != HTTP_CODE_OK) {
-        // owm_air_pollution.success = false; // set success to false so that we can still render
-        // we don't want to stop the program if air pollution data is not available
-        // just avoid rendering it
-
-        // killWiFi();
-        // statusStr = "Air Pollution API";
-        // tmpStr    = String(rxStatus, DEC) + ": " + getHttpResponsePhrase(rxStatus);
-        // initDisplay();
-        // do {
-        //     drawError(wi_cloud_down_196x196, statusStr, tmpStr);
-        // } while (display.nextPage());
-        // powerOffDisplay();
-        // beginDeepSleep(startTime, &timeInfo);
-    // }
     killWiFi(); // WiFi no longer needed
 
     // GET INDOOR TEMPERATURE AND HUMIDITY, start BMEx80...
     pinMode(PIN_BME_PWR, OUTPUT);
     digitalWrite(PIN_BME_PWR, HIGH);
-    TwoWire I2C_bme = TwoWire(0);
 
-    Serial.print(F("Initializing I2C bus on SDA: "));
-    Serial.print(PIN_BME_SDA);
-    Serial.print(F(", SCL: "));
-    Serial.print(PIN_BME_SCL);
-    Serial.print(F(", frequency: 100kHz... "));
-    // Initialize I2C bus for BME sensor
-
-    I2C_bme.begin(PIN_BME_SDA, PIN_BME_SCL, 100000); // 100kHz
-    float inTemp     = NAN;
+    
+    float inTemp = NAN;
     float inHumidity = NAN;
-#if defined(SENSOR_BME280)
+    #if defined(SENSOR_BME280)
     Serial.println(String(TXT_READING_FROM) + " BME280... ");
     Adafruit_BME280 bme;
+
+    TwoWire I2C_bme = TwoWire(0);
+    I2C_bme.begin(PIN_BME_SDA, PIN_BME_SCL, 100'000); // 100kHz
 
     if (bme.begin(BME_ADDRESS, &I2C_bme)) {
 #endif
@@ -347,8 +368,8 @@ void setup() {
 
         if (bme.begin(BME_ADDRESS)) {
 #endif
-            inTemp     = bme.readTemperature(); // Celsius
-            inHumidity = bme.readHumidity();    // %
+            inTemp = bme.readTemperature(); // Celsius
+            inHumidity = bme.readHumidity(); // %
 
             // check if BME readings are valid
             // note: readings are checked again before drawing to screen. If a reading
@@ -365,6 +386,7 @@ void setup() {
             Serial.println(statusStr);
         }
         digitalWrite(PIN_BME_PWR, LOW);
+        Wire.end();
 
         Serial.println("BME readings: ");
         Serial.print("  Temperature: ");
@@ -372,7 +394,7 @@ void setup() {
         Serial.println(" °C");
         Serial.print("  Humidity: ");
         Serial.print(inHumidity);
-        Serial.println(" %"); 
+        Serial.println(" %");
 
         String refreshTimeStr;
         getRefreshTimeStr(refreshTimeStr, timeConfigured, &timeInfo);
@@ -400,4 +422,4 @@ void setup() {
 
     /* This will never run
      */
-    void loop() {} // end loop
+    void loop() { } // end loop
