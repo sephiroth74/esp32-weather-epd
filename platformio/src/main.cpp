@@ -46,11 +46,6 @@
 #include "cert.h"
 #endif
 
-#ifdef SENSOR_MAX1704X
-#include <Adafruit_MAX1704X.h>
-Adafruit_MAX17048 maxlipo;
-#endif
-
 // too large to allocate locally on stack
 static owm_resp_onecall_t owm_onecall;
 static owm_resp_air_pollution_t owm_air_pollution;
@@ -130,6 +125,18 @@ void setup()
     delay(1000); // wait for serial monitor to open
     Serial.println("Starting up...");
 
+#if defined(ADAFRUIT_FEATHER_ESP32_V2)
+    Serial.println("Adafruit Feather ESP32 V2 detected.");
+#elif defined(AZ_DELIVERY_ESPRESSIF32)
+    Serial.println("AZ-Delivery ESP32 Dev Module detected.");
+#elif defined(WAVESHARE_ESP32)
+    Serial.println("Waveshare ESP32 Dev Module detected.");
+#elif defined(DFROBOT_FIREBEETLE2_ESP32E)
+    Serial.println("DFRobot FireBeetle2 ESP32-E detected.");
+#elif defined(FIREBEETLE32)
+    Serial.println("DFRobot FireBeetle ESP32 detected.");
+#endif
+
 #if DEBUG_LEVEL >= 1
     printHeapUsage();
 #endif
@@ -161,43 +168,8 @@ void setup()
         Serial.println("Timezone: " + currentTimeZone);
     }
 
-    
-    #if BATTERY_MONITORING
+#if BATTERY_MONITORING
     battery::battery_info_t battery_info;
-    
-    #ifdef SENSOR_MAX1704X
-    Serial.println("Initializing MAX1704X battery monitor...");
-    Wire1.setPins(PIN_MAX1704X_SDA, PIN_MAX1704X_SCL);
-
-    if (maxlipo.begin()) {
-        Serial.println("MAX1704X found. Battery monitoring enabled.");
-        delay(2000);
-
-        float cellVoltage = maxlipo.cellVoltage();
-        if (isnan(cellVoltage)) {
-            Serial.println("Failed to read cell voltage, check battery is connected!");
-
-            auto percent = maxlipo.cellPercent();
-            battery_info = battery::battery_info(maxlipo.cellVoltage() * 1000, maxlipo.cellVoltage() * 1000, percent);
-
-        } else {
-            Serial.print(F("Batt Voltage: "));
-            Serial.print(cellVoltage, 3);
-            Serial.println(" V");
-            Serial.print(F("Batt Percent: "));
-            Serial.print(maxlipo.cellPercent(), 1);
-            Serial.println(" %");
-            Serial.println();
-        }
-    } else {
-        Serial.println("MAX1704X not found. Battery monitoring disabled.");
-        battery_info = battery::battery_info(4200, 4200, 100);
-    }
-
-    Wire1.end();
-    Serial.println("I2C bus ended.");
-
-#else
 
     battery::BatteryReader battery_reader(PIN_BAT_ADC,
         BATTERY_RESISTOR_DIVIDER,
@@ -214,7 +186,6 @@ void setup()
     Serial.print(F(", percent: "));
     Serial.print(battery_info.percent);
     Serial.println(F("%"));
-#endif
 
     // When the battery is low, the display should be updated to reflect that, but
     // only the first time we detect low voltage. The next time the display will
@@ -350,10 +321,9 @@ void setup()
     pinMode(PIN_BME_PWR, OUTPUT);
     digitalWrite(PIN_BME_PWR, HIGH);
 
-    
     float inTemp = NAN;
     float inHumidity = NAN;
-    #if defined(SENSOR_BME280)
+#if defined(SENSOR_BME280)
     Serial.println(String(TXT_READING_FROM) + " BME280... ");
     Adafruit_BME280 bme;
 

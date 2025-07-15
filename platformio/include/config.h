@@ -264,11 +264,6 @@
 
 #define BATTERY_POWER_SAVING 1
 
-// BATTERY MONITORING HARDWARE
-//   The MAX1704X battery monitor IC is used to measure the battery voltage.
-//   It is connected to the I2C bus of the ESP32. Uncomment to use battery readings through the RESISTORS
-// #define SENSOR_MAX1704X
-
 // NON-VOLATILE STORAGE (NVS) NAMESPACE
 #define NVS_NAMESPACE "weather_epd"
 

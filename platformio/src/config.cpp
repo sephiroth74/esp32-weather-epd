@@ -28,25 +28,7 @@
 //       functionality.
 //
 
-#ifdef ADAFRUIT_FEATHER_ESP32_V2
-const uint8_t PIN_BAT_ADC = 35; // A0 for micro-usb firebeetle
-
-// Pins for E-Paper Driver Board
-const uint8_t PIN_EPD_BUSY = 14; // 5 for micro-usb firebeetle
-const uint8_t PIN_EPD_CS = 33;
-const uint8_t PIN_EPD_RST = 32;
-const uint8_t PIN_EPD_DC = 15;
-const uint8_t PIN_EPD_SCK = 27;
-const uint8_t PIN_EPD_MISO = -1;
-const uint8_t PIN_EPD_MOSI = 12;
-const uint8_t PIN_EPD_PWR = 0; // Irrelevant if directly connected to 3.3V
-
-// I2C Pins used for BME280
-const uint8_t PIN_BME_SDA = 22;
-const uint8_t PIN_BME_SCL = 20;
-const double BATTERY_RESISTOR_DIVIDER = 0.3506297229; // R1 = 330kΩ, R2 = 180kΩ (Vout = Vin * R2 / (R1 + R2))
-
-#elif defined(WAVESHARE_ESP32)
+#if defined(WAVESHARE_ESP32)
 
 const uint8_t PIN_EPD_BUSY = 25;
 const uint8_t PIN_EPD_RST = 26;
@@ -56,8 +38,10 @@ const uint8_t PIN_EPD_SCK = 13;
 const uint8_t PIN_EPD_MISO = 19;
 const uint8_t PIN_EPD_MOSI = 14;
 const uint8_t PIN_EPD_PWR = 0;
+
 const uint8_t PIN_BME_SDA = 22;
 const uint8_t PIN_BME_SCL = 23;
+
 const uint8_t PIN_BAT_ADC = 4;
 const double BATTERY_RESISTOR_DIVIDER = 0.3506297229; // R1 = 330kΩ, R2 = 180kΩ (Vout = Vin * R2 / (R1 + R2))
 
@@ -101,7 +85,7 @@ const uint8_t PIN_BME_SDA = 22;
 const uint8_t PIN_BME_SCL = 23;
 const uint8_t PIN_BME_PWR = 5; // Irrelevant if directly connected to 3.3V
 const uint8_t BME_ADDRESS = 0x76; // 0x76 if SDO -> GND; 0x77 if SDO -> VCC
-#endif // ADAFRUIT_FEATHER_ESP32_V2
+#endif 
 
 
 const uint8_t BME_ADDRESS = 0x76; // 0x76 if SDO -> GND; 0x77 if SDO -> VCC
