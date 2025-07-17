@@ -112,6 +112,11 @@ void beginDeepSleep(unsigned long startTime, tm* timeInfo)
     Serial.println(" " + String((millis() - startTime) / 1000.0, 3) + "s");
     Serial.print(TXT_ENTERING_DEEP_SLEEP_FOR);
     Serial.println(" " + String(sleepDuration) + "s");
+
+#ifdef DEBUG_MODE
+    Serial.println("Debug mode enabled, delaying 20 seconds before deep sleep.");
+    delay(20000);
+#endif // DEBUG_MODE
     esp_deep_sleep_start();
 } // end beginDeepSleep
 
@@ -135,6 +140,8 @@ void setup()
     Serial.println("DFRobot FireBeetle2 ESP32-E detected.");
 #elif defined(FIREBEETLE32)
     Serial.println("DFRobot FireBeetle ESP32 detected.");
+#elif defined(ARDUINO_NANO_ESP32)
+    Serial.println("Arduino Nano ESP32 detected.");
 #endif
 
 #if DEBUG_LEVEL >= 1
@@ -182,7 +189,7 @@ void setup()
     Serial.print(F("Battery millivolts: "));
     Serial.print(battery_info.millivolts);
     Serial.print(F(", raw_value: "));
-    Serial.print(battery_info.raw_value);
+    Serial.print(battery_info.raw_millivolts);
     Serial.print(F(", percent: "));
     Serial.print(battery_info.percent);
     Serial.println(F("%"));
@@ -234,6 +241,11 @@ void setup()
             Serial.print(TXT_ENTERING_DEEP_SLEEP_FOR);
             Serial.println(" " + String(LOW_BATTERY_SLEEP_INTERVAL) + "min");
         }
+
+#ifdef DEBUG_MODE
+        Serial.println("Debug mode enabled, delaying 20 seconds before deep sleep.");
+        delay(20000);
+#endif // DEBUG_MODE
         esp_deep_sleep_start();
     }
     // battery is no longer low, reset variable in non-volatile storage

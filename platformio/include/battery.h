@@ -48,37 +48,40 @@ typedef struct battery_step {
 
 typedef struct battery_info {
 public:
-    uint32_t raw_value;
+    uint32_t analog_reading; // raw ADC reading
+    uint32_t raw_millivolts; // raw battery voltage in millivolts
     uint32_t millivolts;
     uint8_t percent;
 
-    constexpr battery_info(uint32_t raw_value, uint32_t millivolts, uint8_t percent)
-        : raw_value(raw_value)
+    float batteryVoltage1; // battery voltage after applying resistor divider
+
+    constexpr battery_info(uint32_t raw, uint32_t raw_millivolts, uint32_t millivolts, uint8_t percent, float batteryVoltage1 = 0)
+        : analog_reading(raw)
+        , raw_millivolts(raw_millivolts)
         , millivolts(millivolts)
         , percent(percent)
+        , batteryVoltage1(batteryVoltage1)
     {
     }
 
     constexpr battery_info()
-        : raw_value(0)
-        , millivolts(0)
-        , percent(0)
+        : battery_info(0, 0, 0, 0, 0)
     {
     }
 
     constexpr battery_info(const battery_step_t& step)
-        : raw_value(step.voltage)
-        , millivolts(step.voltage)
-        , percent(step.percent)
+        : battery_info(0, step.voltage, step.voltage, step.percent)
     {
     }
 
     constexpr bool operator==(const battery_info& other) const
     {
-        return (raw_value == other.raw_value && millivolts == other.millivolts && percent == other.percent);
+        return (raw_millivolts == other.raw_millivolts && millivolts == other.millivolts && percent == other.percent);
     }
 
-    static inline constexpr battery_info empty() { return battery_info(0, 0, 0); }
+    static inline constexpr battery_info empty() { return battery_info(0, 0, 0, 0); }
+
+    static inline constexpr battery_info full() { return battery_info(0, 4200, 4200, 100); }
 
     bool is_low() const;
 

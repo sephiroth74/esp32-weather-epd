@@ -1,5 +1,4 @@
 /* Configuration option declarations for esp32-weather-epd.
-/* Configuration option declarations for esp32-weather-epd.
  * Copyright (C) 2022-2025  Luke Marzen
  *
  * This program is free software: you can redistribute it and/or modify
@@ -40,8 +39,8 @@
 // The Waveshare rev2.2 is no longer in production.
 // Users of the Waveshare rev2.3 have reported experiencing low contrast issues.
 // Uncomment the macro that identifies your driver board hardware.
-// #define DRIVER_DESPI_C02
-#define DRIVER_WAVESHARE
+#define DRIVER_DESPI_C02
+// #define DRIVER_WAVESHARE
 
 
 // INDOOR ENVIRONMENT SENSOR
@@ -274,6 +273,7 @@
 //   level 2: print api responses to serial monitor
 #define DEBUG_LEVEL 1
 
+#define DEBUG_MODE 1
 
 // NUMBER OF LOCATIONS
 //   The number of locations to cycle through. The locations are defined in
@@ -331,7 +331,6 @@ extern const uint32_t MIN_BATTERY_VOLTAGE;
 extern const double BATTERY_RESISTOR_DIVIDER; // 0.4719387755
 extern const uint8_t BATTERY_NUM_SAMPLES; // 20
 extern const uint32_t BATTERY_DELAY_MS; // 1
-
 
 // CONFIG VALIDATION - DO NOT MODIFY
 #if !(  defined(DISP_BW_V2)  \

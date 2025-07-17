@@ -55,11 +55,6 @@ bool battery_info_t::is_empty() const { return millivolts <= CRIT_LOW_BATTERY_VO
 
 bool battery_info_t::is_charging() const { return millivolts > MAX_BATTERY_VOLTAGE + 100; }
 
-battery_info_t battery_info::fromMv(uint32_t mv)
-{
-    return battery_info(mv, mv, calc_battery_percentage(mv));
-} // fromMv
-
 void BatteryReader::init() const
 {
     Serial.print(F("Initializing BatteryReader on pin "));
@@ -87,10 +82,12 @@ battery_info_t BatteryReader::read() const
 
     millivolts /= num_readings;
     raw /= num_readings;
-    uint32_t voltage = millivolts / resistor_ratio;
+
+    uint32_t voltage
+        = millivolts / resistor_ratio;
     uint8_t percent = calc_battery_percentage(voltage);
 
-#if DEBUG_MODE
+#if DEBUG_LEVEL > 0
     Serial.print("Battery readings: ");
     Serial.print("raw: ");
     Serial.print(raw);
@@ -100,10 +97,13 @@ battery_info_t BatteryReader::read() const
     Serial.print(voltage);
     Serial.print(", percent: ");
     Serial.println(percent);
-#endif // DEBUG_MODE
+#endif // DEBUG_LEVEL
 
     return battery_info(
-        millivolts /* raw_millivolts */, voltage /* adjusted millivolts */, percent /* percent */);
+        raw /* analog_reading */,
+        millivolts /* raw_millivolts */,
+        voltage /* adjusted millivolts */,
+        percent /* percent */);
 } // read
 
 } // namespace battery

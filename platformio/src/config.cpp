@@ -66,6 +66,27 @@ const uint8_t PIN_MAX1704X_SDA = 16;
 const uint8_t PIN_MAX1704X_SCL = 17;
 const double BATTERY_RESISTOR_DIVIDER = 0.5004761905; //0.4738095238;
 
+#elif defined(ARDUINO_NANO_ESP32)
+
+// ADC pin used to measure battery voltage
+const uint8_t PIN_BAT_ADC = A0; // A0 for arduino nano
+
+const uint8_t PIN_EPD_BUSY = D12; // 5 for micro-usb firebeetle
+const uint8_t PIN_EPD_RST = D11;
+const uint8_t PIN_EPD_DC = D10;
+const uint8_t PIN_EPD_CS = D9;
+const uint8_t PIN_EPD_SCK = D8;
+const uint8_t PIN_EPD_MOSI = D7;
+const uint8_t PIN_EPD_MISO = 0; // 19 Master-In Slave-Out not used, as no data from display
+const uint8_t PIN_EPD_PWR = 0; // Irrelevant if directly connected to 3.3V
+
+const uint8_t PIN_BME_SDA = A4;
+const uint8_t PIN_BME_SCL = A5;
+
+// R1 = 330kΩ, R2 = 180kΩ, R2 / (R1 + R2) = // 180kΩ / (330kΩ + 180kΩ) = 0.3506297229
+// (Vout = Vin * R2 / (R1 + R2))
+const double BATTERY_RESISTOR_DIVIDER = 0.3446341463;
+
 #else
 // ADC pin used to measure battery voltage
 const uint8_t PIN_BAT_ADC = A0; // A0 for micro-usb firebeetle
@@ -83,16 +104,14 @@ const uint8_t PIN_EPD_PWR = 0; // Irrelevant if directly connected to 3.3V
 // I2C Pins used for BME280
 const uint8_t PIN_BME_SDA = 22;
 const uint8_t PIN_BME_SCL = 23;
-const uint8_t PIN_BME_PWR = 5; // Irrelevant if directly connected to 3.3V
-const uint8_t BME_ADDRESS = 0x76; // 0x76 if SDO -> GND; 0x77 if SDO -> VCC
 #endif 
 
 
 const uint8_t BME_ADDRESS = 0x76; // 0x76 if SDO -> GND; 0x77 if SDO -> VCC
 const uint8_t PIN_BME_PWR = 0; // Irrelevant if directly connected to 3.3V
 
-const uint8_t BATTERY_NUM_SAMPLES = 20;
-const uint32_t BATTERY_DELAY_MS = 1;
+const uint8_t BATTERY_NUM_SAMPLES = 35;
+const uint32_t BATTERY_DELAY_MS = 10;
 
 
 
