@@ -330,8 +330,13 @@ void setup()
     killWiFi(); // WiFi no longer needed
 
     // GET INDOOR TEMPERATURE AND HUMIDITY, start BMEx80...
+
+#if PIN_BME_PWR > 0
+    Serial.print("Powering on BME sensor on pin: ");
+    Serial.println(PIN_BME_PWR);
     pinMode(PIN_BME_PWR, OUTPUT);
     digitalWrite(PIN_BME_PWR, HIGH);
+#endif // PIN_BME_PWR > 0
 
     float inTemp = NAN;
     float inHumidity = NAN;
@@ -367,7 +372,11 @@ void setup()
             statusStr = "BME " + String(TXT_NOT_FOUND); // check wiring
             Serial.println(statusStr);
         }
-        digitalWrite(PIN_BME_PWR, LOW);
+
+    #if PIN_BME_PWR > 0
+    Serial.println("Powering off BME sensor.");
+    digitalWrite(PIN_BME_PWR, LOW);
+    #endif // PIN_BME_PWR > 0
         Wire.end();
 
         Serial.println("BME readings: ");

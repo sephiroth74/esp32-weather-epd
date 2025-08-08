@@ -64,7 +64,7 @@ const uint8_t PIN_BAT_ADC = 34;
 // I2C Pins used for MAX1704X
 const uint8_t PIN_MAX1704X_SDA = 16;
 const uint8_t PIN_MAX1704X_SCL = 17;
-const double BATTERY_RESISTOR_DIVIDER = 0.5004761905; //0.4738095238;
+const double BATTERY_RESISTOR_DIVIDER = 0.5004761905; // 0.4738095238;
 
 #elif defined(ARDUINO_NANO_ESP32)
 
@@ -104,17 +104,13 @@ const uint8_t PIN_EPD_PWR = 0; // Irrelevant if directly connected to 3.3V
 // I2C Pins used for BME280
 const uint8_t PIN_BME_SDA = 22;
 const uint8_t PIN_BME_SCL = 23;
-#endif 
-
+#endif
 
 const uint8_t BME_ADDRESS = 0x76; // 0x76 if SDO -> GND; 0x77 if SDO -> VCC
 const uint8_t PIN_BME_PWR = 0; // Irrelevant if directly connected to 3.3V
 
 const uint8_t BATTERY_NUM_SAMPLES = 35;
 const uint32_t BATTERY_DELAY_MS = 10;
-
-
-
 
 // WIFI
 // const char *WIFI_SSID = "";

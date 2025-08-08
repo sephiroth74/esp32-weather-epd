@@ -194,13 +194,18 @@ void drawMultiLnString(int16_t x,
  */
 void initDisplay()
 {
+#if PIN_EPD_PWR > 0
+    Serial.print("Powering on e-paper display on pin: ");
+    Serial.println(PIN_EPD_PWR);
     pinMode(PIN_EPD_PWR, OUTPUT);
     digitalWrite(PIN_EPD_PWR, HIGH);
+#endif
+
 #ifdef DRIVER_WAVESHARE
     display.init(115200, true, 2, false);
 #endif
 #ifdef DRIVER_DESPI_C02
-    display.init(115200, true, 10, false);
+    display.init(115200);
 #endif
     // remap spi
     SPI.end();
@@ -230,7 +235,10 @@ void powerOffDisplay()
 {
     display.hibernate(); // turns powerOff() and sets controller to deep sleep for
                          // minimum power use
-    digitalWrite(PIN_EPD_PWR, LOW);
+
+    #if PIN_EPD_PWR > 0
+        digitalWrite(PIN_EPD_PWR, LOW);
+    #endif
     return;
 } // end initDisplay
 

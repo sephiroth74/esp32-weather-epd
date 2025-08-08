@@ -52,11 +52,11 @@
 // Defines the 3rd color to be used when a 3+ color display is selected.
 #if defined(DISP_3C_B) || defined(DISP_7C_F)
   // #define ACCENT_COLOR GxEPD_BLACK
-  #define ACCENT_COLOR GxEPD_RED
+  // #define ACCENT_COLOR GxEPD_RED
   // #define ACCENT_COLOR GxEPD_GREEN
   // #define ACCENT_COLOR GxEPD_BLUE
   // #define ACCENT_COLOR GxEPD_YELLOW
-  // #define ACCENT_COLOR GxEPD_ORANGE
+  #define ACCENT_COLOR GxEPD_ORANGE
 #endif
 
 // LOCALE
@@ -273,7 +273,7 @@
 //   level 2: print api responses to serial monitor
 #define DEBUG_LEVEL 1
 
-#define DEBUG_MODE 1
+#define DEBUG_MODE 0
 
 // NUMBER OF LOCATIONS
 //   The number of locations to cycle through. The locations are defined in
