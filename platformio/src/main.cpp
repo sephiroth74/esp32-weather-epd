@@ -113,10 +113,12 @@ void beginDeepSleep(unsigned long startTime, tm* timeInfo)
     Serial.print(TXT_ENTERING_DEEP_SLEEP_FOR);
     Serial.println(" " + String(sleepDuration) + "s");
 
-#ifdef DEBUG_MODE
-    Serial.println("Debug mode enabled, delaying 20 seconds before deep sleep.");
-    delay(20000);
-#endif // DEBUG_MODE
+#if DELAY_BEFORE_SLEEP > 0
+    Serial.print("Delaying before deep sleep for ");
+    Serial.print(DELAY_BEFORE_SLEEP / 1000);
+    Serial.println(" seconds.");
+    delay(DELAY_BEFORE_SLEEP);
+#endif // DELAY_BEFORE_SLEEP
     esp_deep_sleep_start();
 } // end beginDeepSleep
 
@@ -132,8 +134,8 @@ void setup()
 
 #if defined(ADAFRUIT_FEATHER_ESP32_V2)
     Serial.println("Adafruit Feather ESP32 V2 detected.");
-#elif defined(AZ_DELIVERY_ESPRESSIF32)
-    Serial.println("AZ-Delivery ESP32 Dev Module detected.");
+#elif defined(NODEMCU_32S)
+    Serial.println("NodeMCU 32S detected.");
 #elif defined(WAVESHARE_ESP32)
     Serial.println("Waveshare ESP32 Dev Module detected.");
 #elif defined(DFROBOT_FIREBEETLE2_ESP32E)
@@ -142,6 +144,8 @@ void setup()
     Serial.println("DFRobot FireBeetle ESP32 detected.");
 #elif defined(ARDUINO_NANO_ESP32)
     Serial.println("Arduino Nano ESP32 detected.");
+#elif defined(WAVESHARE_ESP32S3_ZERO)
+    Serial.println("Waveshare ESP32S3 Zero detected.");
 #endif
 
 #if DEBUG_LEVEL >= 1
@@ -150,6 +154,8 @@ void setup()
     disableBuiltinLED();
 
     // Open namespace for read/write to non-volatile storage
+    Serial.println("Opening NVS namespace: " NVS_NAMESPACE);
+
     prefs.begin(NVS_NAMESPACE, false);
 
     int locationsIndex = prefs.getInt("locationsIndex", 0);
@@ -242,10 +248,12 @@ void setup()
             Serial.println(" " + String(LOW_BATTERY_SLEEP_INTERVAL) + "min");
         }
 
-#ifdef DEBUG_MODE
-        Serial.println("Debug mode enabled, delaying 20 seconds before deep sleep.");
-        delay(20000);
-#endif // DEBUG_MODE
+#if DELAY_BEFORE_SLEEP > 0
+        Serial.print("Delaying before deep sleep for ");
+        Serial.print(DELAY_BEFORE_SLEEP / 1000);
+        Serial.println(" seconds.");
+        delay(DELAY_BEFORE_SLEEP);
+#endif // DELAY_BEFORE_SLEEP
         esp_deep_sleep_start();
     }
     // battery is no longer low, reset variable in non-volatile storage
@@ -254,7 +262,7 @@ void setup()
     }
 #endif
 #else
-    battery::battery_info battery_info = battery::battery_info(4200, 4200, 100);
+    battery::battery_info battery_info = battery::battery_info::full();
     auto batteryVoltage = battery_info.millivolts;
 #endif
 
@@ -373,10 +381,10 @@ void setup()
             Serial.println(statusStr);
         }
 
-    #if PIN_BME_PWR > 0
-    Serial.println("Powering off BME sensor.");
-    digitalWrite(PIN_BME_PWR, LOW);
-    #endif // PIN_BME_PWR > 0
+#if PIN_BME_PWR > 0
+        Serial.println("Powering off BME sensor.");
+        digitalWrite(PIN_BME_PWR, LOW);
+#endif // PIN_BME_PWR > 0
         Wire.end();
 
         Serial.println("BME readings: ");

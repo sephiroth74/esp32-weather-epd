@@ -45,16 +45,36 @@ const uint8_t PIN_BME_SCL = 23;
 const uint8_t PIN_BAT_ADC = 4;
 const double BATTERY_RESISTOR_DIVIDER = 0.3506297229; // R1 = 330kΩ, R2 = 180kΩ (Vout = Vin * R2 / (R1 + R2))
 
-#elif defined(AZ_DELIVERY_ESPRESSIF32)
+#elif defined(WAVESHARE_ESP32S3_ZERO)
 
-const uint8_t PIN_EPD_BUSY = 14; // 5 for micro-usb firebeetle
-const uint8_t PIN_EPD_CS = 13;
+const uint8_t PIN_EPD_BUSY = 25;
+const uint8_t PIN_EPD_RST = 26;
+const uint8_t PIN_EPD_DC = 27;
+const uint8_t PIN_EPD_CS = 15;
+const uint8_t PIN_EPD_SCK = 13;
+const uint8_t PIN_EPD_MISO = 19;
+const uint8_t PIN_EPD_MOSI = 14;
+const uint8_t PIN_EPD_PWR = 0;
+
+const uint8_t PIN_BME_SDA = 22;
+const uint8_t PIN_BME_SCL = 23;
+
+const uint8_t PIN_BAT_ADC = 4;
+
+// R1 = 330kΩ, R2 = 180kΩ, R2 / (R1 + R2) = // 180kΩ / (330kΩ + 180kΩ) = 0.3506297229
+// (Vout = Vin * R2 / (R1 + R2))
+const double BATTERY_RESISTOR_DIVIDER = 0.3446341463;
+
+#elif defined(NODEMCU_32S)
+
+const uint8_t PIN_EPD_BUSY = 14;
 const uint8_t PIN_EPD_RST = 21;
 const uint8_t PIN_EPD_DC = 22;
+const uint8_t PIN_EPD_CS = 13;
 const uint8_t PIN_EPD_SCK = 18;
-const uint8_t PIN_EPD_MISO = 19; // 19 Master-In Slave-Out not used, as no data from display
+const uint8_t PIN_EPD_MISO = 0;
 const uint8_t PIN_EPD_MOSI = 23;
-const uint8_t PIN_EPD_PWR = 0; // Irrelevant if directly connected to 3.3V
+const uint8_t PIN_EPD_PWR = 0;
 
 // I2C Pins used for BME280
 const uint8_t PIN_BME_SDA = 26;
@@ -88,22 +108,7 @@ const uint8_t PIN_BME_SCL = A5;
 const double BATTERY_RESISTOR_DIVIDER = 0.3446341463;
 
 #else
-// ADC pin used to measure battery voltage
-const uint8_t PIN_BAT_ADC = A0; // A0 for micro-usb firebeetle
-
-// Pins for E-Paper Driver Board
-const uint8_t PIN_EPD_BUSY = 25; // 5 for micro-usb firebeetle
-const uint8_t PIN_EPD_CS = 15;
-const uint8_t PIN_EPD_RST = 26;
-const uint8_t PIN_EPD_DC = 27;
-const uint8_t PIN_EPD_SCK = 13;
-const uint8_t PIN_EPD_MISO = 19; // 19 Master-In Slave-Out not used, as no data from display
-const uint8_t PIN_EPD_MOSI = 14;
-const uint8_t PIN_EPD_PWR = 0; // Irrelevant if directly connected to 3.3V
-
-// I2C Pins used for BME280
-const uint8_t PIN_BME_SDA = 22;
-const uint8_t PIN_BME_SCL = 23;
+#error "Unsupported board configuration. Please define the appropriate pins for your board in config.local.h."
 #endif
 
 const uint8_t BME_ADDRESS = 0x76; // 0x76 if SDO -> GND; 0x77 if SDO -> VCC
@@ -148,10 +153,23 @@ const String OWM_ONECALL_VERSION = "3.0";
 // LOCATION
 // Set your latitude and longitude.
 // (used to get weather data as part of API requests to OpenWeatherMap)
-const String LAT[NUM_LOCATIONS] = { "47.312031" };
-const String LON[NUM_LOCATIONS] = { "8.525573" };
+
+#if LOCATION==LOCATION_BESOZZO
+const String LAT[NUM_LOCATIONS] = { "45.843954" };
+const String LON[NUM_LOCATIONS] = { "8.681686" };
+// City name that will be shown in the top-right corner of the display.
+const String CITY_STRING[NUM_LOCATIONS] = { "Besozzo, IT" };
+#elif LOCATION==LOCATION_GAVIRATE4 || LOCATION==LOCATION_GAVIRATE6
+const String LAT[NUM_LOCATIONS] = { "45.843954" };
+const String LON[NUM_LOCATIONS] = { "8.681686" };
+// City name that will be shown in the top-right corner of the display.
+const String CITY_STRING[NUM_LOCATIONS] = { "Gavirate, IT" };
+#elif LOCATION==LOCATION_ZURIGO
+const String LAT[NUM_LOCATIONS] = { "47.376886" };
+const String LON[NUM_LOCATIONS] = { "8.541694" };
 // City name that will be shown in the top-right corner of the display.
 const String CITY_STRING[NUM_LOCATIONS] = { "Zurigo, CH" };
+#endif
 
 // TIME
 // For list of time zones see
@@ -189,12 +207,12 @@ const unsigned long NTP_TIMEOUT = 20000; // ms
 // minutes past the hour. (range: [2-1440])
 // Note: The OpenWeatherMap model is updated every 10 minutes, so updating more
 //       frequently than that is unnessesary.
-const int SLEEP_DURATION = 120; // minutes
+const int SLEEP_DURATION = CONFIG_SLEEP_DURATION; // minutes
 // Bed Time Power Savings.
 // If BED_TIME == WAKE_TIME, then this battery saving feature will be disabled.
 // (range: [0-23])
-const int BED_TIME = 23; // Last update at 00:00 (midnight) until WAKE_TIME.
-const int WAKE_TIME = 05; // Hour of first update after BED_TIME, 06:00.
+const int BED_TIME = CONFIG_BED_TIME; // Last update at 00:00 (midnight) until WAKE_TIME.
+const int WAKE_TIME = CONFIG_WAKE_TIME; // Hour of first update after BED_TIME, 06:00.
 // Note that the minute alignment of SLEEP_DURATION begins at WAKE_TIME even if
 // Bed Time Power Savings is disabled.
 // For example, if WAKE_TIME = 00 (midnight) and SLEEP_DURATION = 120, then the
@@ -205,7 +223,7 @@ const int WAKE_TIME = 05; // Hour of first update after BED_TIME, 06:00.
 
 // HOURLY OUTLOOK GRAPH
 // Number of hours to display on the outlook graph. (range: [8-48])
-const int HOURLY_GRAPH_MAX = 24;
+const int HOURLY_GRAPH_MAX = CONFIG_HOURLY_GRAPH_MAX;
 
 // BATTERY
 // To protect the battery upon LOW_BATTERY_VOLTAGE, the display will cease to

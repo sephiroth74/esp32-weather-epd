@@ -64,10 +64,10 @@ void BatteryReader::init() const
     analogSetPinAttenuation(pin, ADC_11db);
     delay(200); // Allow some time for the ADC to stabilize
 
-#if DEBUG_MODE
+#if DEBUG_LEVEL > 0
     Serial.print(F("BatteryReader initialized on pin "));
     Serial.println(pin);
-#endif // DEBUG_MODE
+#endif // DEBUG_LEVEL
 } // init
 
 battery_info_t BatteryReader::read() const

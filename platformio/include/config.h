@@ -30,7 +30,7 @@
 // Uncomment the macro that identifies your physical panel.
 // #define DISP_BW_V2 // <-- questo quello bianco e nero
 // #define DISP_3C_B
-#define DISP_7C_F // <-- questo quello a 7 colori
+// #define DISP_7C_F // <-- questo quello a 7 colori
 // #define DISP_BW_V1
 
 // E-PAPER DRIVER BOARD
@@ -39,7 +39,7 @@
 // The Waveshare rev2.2 is no longer in production.
 // Users of the Waveshare rev2.3 have reported experiencing low contrast issues.
 // Uncomment the macro that identifies your driver board hardware.
-#define DRIVER_DESPI_C02
+// #define DRIVER_DESPI_C02
 // #define DRIVER_WAVESHARE
 
 
@@ -52,11 +52,11 @@
 // Defines the 3rd color to be used when a 3+ color display is selected.
 #if defined(DISP_3C_B) || defined(DISP_7C_F)
   // #define ACCENT_COLOR GxEPD_BLACK
-  // #define ACCENT_COLOR GxEPD_RED
+  #define ACCENT_COLOR GxEPD_RED
   // #define ACCENT_COLOR GxEPD_GREEN
   // #define ACCENT_COLOR GxEPD_BLUE
   // #define ACCENT_COLOR GxEPD_YELLOW
-  #define ACCENT_COLOR GxEPD_ORANGE
+  // #define ACCENT_COLOR GxEPD_ORANGE
 #endif
 
 // LOCALE
@@ -259,9 +259,9 @@
 //   You may choose to power your weather display with or without a battery.
 //   Low power behavior can be controlled in config.cpp.
 //   If you wish to disable battery monitoring set this macro to 0.
-#define BATTERY_MONITORING 1
+// #define BATTERY_MONITORING 1
 
-#define BATTERY_POWER_SAVING 1
+// #define BATTERY_POWER_SAVING 1
 
 // NON-VOLATILE STORAGE (NVS) NAMESPACE
 #define NVS_NAMESPACE "weather_epd"
@@ -271,9 +271,10 @@
 //   level 0: basic status information, assists troubleshooting (default)
 //   level 1: increased verbosity for debugging
 //   level 2: print api responses to serial monitor
-#define DEBUG_LEVEL 1
+// #define DEBUG_LEVEL 1
 
-#define DEBUG_MODE 0
+// Delay before entering deep sleep mode (in milliseconds)
+// #define DELAY_BEFORE_SLEEP 20000
 
 // NUMBER OF LOCATIONS
 //   The number of locations to cycle through. The locations are defined in
