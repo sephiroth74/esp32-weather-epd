@@ -47,13 +47,13 @@ uint8_t calc_battery_percentage(uint32_t v)
     return 0;
 } // calc_battery_percentage
 
-bool battery_info_t::is_low() const { return millivolts <= LOW_BATTERY_VOLTAGE; }
+bool battery_info_t::is_low() const { return millivolts <= battery_info::from_percent(10, 3690).voltage; }
 
-bool battery_info_t::is_critical() const { return millivolts <= VERY_LOW_BATTERY_VOLTAGE; }
+bool battery_info_t::is_critical() const { return millivolts <= battery_info::from_percent(8, 3650).voltage; }
 
-bool battery_info_t::is_empty() const { return millivolts <= CRIT_LOW_BATTERY_VOLTAGE; }
+bool battery_info_t::is_empty() const { return millivolts <= battery_info::from_percent(5, 3610).voltage; }
 
-bool battery_info_t::is_charging() const { return millivolts > MAX_BATTERY_VOLTAGE + 100; }
+bool battery_info_t::is_charging() const { return millivolts > battery_info::from_percent(100, 4200).voltage + 100; }
 
 void BatteryReader::init() const
 {

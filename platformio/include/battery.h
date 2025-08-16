@@ -95,14 +95,15 @@ public:
      */
     bool is_charging() const;
 
-    static battery_info fromMv(uint32_t mv);
+    static battery_step_t from_percent(uint8_t percent, uint16_t voltage = 0);
 
 } battery_info_t;
 
 // Battery steps for voltage to percentage mapping
-constexpr battery_step_t steps[21] = {
+constexpr battery_step_t steps[22] = {
     battery_step(0, 3270),
     battery_step(5, 3610),
+    battery_step(8, 3650),
     battery_step(10, 3690),
     battery_step(15, 3710),
     battery_step(20, 3730),
@@ -124,7 +125,7 @@ constexpr battery_step_t steps[21] = {
     battery_step(100, 4200),
 };
 
-constexpr uint8_t total_steps = 21;
+constexpr uint8_t total_steps = 22;
 
 class BatteryReader {
 public:
