@@ -45,14 +45,14 @@
 
 // INDOOR ENVIRONMENT SENSOR
 // Uncomment the macro that identifies your sensor.
-#define SENSOR_BME280
+// #define SENSOR_BME280
 // #define SENSOR_BME680
 
 // 3 COLOR E-INK ACCENT COLOR
 // Defines the 3rd color to be used when a 3+ color display is selected.
 #if defined(DISP_3C_B) || defined(DISP_7C_F)
   // #define ACCENT_COLOR GxEPD_BLACK
-  #define ACCENT_COLOR GxEPD_RED
+  // #define ACCENT_COLOR GxEPD_RED
   // #define ACCENT_COLOR GxEPD_GREEN
   // #define ACCENT_COLOR GxEPD_BLUE
   // #define ACCENT_COLOR GxEPD_YELLOW
@@ -73,7 +73,7 @@
 //   Italiano (Italia)               it_IT
 //   Dutch (Belgium)                 nl_BE
 //   Portuguese (Brazil)             pt_BR
-#define LOCALE it_IT
+// #define LOCALE it_IT
 
 // UNITS
 // Define exactly one macro for each measurement type below.
@@ -223,7 +223,7 @@
 //   FreeSans font, but this project supports the ability to modularly swap
 //   fonts. Using a font other than FreeSans may result in undesired spacing or
 //   other artifacts.
-#define FONT_HEADER "fonts/Ubuntu_R.h"
+// #define FONT_HEADER "fonts/Ubuntu_R.h"
 
 // DAILY PRECIPITATION
 // Daily precipitation indicated under Hi|Lo can optionally be configured using
@@ -259,7 +259,6 @@
 //   You may choose to power your weather display with or without a battery.
 //   Low power behavior can be controlled in config.cpp.
 //   If you wish to disable battery monitoring set this macro to 0.
-// #define BATTERY_MONITORING 1
 
 // #define BATTERY_POWER_SAVING 1
 
@@ -279,26 +278,23 @@
 // NUMBER OF LOCATIONS
 //   The number of locations to cycle through. The locations are defined in
 //   config.cpp. It must be greater than 0.
-#define NUM_LOCATIONS 1
+// #define NUM_LOCATIONS 1
 
 // Set the below constants in "config.cpp"
-extern const uint8_t PIN_BAT_ADC;
-extern const uint8_t PIN_EPD_BUSY;
-extern const uint8_t PIN_EPD_CS;
-extern const uint8_t PIN_EPD_RST;
-extern const uint8_t PIN_EPD_DC;
-extern const uint8_t PIN_EPD_SCK;
-extern const uint8_t PIN_EPD_MISO;
-extern const uint8_t PIN_EPD_MOSI;
-extern const uint8_t PIN_EPD_PWR;
-extern const uint8_t PIN_BME_SDA;
-extern const uint8_t PIN_BME_SCL;
-extern const uint8_t PIN_BME_PWR;
+// extern const uint8_t PIN_BAT_ADC;
+// extern const uint8_t PIN_EPD_BUSY;
+// extern const uint8_t PIN_EPD_CS;
+// extern const uint8_t PIN_EPD_RST;
+// extern const uint8_t PIN_EPD_DC;
+// extern const uint8_t PIN_EPD_SCK;
+// extern const uint8_t PIN_EPD_MISO;
+// extern const uint8_t PIN_EPD_MOSI;
+// extern const uint8_t PIN_EPD_PWR;
+// extern const uint8_t PIN_BME_SDA;
+// extern const uint8_t PIN_BME_SCL;
+// extern const uint8_t PIN_BME_PWR;
 
-extern const uint8_t PIN_MAX1704X_SDA;
-extern const uint8_t PIN_MAX1704X_SCL;
-
-extern const uint8_t BME_ADDRESS;
+// extern const uint8_t BME_ADDRESS;
 extern const char *WIFI_SSID;
 extern const char *WIFI_PASSWORD;
 extern const unsigned long WIFI_TIMEOUT;
@@ -329,9 +325,20 @@ extern const unsigned long LOW_BATTERY_SLEEP_INTERVAL;
 extern const unsigned long VERY_LOW_BATTERY_SLEEP_INTERVAL;
 extern const uint32_t MAX_BATTERY_VOLTAGE;
 extern const uint32_t MIN_BATTERY_VOLTAGE;
-extern const double BATTERY_RESISTOR_DIVIDER; // 0.4719387755
+extern const double BATTERY_RESISTOR_DIVIDER;
 extern const uint8_t BATTERY_NUM_SAMPLES; // 20
 extern const uint32_t BATTERY_DELAY_MS; // 1
+
+#ifndef CONFIG_LOCAL
+#error CONFIG_LOCAL not defined
+#endif
+
+#define STR(x) #x
+#define XSTR(x) STR(x)
+#define CONFIG_HEADER_LOCAL_FILE XSTR(CONFIG_LOCAL/config.h)
+#define CONFIG_CPP_LOCAL_FILE XSTR(CONFIG_LOCAL/config.cpp)
+
+#include CONFIG_HEADER_LOCAL_FILE
 
 // CONFIG VALIDATION - DO NOT MODIFY
 #if !(  defined(DISP_BW_V2)  \
@@ -425,9 +432,6 @@ extern const uint32_t BATTERY_DELAY_MS; // 1
 #endif
 #if !(defined(DISPLAY_ALERTS))
   #error Invalid configuration. DISPLAY_ALERTS not defined.
-#endif
-#if !(defined(BATTERY_MONITORING))
-  #error Invalid configuration. BATTERY_MONITORING not defined.
 #endif
 #if !(defined(DEBUG_LEVEL))
   #error Invalid configuration. DEBUG_LEVEL not defined.
