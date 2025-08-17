@@ -28,47 +28,47 @@
 //       functionality.
 //
 
-#if defined(WAVESHARE_ESP32)
+// #if defined(WAVESHARE_ESP32)
 
-const uint8_t PIN_EPD_BUSY = 25;
-const uint8_t PIN_EPD_RST = 26;
-const uint8_t PIN_EPD_DC = 27;
-const uint8_t PIN_EPD_CS = 15;
-const uint8_t PIN_EPD_SCK = 13;
-const uint8_t PIN_EPD_MOSI = 14;
-// const uint8_t PIN_EPD_PWR = 0;
+// const uint8_t PIN_EPD_BUSY = 25;
+// const uint8_t PIN_EPD_RST = 26;
+// const uint8_t PIN_EPD_DC = 27;
+// const uint8_t PIN_EPD_CS = 15;
+// const uint8_t PIN_EPD_SCK = 13;
+// const uint8_t PIN_EPD_MOSI = 14;
+// // const uint8_t PIN_EPD_PWR = 0;
 
-const uint8_t PIN_BME_SDA = 22;
-const uint8_t PIN_BME_SCL = 23;
+// const uint8_t PIN_BME_SDA = 22;
+// const uint8_t PIN_BME_SCL = 23;
 
-const uint8_t PIN_BAT_ADC = 4;
-// const double BATTERY_RESISTOR_DIVIDER = 0.3506297229; // R1 = 330kΩ, R2 = 180kΩ (Vout = Vin * R2 / (R1 + R2))
+// const uint8_t PIN_BAT_ADC = 4;
+// // const double BATTERY_RESISTOR_DIVIDER = 0.3506297229; // R1 = 330kΩ, R2 = 180kΩ (Vout = Vin * R2 / (R1 + R2))
 
 
 
-#elif defined(ARDUINO_NANO_ESP32)
+// #elif defined(ARDUINO_NANO_ESP32)
 
-// ADC pin used to measure battery voltage
-const uint8_t PIN_BAT_ADC = A0; // A0 for arduino nano
+// // ADC pin used to measure battery voltage
+// const uint8_t PIN_BAT_ADC = A0; // A0 for arduino nano
 
-const uint8_t PIN_EPD_BUSY = D12; // 5 for micro-usb firebeetle
-const uint8_t PIN_EPD_RST = D11;
-const uint8_t PIN_EPD_DC = D10;
-const uint8_t PIN_EPD_CS = D9;
-const uint8_t PIN_EPD_SCK = D8;
-const uint8_t PIN_EPD_MOSI = D7;
-// const uint8_t PIN_EPD_PWR = 0; // Irrelevant if directly connected to 3.3V
+// const uint8_t PIN_EPD_BUSY = D12; // 5 for micro-usb firebeetle
+// const uint8_t PIN_EPD_RST = D11;
+// const uint8_t PIN_EPD_DC = D10;
+// const uint8_t PIN_EPD_CS = D9;
+// const uint8_t PIN_EPD_SCK = D8;
+// const uint8_t PIN_EPD_MOSI = D7;
+// // const uint8_t PIN_EPD_PWR = 0; // Irrelevant if directly connected to 3.3V
 
-const uint8_t PIN_BME_SDA = A4;
-const uint8_t PIN_BME_SCL = A5;
+// const uint8_t PIN_BME_SDA = A4;
+// const uint8_t PIN_BME_SCL = A5;
 
-// R1 = 330kΩ, R2 = 180kΩ, R2 / (R1 + R2) = // 180kΩ / (330kΩ + 180kΩ) = 0.3506297229
-// (Vout = Vin * R2 / (R1 + R2))
-// const double BATTERY_RESISTOR_DIVIDER = 0.3446341463;
+// // R1 = 330kΩ, R2 = 180kΩ, R2 / (R1 + R2) = // 180kΩ / (330kΩ + 180kΩ) = 0.3506297229
+// // (Vout = Vin * R2 / (R1 + R2))
+// // const double BATTERY_RESISTOR_DIVIDER = 0.3446341463;
 
-#else
-#warning "Unsupported board configuration. Please define the appropriate pins for your board in config.local.h."
-#endif
+// #else
+// #warning "Unsupported board configuration. Please define the appropriate pins for your board in config.local.h."
+// #endif
 
 // const uint8_t BME_ADDRESS = 0x76; // 0x76 if SDO -> GND; 0x77 if SDO -> VCC
 // const uint8_t PIN_BME_PWR = 0; // Irrelevant if directly connected to 3.3V
