@@ -329,14 +329,18 @@ extern const double BATTERY_RESISTOR_DIVIDER;
 extern const uint8_t BATTERY_NUM_SAMPLES; // 20
 extern const uint32_t BATTERY_DELAY_MS; // 1
 
-#ifndef CONFIG_LOCAL
-#error CONFIG_LOCAL not defined
+#ifndef LOCAL_CONFIG_FILE
+#error LOCAL_CONFIG_FILE not defined
+#endif
+
+#ifndef LOCATION_CONFIG_FILE
+#error LOCATION_CONFIG not defined
 #endif
 
 #define STR(x) #x
 #define XSTR(x) STR(x)
-#define CONFIG_HEADER_LOCAL_FILE XSTR(CONFIG_LOCAL/config.h)
-#define CONFIG_CPP_LOCAL_FILE XSTR(CONFIG_LOCAL/config.cpp)
+#define CONFIG_HEADER_LOCAL_FILE XSTR(LOCAL_CONFIG_FILE)
+#define CONFIG_CPP_LOCAL_FILE XSTR(LOCATION_CONFIG_FILE)
 
 #include CONFIG_HEADER_LOCAL_FILE
 
