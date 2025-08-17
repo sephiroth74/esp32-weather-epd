@@ -46,8 +46,7 @@ GxEPD2_3C<GxEPD2_750c_Z08, GxEPD2_750c_Z08::HEIGHT / 2>
     display(GxEPD2_750c_Z08(PIN_EPD_CS, PIN_EPD_DC, PIN_EPD_RST, PIN_EPD_BUSY));
 #endif
 #ifdef DISP_7C_F
-GxEPD2_7C<GxEPD2_730c_GDEY073D46, GxEPD2_730c_GDEY073D46::HEIGHT / 4>
-    display(GxEPD2_730c_GDEY073D46(PIN_EPD_CS, PIN_EPD_DC, PIN_EPD_RST, PIN_EPD_BUSY));
+GxEPD2_7C<GxEPD2_730c_GDEY073D46, GxEPD2_730c_GDEY073D46::HEIGHT / 4> display(GxEPD2_730c_GDEY073D46(PIN_EPD_CS, PIN_EPD_DC, PIN_EPD_RST, PIN_EPD_BUSY));
 #endif
 #ifdef DISP_BW_V1
 GxEPD2_BW<GxEPD2_750, GxEPD2_750::HEIGHT>
@@ -56,6 +55,14 @@ GxEPD2_BW<GxEPD2_750, GxEPD2_750::HEIGHT>
 
 #ifndef ACCENT_COLOR
 #define ACCENT_COLOR GxEPD_BLACK
+#endif
+
+#ifndef ACCENT_COLOR2
+#define ACCENT_COLOR2 GxEPD_BLACK
+#endif
+
+#if defined(ESP32) && defined(USE_HSPI_FOR_EPD)
+SPIClass hspi(HSPI);
 #endif
 
 /* Returns the string width in pixels
@@ -82,6 +89,20 @@ uint16_t getStringHeight(const String& text)
  */
 void drawString(int16_t x, int16_t y, const String& text, alignment_t alignment, uint16_t color)
 {
+#if DEBUG_LEVEL > 1
+    Serial.print("[debug] drawString(");
+    Serial.print(x);
+    Serial.print(", ");
+    Serial.print(y);
+    Serial.print(", ");
+    Serial.print(text);
+    Serial.print(", ");
+    Serial.print(alignment);
+    Serial.print(", ");
+    Serial.print(color);
+    Serial.println(")");
+#endif
+
     int16_t x1, y1;
     uint16_t w, h;
     display.setTextColor(color);
@@ -201,23 +222,49 @@ void initDisplay()
     digitalWrite(PIN_EPD_PWR, HIGH);
 #endif
 
+    Serial.println(F("initDisplay"));
+    Serial.println(F("Remapping SPI pins..."));
+    Serial.println(("  SCK: " + String(PIN_EPD_SCK)));
+    Serial.println(("  MOSI: " + String(PIN_EPD_MOSI)));
+    Serial.println(("  CS: " + String(PIN_EPD_CS)));
+
+#ifdef USE_HSPI_FOR_EPD
+    // use HSPI for e-paper display
+    Serial.println(F("Using HSPI for e-paper display"));
+    hspi.begin(PIN_EPD_SCK, -1, PIN_EPD_MOSI, PIN_EPD_CS);
+    display.epd2.selectSPI(hspi, SPISettings(4000000, MSBFIRST, SPI_MODE0));
+#else
+    // use VSPI for e-paper display
+    Serial.println(F("Using VSPI for e-paper display"));
+    SPI.end();
+    SPI.begin(PIN_EPD_SCK, -1, PIN_EPD_MOSI, PIN_EPD_CS);
+#endif
+
+    Serial.println(F("Display PINS: "));
+    Serial.print(F("  CS: "));
+    Serial.println(PIN_EPD_CS);
+    Serial.print(F("  DC: "));
+    Serial.println(PIN_EPD_DC);
+    Serial.print(F("  RST: "));
+    Serial.println(PIN_EPD_RST);
+    Serial.print(F("  BUSY: "));
+    Serial.println(PIN_EPD_BUSY);
+
 #ifdef DRIVER_WAVESHARE
     display.init(115200, true, 2, false);
 #endif
 #ifdef DRIVER_DESPI_C02
     display.init(115200);
 #endif
-    // remap spi
-    SPI.end();
 
-    Serial.println(F("initDisplay"));
-    Serial.println(F("Remapping SPI pins..."));
-    Serial.println(("  SCK: " + String(PIN_EPD_SCK)));
-    Serial.println(("  MISO: " + String(PIN_EPD_MISO)));
-    Serial.println(("  MOSI: " + String(PIN_EPD_MOSI)));
-    Serial.println(("  CS: " + String(PIN_EPD_CS)));
-
-    SPI.begin(PIN_EPD_SCK, PIN_EPD_MISO, PIN_EPD_MOSI, PIN_EPD_CS);
+    if (display.pages() > 1) {
+        delay(100);
+        Serial.print("pages = ");
+        Serial.print(display.pages());
+        Serial.print(" page height = ");
+        Serial.println(display.pageHeight());
+        delay(1000);
+    }
 
     display.setRotation(0);
     display.setTextSize(1);
@@ -236,9 +283,9 @@ void powerOffDisplay()
     display.hibernate(); // turns powerOff() and sets controller to deep sleep for
                          // minimum power use
 
-    #if PIN_EPD_PWR > 0
-        digitalWrite(PIN_EPD_PWR, LOW);
-    #endif
+#if PIN_EPD_PWR > 0
+    digitalWrite(PIN_EPD_PWR, LOW);
+#endif
     return;
 } // end initDisplay
 
@@ -273,12 +320,12 @@ void drawCurrentConditions(const owm_current_t& current,
     // temperature (0123456789.-\260)
     display.setFont(&FONT_48pt8b_temperature);
 #ifndef DISP_BW_V1
-    drawString(196 + 164 / 2 - 20, 196 / 2 + 69 / 2, dataStr, CENTER);
+    drawString(196 + 164 / 2 - 20, 196 / 2 + 69 / 2, dataStr, CENTER, ACCENT_COLOR);
 #elif defined(DISP_BW_V1)
     drawString(156 + 164 / 2 - 20, 196 / 2 + 69 / 2, dataStr, CENTER);
 #endif
     display.setFont(&FONT_14pt8b);
-    drawString(display.getCursorX(), 196 / 2 - 69 / 2 + 20, unitStr, LEFT);
+    drawString(display.getCursorX(), 196 / 2 - 69 / 2 + 20, unitStr, LEFT, ACCENT_COLOR);
 
     // current feels like
 #ifdef UNITS_TEMP_KELVIN
@@ -305,14 +352,14 @@ void drawCurrentConditions(const owm_current_t& current,
     display.drawInvertedBitmap(0, 204 + (48 + 8) * 2, wi_day_sunny_48x48, 48, 48, GxEPD_BLACK);
 #ifndef DISP_BW_V1
     display.drawInvertedBitmap(0, 204 + (48 + 8) * 3, air_filter_48x48, 48, 48, GxEPD_BLACK);
-    display.drawInvertedBitmap(0, 204 + (48 + 8) * 4, house_thermometer_48x48, 48, 48, GxEPD_BLACK);
+    display.drawInvertedBitmap(0, 204 + (48 + 8) * 4, house_thermometer_48x48, 48, 48, ACCENT_COLOR2);
 #endif
     display.drawInvertedBitmap(170, 204 + (48 + 8) * 0, wi_sunset_48x48, 48, 48, GxEPD_BLACK);
     display.drawInvertedBitmap(170, 204 + (48 + 8) * 1, wi_humidity_48x48, 48, 48, GxEPD_BLACK);
     display.drawInvertedBitmap(170, 204 + (48 + 8) * 2, wi_barometer_48x48, 48, 48, GxEPD_BLACK);
 #ifndef DISP_BW_V1
     display.drawInvertedBitmap(170, 204 + (48 + 8) * 3, visibility_icon_48x48, 48, 48, GxEPD_BLACK);
-    display.drawInvertedBitmap(170, 204 + (48 + 8) * 4, house_humidity_48x48, 48, 48, GxEPD_BLACK);
+    display.drawInvertedBitmap(170, 204 + (48 + 8) * 4, house_humidity_48x48, 48, 48, ACCENT_COLOR2);
 #endif
 
     // current weather data labels
@@ -429,7 +476,6 @@ void drawCurrentConditions(const owm_current_t& current,
 
 #ifndef DISP_BW_V1
     if (owm_air_pollution.success) {
-        Serial.println(F("[debug] drawCurrentConditions: owm_air_pollution available"));
         // air quality index
         display.setFont(&FONT_12pt8b);
         const owm_components_t& c = owm_air_pollution.components;
@@ -484,7 +530,7 @@ void drawCurrentConditions(const owm_current_t& current,
 #if defined(UNITS_TEMP_CELSIUS) || defined(UNITS_TEMP_FAHRENHEIT)
     dataStr += "\260";
 #endif
-    drawString(48, 204 + 17 / 2 + (48 + 8) * 4 + 48 / 2, dataStr, LEFT);
+    drawString(48, 204 + 17 / 2 + (48 + 8) * 4 + 48 / 2, dataStr, LEFT, ACCENT_COLOR2);
 #endif // defined(DISP_BW_V2) || defined(DISP_3C_B) || defined(DISP_7C_F)
 
     // sunset
@@ -577,9 +623,9 @@ void drawCurrentConditions(const owm_current_t& current,
         } else {
             dataStr = "--";
         }
-        drawString(170 + 48, 204 + 17 / 2 + (48 + 8) * 4 + 48 / 2, dataStr, LEFT);
+        drawString(170 + 48, 204 + 17 / 2 + (48 + 8) * 4 + 48 / 2, dataStr, LEFT, ACCENT_COLOR2);
         display.setFont(&FONT_8pt8b);
-        drawString(display.getCursorX(), 204 + 17 / 2 + (48 + 8) * 4 + 48 / 2, "%", LEFT);
+        drawString(display.getCursorX(), 204 + 17 / 2 + (48 + 8) * 4 + 48 / 2, "%", LEFT, ACCENT_COLOR2);
 #endif // defined(DISP_BW_V2) || defined(DISP_3C_B) || defined(DISP_7C_F)
         return;
     } // end drawCurrentConditions
@@ -1107,15 +1153,14 @@ void drawCurrentConditions(const owm_current_t& current,
     void drawStatusBar(
         const String& statusStr, const String& refreshTimeStr, int rssi, battery::battery_info& battery)
     {
+        Serial.println("[debug] drawStatusBar() called");
         String dataStr;
         uint16_t dataColor = GxEPD_BLACK;
         display.setFont(&FONT_6pt8b);
         int pos = DISP_WIDTH - 2;
         const int sp = 2;
 
-#if BATTERY_MONITORING
-        // battery - (expecting 3.7v LiPo)
-
+#if PIN_BAT_ADC > -1
 #if defined(DISP_3C_B) || defined(DISP_7C_F)
         if (battery.millivolts < WARN_BATTERY_VOLTAGE) {
             dataColor = ACCENT_COLOR;
@@ -1124,7 +1169,7 @@ void drawCurrentConditions(const owm_current_t& current,
         dataStr = String(battery.percent) + "%";
 #if STATUS_BAR_EXTRAS_BAT_VOLTAGE
         dataStr += " (" + String(std::round(battery.millivolts / 10.f) / 100.f, 2) + "v)";
-#if DEBUG_LEVEL > 0
+#if DEBUG_BATTERY > 0
         dataStr += " " + String(battery.analog_reading) + "/" + String(battery.raw_millivolts);
 #endif
 #endif

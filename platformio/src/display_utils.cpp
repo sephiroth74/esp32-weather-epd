@@ -1543,16 +1543,15 @@ const char *getWifiStatusPhrase(wl_status_t status)
  */
 void disableBuiltinLED()
 {
-#if defined(LED_BUILTIN) && defined(HAS_BUILTIN_LED)
-  Serial.print("Disabling built-in LED");
-  Serial.print(" (");
-  Serial.print(LED_BUILTIN);
-  Serial.println(")");
+#if defined(LED_BUILTIN) && defined(HAS_BUILTIN_LED) && !defined(WAVESHARE_ESP32_S3_ZERO)
+    Serial.print("Disabling built-in LED");
+    Serial.print(" (");
+    Serial.print(LED_BUILTIN);
+    Serial.println(")");
 
-  pinMode(LED_BUILTIN, OUTPUT);
-  digitalWrite(LED_BUILTIN, LOW);
-  gpio_hold_en(static_cast<gpio_num_t>(LED_BUILTIN));
+    pinMode(LED_BUILTIN, OUTPUT);
+    digitalWrite(LED_BUILTIN, LOW);
+    gpio_hold_en(static_cast<gpio_num_t>(LED_BUILTIN));
 #endif // end LED_BUILTIN
   gpio_deep_sleep_hold_en();
-  return;
 } // end disableBuiltinLED

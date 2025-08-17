@@ -15,7 +15,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include "config.h"
 #include <Adafruit_BME280.h>
 #include <Adafruit_Sensor.h>
 #include <Arduino.h>
@@ -51,6 +50,27 @@ static owm_resp_onecall_t owm_onecall;
 static owm_resp_air_pollution_t owm_air_pollution;
 
 Preferences prefs;
+
+void enterDeepSleep()
+{
+#if DELAY_BEFORE_SLEEP > 0
+    Serial.print("Delaying before deep sleep for ");
+    Serial.print(DELAY_BEFORE_SLEEP / 1000);
+    Serial.println(" seconds.");
+    delay(DELAY_BEFORE_SLEEP);
+#endif // DELAY_BEFORE_SLEEP
+
+#if defined(PIN_WAKEUP) && (PIN_WAKEUP >= 0)
+    // enable wakeup on GPIO
+    Serial.println("[debug] Enabling wakeup on GPIO " + String(PIN_WAKEUP));
+
+    gpio_pullup_en(PIN_WAKEUP);
+    gpio_pulldown_dis(PIN_WAKEUP);
+    // gpio_hold_en(PIN_WAKEUP);
+    esp_sleep_enable_ext0_wakeup(PIN_WAKEUP, LOW);
+#endif
+    esp_deep_sleep_start();
+}
 
 /* Put esp32 into ultra low-power deep sleep (<11μA).
  * Aligns wake time to the minute. Sleep times defined in config.cpp.
@@ -112,14 +132,7 @@ void beginDeepSleep(unsigned long startTime, tm* timeInfo)
     Serial.println(" " + String((millis() - startTime) / 1000.0, 3) + "s");
     Serial.print(TXT_ENTERING_DEEP_SLEEP_FOR);
     Serial.println(" " + String(sleepDuration) + "s");
-
-#if DELAY_BEFORE_SLEEP > 0
-    Serial.print("Delaying before deep sleep for ");
-    Serial.print(DELAY_BEFORE_SLEEP / 1000);
-    Serial.println(" seconds.");
-    delay(DELAY_BEFORE_SLEEP);
-#endif // DELAY_BEFORE_SLEEP
-    esp_deep_sleep_start();
+    enterDeepSleep();
 } // end beginDeepSleep
 
 /* Program entry point.
@@ -144,7 +157,7 @@ void setup()
     Serial.println("DFRobot FireBeetle ESP32 detected.");
 #elif defined(ARDUINO_NANO_ESP32)
     Serial.println("Arduino Nano ESP32 detected.");
-#elif defined(WAVESHARE_ESP32S3_ZERO)
+#elif defined(WAVESHARE_ESP32_S3_ZERO)
     Serial.println("Waveshare ESP32S3 Zero detected.");
 #endif
 
@@ -173,16 +186,16 @@ void setup()
     String currentCity = CITY_STRING[locationsIndex];
     String currentTimeZone = TIMEZONE[locationsIndex];
 
-    if (DEBUG_LEVEL >= 1) {
-        Serial.println("Location index: " + String(locationsIndex));
-        Serial.println("Location: " + currentCity);
-        Serial.println("Latitude: " + currentLat);
-        Serial.println("Longitude: " + currentLon);
-        Serial.println("Timezone: " + currentTimeZone);
-    }
+    Serial.println("Location index: " + String(locationsIndex));
+    Serial.println("Location: " + currentCity);
+    Serial.println("Latitude: " + currentLat);
+    Serial.println("Longitude: " + currentLon);
+    Serial.println("Timezone: " + currentTimeZone);
 
-#if BATTERY_MONITORING
+#if PIN_BAT_ADC > -1
     battery::battery_info_t battery_info;
+
+    Serial.println("Battery resistor divider: " + String(BATTERY_RESISTOR_DIVIDER));
 
     battery::BatteryReader battery_reader(PIN_BAT_ADC,
         BATTERY_RESISTOR_DIVIDER,
@@ -191,14 +204,6 @@ void setup()
 
     battery_reader.init();
     battery_info = battery_reader.read();
-
-    Serial.print(F("Battery millivolts: "));
-    Serial.print(battery_info.millivolts);
-    Serial.print(F(", raw_value: "));
-    Serial.print(battery_info.raw_millivolts);
-    Serial.print(F(", percent: "));
-    Serial.print(battery_info.percent);
-    Serial.println(F("%"));
 
     // When the battery is low, the display should be updated to reflect that, but
     // only the first time we detect low voltage. The next time the display will
@@ -247,14 +252,7 @@ void setup()
             Serial.print(TXT_ENTERING_DEEP_SLEEP_FOR);
             Serial.println(" " + String(LOW_BATTERY_SLEEP_INTERVAL) + "min");
         }
-
-#if DELAY_BEFORE_SLEEP > 0
-        Serial.print("Delaying before deep sleep for ");
-        Serial.print(DELAY_BEFORE_SLEEP / 1000);
-        Serial.println(" seconds.");
-        delay(DELAY_BEFORE_SLEEP);
-#endif // DELAY_BEFORE_SLEEP
-        esp_deep_sleep_start();
+        enterDeepSleep();
     }
     // battery is no longer low, reset variable in non-volatile storage
     if (lowBat == true) {

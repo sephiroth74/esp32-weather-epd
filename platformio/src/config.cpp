@@ -17,7 +17,7 @@
 
 #include <Arduino.h>
 #include "config.h"
-#include "config.local.h"
+#include CONFIG_CPP_LOCAL_FILE
 
 // PINS
 // The configuration below is intended for use with the project's official
@@ -35,56 +35,16 @@ const uint8_t PIN_EPD_RST = 26;
 const uint8_t PIN_EPD_DC = 27;
 const uint8_t PIN_EPD_CS = 15;
 const uint8_t PIN_EPD_SCK = 13;
-const uint8_t PIN_EPD_MISO = 19;
 const uint8_t PIN_EPD_MOSI = 14;
-const uint8_t PIN_EPD_PWR = 0;
+// const uint8_t PIN_EPD_PWR = 0;
 
 const uint8_t PIN_BME_SDA = 22;
 const uint8_t PIN_BME_SCL = 23;
 
 const uint8_t PIN_BAT_ADC = 4;
-const double BATTERY_RESISTOR_DIVIDER = 0.3506297229; // R1 = 330kΩ, R2 = 180kΩ (Vout = Vin * R2 / (R1 + R2))
+// const double BATTERY_RESISTOR_DIVIDER = 0.3506297229; // R1 = 330kΩ, R2 = 180kΩ (Vout = Vin * R2 / (R1 + R2))
 
-#elif defined(WAVESHARE_ESP32S3_ZERO)
 
-const uint8_t PIN_EPD_BUSY = 25;
-const uint8_t PIN_EPD_RST = 26;
-const uint8_t PIN_EPD_DC = 27;
-const uint8_t PIN_EPD_CS = 15;
-const uint8_t PIN_EPD_SCK = 13;
-const uint8_t PIN_EPD_MISO = 19;
-const uint8_t PIN_EPD_MOSI = 14;
-const uint8_t PIN_EPD_PWR = 0;
-
-const uint8_t PIN_BME_SDA = 22;
-const uint8_t PIN_BME_SCL = 23;
-
-const uint8_t PIN_BAT_ADC = 4;
-
-// R1 = 330kΩ, R2 = 180kΩ, R2 / (R1 + R2) = // 180kΩ / (330kΩ + 180kΩ) = 0.3506297229
-// (Vout = Vin * R2 / (R1 + R2))
-const double BATTERY_RESISTOR_DIVIDER = 0.3446341463;
-
-#elif defined(NODEMCU_32S)
-
-const uint8_t PIN_EPD_BUSY = 14;
-const uint8_t PIN_EPD_RST = 21;
-const uint8_t PIN_EPD_DC = 22;
-const uint8_t PIN_EPD_CS = 13;
-const uint8_t PIN_EPD_SCK = 18;
-const uint8_t PIN_EPD_MISO = 0;
-const uint8_t PIN_EPD_MOSI = 23;
-const uint8_t PIN_EPD_PWR = 0;
-
-// I2C Pins used for BME280
-const uint8_t PIN_BME_SDA = 26;
-const uint8_t PIN_BME_SCL = 25;
-const uint8_t PIN_BAT_ADC = 34;
-
-// I2C Pins used for MAX1704X
-const uint8_t PIN_MAX1704X_SDA = 16;
-const uint8_t PIN_MAX1704X_SCL = 17;
-const double BATTERY_RESISTOR_DIVIDER = 0.5004761905; // 0.4738095238;
 
 #elif defined(ARDUINO_NANO_ESP32)
 
@@ -97,22 +57,21 @@ const uint8_t PIN_EPD_DC = D10;
 const uint8_t PIN_EPD_CS = D9;
 const uint8_t PIN_EPD_SCK = D8;
 const uint8_t PIN_EPD_MOSI = D7;
-const uint8_t PIN_EPD_MISO = 0; // 19 Master-In Slave-Out not used, as no data from display
-const uint8_t PIN_EPD_PWR = 0; // Irrelevant if directly connected to 3.3V
+// const uint8_t PIN_EPD_PWR = 0; // Irrelevant if directly connected to 3.3V
 
 const uint8_t PIN_BME_SDA = A4;
 const uint8_t PIN_BME_SCL = A5;
 
 // R1 = 330kΩ, R2 = 180kΩ, R2 / (R1 + R2) = // 180kΩ / (330kΩ + 180kΩ) = 0.3506297229
 // (Vout = Vin * R2 / (R1 + R2))
-const double BATTERY_RESISTOR_DIVIDER = 0.3446341463;
+// const double BATTERY_RESISTOR_DIVIDER = 0.3446341463;
 
 #else
-#error "Unsupported board configuration. Please define the appropriate pins for your board in config.local.h."
+#warning "Unsupported board configuration. Please define the appropriate pins for your board in config.local.h."
 #endif
 
-const uint8_t BME_ADDRESS = 0x76; // 0x76 if SDO -> GND; 0x77 if SDO -> VCC
-const uint8_t PIN_BME_PWR = 0; // Irrelevant if directly connected to 3.3V
+// const uint8_t BME_ADDRESS = 0x76; // 0x76 if SDO -> GND; 0x77 if SDO -> VCC
+// const uint8_t PIN_BME_PWR = 0; // Irrelevant if directly connected to 3.3V
 
 const uint8_t BATTERY_NUM_SAMPLES = 35;
 const uint32_t BATTERY_DELAY_MS = 10;
@@ -153,23 +112,6 @@ const String OWM_ONECALL_VERSION = "3.0";
 // LOCATION
 // Set your latitude and longitude.
 // (used to get weather data as part of API requests to OpenWeatherMap)
-
-#if LOCATION==LOCATION_BESOZZO
-const String LAT[NUM_LOCATIONS] = { "45.843954" };
-const String LON[NUM_LOCATIONS] = { "8.681686" };
-// City name that will be shown in the top-right corner of the display.
-const String CITY_STRING[NUM_LOCATIONS] = { "Besozzo, IT" };
-#elif LOCATION==LOCATION_GAVIRATE4 || LOCATION==LOCATION_GAVIRATE6
-const String LAT[NUM_LOCATIONS] = { "45.843954" };
-const String LON[NUM_LOCATIONS] = { "8.681686" };
-// City name that will be shown in the top-right corner of the display.
-const String CITY_STRING[NUM_LOCATIONS] = { "Gavirate, IT" };
-#elif LOCATION==LOCATION_ZURIGO
-const String LAT[NUM_LOCATIONS] = { "47.376886" };
-const String LON[NUM_LOCATIONS] = { "8.541694" };
-// City name that will be shown in the top-right corner of the display.
-const String CITY_STRING[NUM_LOCATIONS] = { "Zurigo, CH" };
-#endif
 
 // TIME
 // For list of time zones see

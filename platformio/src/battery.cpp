@@ -83,20 +83,22 @@ battery_info_t BatteryReader::read() const
     millivolts /= num_readings;
     raw /= num_readings;
 
-    uint32_t voltage
-        = millivolts / resistor_ratio;
+    uint32_t voltage = millivolts / resistor_ratio;
     uint8_t percent = calc_battery_percentage(voltage);
 
 #if DEBUG_LEVEL > 0
-    Serial.print("Battery readings: ");
+    Serial.println("Battery readings: ");
+    Serial.print("resistor_ratio: ");
+    Serial.println(resistor_ratio);
     Serial.print("raw: ");
-    Serial.print(raw);
-    Serial.print(", millivolts: ");
-    Serial.print(millivolts);
-    Serial.print(", voltage: ");
-    Serial.print(voltage);
-    Serial.print(", percent: ");
+    Serial.println(raw);
+    Serial.print("millivolts: ");
+    Serial.println(millivolts);
+    Serial.print("voltage (millivolts/ratio): ");
+    Serial.println(voltage);
+    Serial.print("percent: ");
     Serial.println(percent);
+    Serial.println("--------------------------------------");
 #endif // DEBUG_LEVEL
 
     return battery_info(
