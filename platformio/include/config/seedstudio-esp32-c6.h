@@ -2,29 +2,36 @@
 #include <Arduino.h>
 #include <stdint.h>
 
-#define NODEMCU_32S
+#define SEEDSTUDIO_ESP32_C6
 
-#define PIN_EPD_BUSY (int8_t)15
-#define PIN_EPD_RST (int8_t)13
-#define PIN_EPD_DC (int8_t)4
-#define PIN_EPD_CS (int8_t)SS
-#define PIN_EPD_SCK (int8_t)SCK
-#define PIN_EPD_MOSI (int8_t)MOSI
-#define PIN_EPD_PWR (int8_t)-1
-#define PIN_BAT_ADC 34
+#define PIN_EPD_BUSY (int8_t)D9 // 20
+#define PIN_EPD_RST (int8_t)D7 // 17
+#define PIN_EPD_DC (int8_t)D3 // 21
+#define PIN_EPD_CS (int8_t)D6 // 16
+#define PIN_EPD_SCK (int8_t)D8 // 19
+#define PIN_EPD_MOSI (int8_t)D10 // 18
+#define PIN_EPD_PWR -1
+#define PIN_BAT_ADC D0 // D0
 
-#define PIN_BME_SDA (int8_t)SDA
-#define PIN_BME_SCL (int8_t)SCL
-#define PIN_BME_PWR (int8_t)-1
+#define PIN_BME_SDA (int8_t)D4 // 22
+#define PIN_BME_SCL (int8_t)D5 // 23
+#define PIN_BME_PWR -1
+
+// Wakeup pin
+#define PIN_WAKEUP GPIO_NUM_2
+
+// Wakeup method (if not defined EXT0 will be used)
+// Not used if PIN_WAKEUP is -1
+#define USE_EXT1_WAKEUP
 
 // BME I2C Address
 // 0x76 if SDO -> GND; 0x77 if SDO -> VCC
 #define BME_ADDRESS 0x76
 
 // Built-in LED
-#define HAS_BUILTIN_LED
+// #define HAS_BUILTIN_LED
 
-#define USE_HTTPS_NO_CERT_VERIF
+#define USE_HTTP
 
 // Display type
 #define DISP_7C_F
@@ -42,18 +49,21 @@
 // #define ACCENT_COLOR GxEPD_ORANGE
 // #define ACCENT_COLOR GxEPD_YELLOW
 
+
+#define ACCENT_COLOR2 GxEPD_GREEN
+
 // HSPI for EPD
-#define USE_HSPI_FOR_EPD
+// #define USE_HSPI_FOR_EPD
 
 // Temperature sensor
 #define SENSOR_BME280
 // #define SENSOR_BME680
 
 // Battery monitoring
-#define BATTERY_POWER_SAVING 1
+#define BATTERY_POWER_SAVING 0
 
 // R1 = 680kΩ, R2 = 330kΩ (Vout = Vin * R2 / (R1 + R2))
-#define BATTERY_RESISTOR_DIVIDER 0.3247030879 
+#define BATTERY_RESISTOR_DIVIDER 0.4984
 
 // Debug level
 #define DEBUG_LEVEL 1
@@ -65,17 +75,13 @@
 // Sleep configuration
 #define CONFIG_SLEEP_DURATION 120
 #define CONFIG_BED_TIME 23
-#define CONFIG_WAKE_TIME 06
+#define CONFIG_WAKE_TIME 6
 
 #define CONFIG_HOURLY_GRAPH_MAX 24
 
 #define LOCALE it_IT
 
 #define FONT_HEADER "fonts/OpenSans_Regular.h"
-
-// WiFi credentials
-#define WIFI_SSID "Vodafone-A71845657"
-#define WIFI_PASSWORD "daMG9bLyPdtXMbH3"
 
 // Location(s)
 #define NUM_LOCATIONS 1

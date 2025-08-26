@@ -18,8 +18,14 @@
 #include <cmath>
 #include <vector>
 #include <Arduino.h>
+
+#ifdef CONFIG_IDF_TARGET_ESP32C6
+#include <esp_adc/adc_cali.h>
+#include <esp_adc/adc_oneshot.h>
+#else
 #include <driver/adc.h>
 #include <esp_adc_cal.h>
+#endif // CONFIG_IDF_TARGET_ESP32C6
 
 #include <aqi.h>
 
@@ -1543,7 +1549,7 @@ const char *getWifiStatusPhrase(wl_status_t status)
  */
 void disableBuiltinLED()
 {
-#if defined(LED_BUILTIN) && defined(HAS_BUILTIN_LED) && !defined(WAVESHARE_ESP32_S3_ZERO)
+#if defined(LED_BUILTIN) && defined(HAS_BUILTIN_LED)
     Serial.print("Disabling built-in LED");
     Serial.print(" (");
     Serial.print(LED_BUILTIN);
@@ -1552,6 +1558,11 @@ void disableBuiltinLED()
     pinMode(LED_BUILTIN, OUTPUT);
     digitalWrite(LED_BUILTIN, LOW);
     gpio_hold_en(static_cast<gpio_num_t>(LED_BUILTIN));
-#endif // end LED_BUILTIN
+#else
+#if !defined(CONFIG_IDF_TARGET_ESP32C6)
+  Serial.print("Disabling deep sleep hold");
   gpio_deep_sleep_hold_en();
+#endif // CONFIG_IDF_TARGET_ESP32C6
+#endif // HAS_BUILTIN_LED
+
 } // end disableBuiltinLED

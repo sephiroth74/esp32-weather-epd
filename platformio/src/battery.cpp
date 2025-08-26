@@ -25,8 +25,14 @@
 
 #include <Arduino.h>
 #include <cmath>
+
+#ifdef CONFIG_IDF_TARGET_ESP32C6
+#include <esp_adc/adc_cali.h>
+#include <esp_adc/adc_oneshot.h>
+#else
 #include <driver/adc.h>
 #include <esp_adc_cal.h>
+#endif // CONFIG_IDF_TARGET_ESP32C6
 
 namespace battery {
 
@@ -55,6 +61,17 @@ bool battery_info_t::is_empty() const { return millivolts <= battery_info::from_
 
 bool battery_info_t::is_charging() const { return millivolts > battery_info::from_percent(100, 4200).voltage + 100; }
 
+String battery_info_t::to_string() const
+{
+    String result;
+    result += "Battery Info:\n";
+    result += "  Raw Analog: " + String(raw_analog) + "\n";
+    result += "  Raw Millivolts: " + String(raw_millivolts) + "\n";
+    result += "  Millivolts: " + String(millivolts) + "\n";
+    result += "  Percent: " + String(percent) + "\n";
+    return result;
+}
+
 void BatteryReader::init() const
 {
     Serial.print(F("Initializing BatteryReader on pin "));
@@ -72,28 +89,27 @@ void BatteryReader::init() const
 
 battery_info_t BatteryReader::read() const
 {
-    uint32_t millivolts = 0;
-    uint32_t raw = 0;
+    uint32_t raw_millivolts = 0;
+    uint32_t raw_analog = 0;
     for (int i = 0; i < num_readings; i++) {
-        millivolts += analogReadMilliVolts(pin);
-        raw += analogRead(pin);
+        raw_millivolts += analogReadMilliVolts(pin);
+        raw_analog += analogRead(pin);
         delay(delay_between_readings);
     }
 
-    millivolts /= num_readings;
-    raw /= num_readings;
+    raw_millivolts /= num_readings;
 
-    uint32_t voltage = millivolts / resistor_ratio;
+    uint32_t voltage = raw_millivolts / resistor_ratio;
     uint8_t percent = calc_battery_percentage(voltage);
 
-#if DEBUG_LEVEL > 0
+#if DEBUG_LEVEL > 1
     Serial.println("Battery readings: ");
     Serial.print("resistor_ratio: ");
-    Serial.println(resistor_ratio);
+    Serial.printf("%4f", resistor_ratio);
     Serial.print("raw: ");
-    Serial.println(raw);
+    Serial.println(raw_analog);
     Serial.print("millivolts: ");
-    Serial.println(millivolts);
+    Serial.println(raw_millivolts);
     Serial.print("voltage (millivolts/ratio): ");
     Serial.println(voltage);
     Serial.print("percent: ");
@@ -102,8 +118,8 @@ battery_info_t BatteryReader::read() const
 #endif // DEBUG_LEVEL
 
     return battery_info(
-        raw /* analog_reading */,
-        millivolts /* raw_millivolts */,
+        raw_analog /* raw_analog */,
+        raw_millivolts /* raw_millivolts */,
         voltage /* adjusted millivolts */,
         percent /* percent */);
 } // read

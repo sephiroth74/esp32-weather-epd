@@ -27,6 +27,8 @@
 // Built-in LED
 // #define HAS_BUILTIN_LED
 
+#define USE_HTTPS_NO_CERT_VERIF
+
 // Display type
 #define DISP_7C_F
 // #define DISP_BW_V2
@@ -57,7 +59,7 @@
 #define BATTERY_POWER_SAVING 1
 
 // R1 = 680kΩ, R2 = 330kΩ (Vout = Vin * R2 / (R1 + R2))
-#define BATTERY_RESISTOR_DIVIDER 0.3247030879 
+#define BATTERY_RESISTOR_DIVIDER 0.4984
 
 // Debug level
 #define DEBUG_LEVEL 1

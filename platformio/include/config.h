@@ -153,7 +153,7 @@
 //   2026-04-10 23:59:59+00:00
 // (uncomment exactly one)
 // #define USE_HTTP
-#define USE_HTTPS_NO_CERT_VERIF
+// #define USE_HTTPS_NO_CERT_VERIF
 // #define USE_HTTPS_WITH_CERT_VERIF
 
 // WIND DIRECTION INDICATOR
@@ -328,6 +328,8 @@ extern const uint32_t MIN_BATTERY_VOLTAGE;
 extern const double BATTERY_RESISTOR_DIVIDER;
 extern const uint8_t BATTERY_NUM_SAMPLES; // 20
 extern const uint32_t BATTERY_DELAY_MS; // 1
+
+#define BUTTON_PIN_BITMASK(GPIO) (1ULL << GPIO) // 2 ^ GPIO_NUMBER in hex
 
 #ifndef LOCAL_CONFIG_FILE
 #error LOCAL_CONFIG_FILE not defined

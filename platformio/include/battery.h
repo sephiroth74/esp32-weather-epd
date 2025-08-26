@@ -48,15 +48,20 @@ typedef struct battery_step {
 
 typedef struct battery_info {
 public:
-    uint32_t analog_reading; // raw ADC reading
+    uint32_t raw_analog; // raw ADC reading
     uint32_t raw_millivolts; // raw battery voltage in millivolts
     uint32_t millivolts;
     uint8_t percent;
 
     float batteryVoltage1; // battery voltage after applying resistor divider
 
-    constexpr battery_info(uint32_t raw, uint32_t raw_millivolts, uint32_t millivolts, uint8_t percent, float batteryVoltage1 = 0)
-        : analog_reading(raw)
+    constexpr battery_info(
+        uint32_t raw,
+        uint32_t raw_millivolts,
+        uint32_t millivolts,
+        uint8_t percent,
+        float batteryVoltage1 = 0)
+        : raw_analog(raw)
         , raw_millivolts(raw_millivolts)
         , millivolts(millivolts)
         , percent(percent)
@@ -94,6 +99,8 @@ public:
      * @return True if the battery is charging, false otherwise.
      */
     bool is_charging() const;
+
+    String to_string() const;
 
     static battery_step_t from_percent(uint8_t percent, uint16_t voltage = 0);
 

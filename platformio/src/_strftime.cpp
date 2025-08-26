@@ -502,7 +502,12 @@ size_t _strftime(char *s, size_t maxsize, const char *format,
       struct tm non_const_timeptr;
 
       non_const_timeptr = *timeptr;
+
+#ifdef CONFIG_IDF_TARGET_ESP32C6
+      sprintf(tbuf, "%lld", mktime(&non_const_timeptr));
+#else
       sprintf(tbuf, "%ld", mktime(&non_const_timeptr));
+#endif
       break;
     }
 
