@@ -256,16 +256,6 @@ void initDisplay()
 #ifdef DRIVER_DESPI_C02
     display.init(115200);
 #endif
-
-    if (display.pages() > 1) {
-        delay(100);
-        Serial.print("pages = ");
-        Serial.print(display.pages());
-        Serial.print(" page height = ");
-        Serial.println(display.pageHeight());
-        delay(1000);
-    }
-
     display.setRotation(0);
     display.setTextSize(1);
     display.setTextColor(GxEPD_BLACK);
@@ -718,10 +708,8 @@ void drawCurrentConditions(const owm_current_t& current,
      */
     void drawAlerts(std::vector<owm_alerts_t> & alerts, const String& city, const String& date)
     {
-#if DEBUG_LEVEL >= 1
-        Serial.println("[debug] alerts.size()    : " + String(alerts.size()));
-#endif
         if (alerts.size() == 0) { // no alerts to draw
+            Serial.println("[debug] No alerts to draw");
             return;
         }
 
@@ -1222,6 +1210,10 @@ void drawCurrentConditions(const owm_current_t& current,
     void drawError(
         const uint8_t* bitmap_196x196, const String& errMsgLn1, const String& errMsgLn2)
     {
+        Serial.println("[debug] drawError() called");
+        Serial.println("[debug] errMsgLn1: " + errMsgLn1);
+        Serial.println("[debug] errMsgLn2: " + errMsgLn2);
+
         display.setFont(&FONT_26pt8b);
         if (!errMsgLn2.isEmpty()) {
             drawString(DISP_WIDTH / 2, DISP_HEIGHT / 2 + 196 / 2 + 21, errMsgLn1, CENTER);

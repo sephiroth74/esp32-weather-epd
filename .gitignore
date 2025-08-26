@@ -4,3 +4,4 @@ kicad/Esp32-Weather-EPD/jlcpcb/gerber/
 kicad/Esp32-Weather-EPD/jlcpcb/
 kicad/Esp32-Weather-EPD/fp-info-cache
 platformio/include/config/locations/gavirate_4.cpp
+platformio/include/config/locations/zurigo.cpp
