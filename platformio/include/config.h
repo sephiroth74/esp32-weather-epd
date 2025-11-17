@@ -73,6 +73,7 @@
 //   Italiano (Italia)               it_IT
 //   Dutch (Belgium)                 nl_BE
 //   Portuguese (Brazil)             pt_BR
+//   Spanish (Spain)                 es_ES
 // #define LOCALE it_IT
 
 // UNITS
@@ -252,7 +253,9 @@
 // STATUS BAR EXTRAS
 //   Extra information that can be displayed on the status bar. Set to 1 to
 //   enable.
+#define STATUS_BAR_EXTRAS_BAT_PERCENTAGE 1
 #define STATUS_BAR_EXTRAS_BAT_VOLTAGE 1
+#define STATUS_BAR_EXTRAS_WIFI_STRENGTH  1
 #define STATUS_BAR_EXTRAS_WIFI_RSSI   1
 
 // BATTERY MONITORING
