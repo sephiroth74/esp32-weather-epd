@@ -92,6 +92,9 @@ void printWakeupReason()
 
 void enterDeepSleep()
 {
+    // Disable builtin LED
+    disableBuiltinLED();
+
 #if defined(DELAY_BEFORE_SLEEP) && DELAY_BEFORE_SLEEP > 0
     Serial.print("Delaying before deep sleep for ");
     Serial.print(DELAY_BEFORE_SLEEP / 1000);
@@ -240,9 +243,8 @@ void setup()
 #elif defined(SEEDSTUDIO_ESP32_C6)
     Serial.println("SeedStudio ESP32-C6 detected.");
 #endif
-
-    // Disable built-in LED
-    disableBuiltinLED();
+    // Enable builtin LED
+    enableBuiltinLED();
 
     // Print heap usage for debugging purposes
     printHeapUsage();
