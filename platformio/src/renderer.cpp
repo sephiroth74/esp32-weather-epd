@@ -1158,7 +1158,7 @@ void drawCurrentConditions(const owm_current_t& current,
 #if STATUS_BAR_EXTRAS_BAT_VOLTAGE
         dataStr += " (" + String(std::round(battery.millivolts / 10.f) / 100.f, 2) + "v)";
 #if DEBUG_BATTERY > 0
-        dataStr += " " + String(battery.analog_reading) + "/" + String(battery.raw_millivolts);
+        dataStr += " " + String(battery.raw_millivolts);
 #endif
 #endif
         drawString(pos, DISP_HEIGHT - 1 - 2, dataStr, RIGHT, dataColor);

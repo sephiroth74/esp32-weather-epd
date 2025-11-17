@@ -68,6 +68,7 @@ String battery_info_t::to_string() const
     result += "  Raw Analog: " + String(raw_analog) + "\n";
     result += "  Raw Millivolts: " + String(raw_millivolts) + "\n";
     result += "  Millivolts: " + String(millivolts) + "\n";
+    result += "  Divider: " + String(BATTERY_RESISTOR_DIVIDER) + "\n";
     result += "  Percent: " + String(percent) + "\n";
     return result;
 }

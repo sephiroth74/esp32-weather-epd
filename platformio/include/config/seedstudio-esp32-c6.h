@@ -60,28 +60,29 @@
 // #define SENSOR_BME680
 
 // Battery monitoring
-#define BATTERY_POWER_SAVING 0
+#define BATTERY_POWER_SAVING 1
 
 // R1 = 680kΩ, R2 = 330kΩ (Vout = Vin * R2 / (R1 + R2))
-#define BATTERY_RESISTOR_DIVIDER 0.4984
+#define BATTERY_RESISTOR_DIVIDER 0.3266666667
 
 // Debug level
 #define DEBUG_LEVEL 1
-#define DEBUG_BATTERY 0
+#define DEBUG_BATTERY 1
 
 // Delay before sleep
-#define DELAY_BEFORE_SLEEP 0
+#define DELAY_BEFORE_SLEEP 10000
+#define DISABLE_DEEP_SLEEP 1
 
 // Sleep configuration
 #define CONFIG_SLEEP_DURATION 120
-#define CONFIG_BED_TIME 23
-#define CONFIG_WAKE_TIME 6
+#define CONFIG_BED_TIME 22
+#define CONFIG_WAKE_TIME 5
 
 #define CONFIG_HOURLY_GRAPH_MAX 24
 
 #define LOCALE it_IT
 
-#define FONT_HEADER "fonts/OpenSans_Regular.h"
+#define FONT_HEADER "fonts/Ubuntu_R.h"
 
 // Location(s)
 #define NUM_LOCATIONS 1
