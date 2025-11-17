@@ -122,7 +122,10 @@ void enterDeepSleep()
     }
 #endif // USE_EXT1_WAKEUP
 #endif
+
+#if !defined(DISABLE_DEEP_SLEEP)
     esp_deep_sleep_start();
+#endif // 
 }
 
 /* Put esp32 into ultra low-power deep sleep (<11μA).
@@ -284,7 +287,7 @@ void setup()
     battery_reader.init();
     battery_info = battery_reader.read();
 
-    Serial.println("Battery info: " + battery_info.to_string());
+    Serial.println(battery_info.to_string());
 
     // When the battery is low, the display should be updated to reflect that, but
     // only the first time we detect low voltage. The next time the display will
