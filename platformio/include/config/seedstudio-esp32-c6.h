@@ -30,7 +30,7 @@
 #define BME_ADDRESS 0x76
 
 // Built-in LED
-// #define HAS_BUILTIN_LED
+#define HAS_BUILTIN_LED
 
 #define USE_HTTP
 
@@ -65,14 +65,14 @@
 #define BATTERY_POWER_SAVING 1
 
 // R1 = 680kΩ, R2 = 330kΩ (Vout = Vin * R2 / (R1 + R2))
-#define BATTERY_RESISTOR_DIVIDER 0.3266666667
+#define BATTERY_RESISTOR_DIVIDER 0.31984678
 
 // Debug level
 #define DEBUG_LEVEL 1
 
 // Delay before sleep
 #define DELAY_BEFORE_SLEEP 10000
-// #define DISABLE_DEEP_SLEEP 1
+// #define DISABLE_DEEP_SLEEP
 
 // Sleep configuration
 #define CONFIG_SLEEP_DURATION 180
