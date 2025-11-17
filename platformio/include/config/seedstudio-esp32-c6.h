@@ -10,6 +10,7 @@
 #define PIN_EPD_CS (int8_t)D6 // 16
 #define PIN_EPD_SCK (int8_t)D8 // 19
 #define PIN_EPD_MOSI (int8_t)D10 // 18
+#define PIN_EPD_MISO -1
 #define PIN_EPD_PWR -1
 #define PIN_BAT_ADC D0 // D0
 
@@ -60,6 +61,7 @@
 // #define SENSOR_BME680
 
 // Battery monitoring
+#define BATTERY_MONITORING 1
 #define BATTERY_POWER_SAVING 1
 
 // R1 = 680kΩ, R2 = 330kΩ (Vout = Vin * R2 / (R1 + R2))
@@ -71,7 +73,7 @@
 
 // Delay before sleep
 #define DELAY_BEFORE_SLEEP 10000
-#define DISABLE_DEEP_SLEEP 1
+// #define DISABLE_DEEP_SLEEP 1
 
 // Sleep configuration
 #define CONFIG_SLEEP_DURATION 120
