@@ -124,6 +124,8 @@ void enterDeepSleep()
 #endif
 
 #if !defined(DISABLE_DEEP_SLEEP)
+    Serial.println("Entering deep sleep now!");
+    Serial.flush();
     esp_deep_sleep_start();
 #endif // 
 }

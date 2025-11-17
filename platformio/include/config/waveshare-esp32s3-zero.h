@@ -63,7 +63,6 @@
 
 // Debug level
 #define DEBUG_LEVEL 1
-#define DEBUG_BATTERY 0
 
 // Delay before sleep
 #define DELAY_BEFORE_SLEEP 0
