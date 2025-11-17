@@ -69,14 +69,13 @@
 
 // Debug level
 #define DEBUG_LEVEL 1
-#define DEBUG_BATTERY 1
 
 // Delay before sleep
 #define DELAY_BEFORE_SLEEP 10000
 // #define DISABLE_DEEP_SLEEP 1
 
 // Sleep configuration
-#define CONFIG_SLEEP_DURATION 120
+#define CONFIG_SLEEP_DURATION 180
 #define CONFIG_BED_TIME 22
 #define CONFIG_WAKE_TIME 5
 
