@@ -336,7 +336,7 @@ void drawCurrentConditions(const owm_current_t &current,
   display.drawInvertedBitmap(0, 204 + (48 + 8) * 3,
                              air_filter_48x48, 48, 48, GxEPD_BLACK);
   display.drawInvertedBitmap(0, 204 + (48 + 8) * 4,
-                             house_thermometer_48x48, 48, 48, GxEPD_BLACK);
+                             house_thermometer_48x48, 48, 48, GxEPD_GREEN);
 #endif
   display.drawInvertedBitmap(170, 204 + (48 + 8) * 0,
                              wi_sunset_48x48, 48, 48, GxEPD_BLACK);
@@ -348,7 +348,7 @@ void drawCurrentConditions(const owm_current_t &current,
   display.drawInvertedBitmap(170, 204 + (48 + 8) * 3,
                              visibility_icon_48x48, 48, 48, GxEPD_BLACK);
   display.drawInvertedBitmap(170, 204 + (48 + 8) * 4,
-                             house_humidity_48x48, 48, 48, GxEPD_BLACK);
+                             house_humidity_48x48, 48, 48, GxEPD_GREEN);
 #endif
 
   // current weather data labels
@@ -367,14 +367,14 @@ void drawCurrentConditions(const owm_current_t &current,
     air_quality_index_label = TXT_AIR_POLLUTION;
   }
   drawString(48, 204 + 10 + (48 + 8) * 3, air_quality_index_label, LEFT);
-  drawString(48, 204 + 10 + (48 + 8) * 4, TXT_INDOOR_TEMPERATURE, LEFT);
+  drawString(48, 204 + 10 + (48 + 8) * 4, TXT_INDOOR_TEMPERATURE, LEFT, GxEPD_GREEN);
 #endif
   drawString(170 + 48, 204 + 10 + (48 + 8) * 0, TXT_SUNSET, LEFT);
   drawString(170 + 48, 204 + 10 + (48 + 8) * 1, TXT_HUMIDITY, LEFT);
   drawString(170 + 48, 204 + 10 + (48 + 8) * 2, TXT_PRESSURE, LEFT);
 #ifndef DISP_BW_V1
   drawString(170 + 48, 204 + 10 + (48 + 8) * 3, TXT_VISIBILITY, LEFT);
-  drawString(170 + 48, 204 + 10 + (48 + 8) * 4, TXT_INDOOR_HUMIDITY, LEFT);
+  drawString(170 + 48, 204 + 10 + (48 + 8) * 4, TXT_INDOOR_HUMIDITY, LEFT, GxEPD_GREEN);
 #endif
 
   // sunrise
@@ -544,7 +544,7 @@ void drawCurrentConditions(const owm_current_t &current,
 #if defined(UNITS_TEMP_CELSIUS) || defined(UNITS_TEMP_FAHRENHEIT)
   dataStr += "\260";
 #endif
-  drawString(48, 204 + 17 / 2 + (48 + 8) * 4 + 48 / 2, dataStr, LEFT);
+  drawString(48, 204 + 17 / 2 + (48 + 8) * 4 + 48 / 2, dataStr, LEFT, GxEPD_GREEN);
 #endif // defined(DISP_BW_V2) || defined(DISP_3C_B) || defined(DISP_7C_F)
 
   // sunset
@@ -657,10 +657,10 @@ void drawCurrentConditions(const owm_current_t &current,
   {
     dataStr = "--";
   }
-  drawString(170 + 48, 204 + 17 / 2 + (48 + 8) * 4 + 48 / 2, dataStr, LEFT);
+  drawString(170 + 48, 204 + 17 / 2 + (48 + 8) * 4 + 48 / 2, dataStr, LEFT, GxEPD_GREEN);
   display.setFont(&FONT_8pt8b);
   drawString(display.getCursorX(), 204 + 17 / 2 + (48 + 8) * 4 + 48 / 2,
-             "%", LEFT);
+      "%", LEFT, GxEPD_GREEN);
 #endif // defined(DISP_BW_V2) || defined(DISP_3C_B) || defined(DISP_7C_F)
   return;
 } // end drawCurrentConditions
@@ -1261,8 +1261,8 @@ void drawOutlookGraph(const owm_hourly_t *hourly, const owm_daily_t *daily,
 /* This function is responsible for drawing the status bar along the bottom of
  * the display.
  */
-void drawStatusBar(const String &statusStr, const String &refreshTimeStr,
-                   int rssi, uint32_t batVoltage)
+void drawStatusBar(const String& statusStr, const String& refreshTimeStr,
+    int rssi, battery::battery_info& battery)
 {
   String dataStr;
   uint16_t dataColor = GxEPD_BLACK;
@@ -1270,11 +1270,11 @@ void drawStatusBar(const String &statusStr, const String &refreshTimeStr,
   int pos = DISP_WIDTH - 2;
   const int sp = 2;
 
+  uint32_t batVoltage = battery.millivolts;
+
 #if BATTERY_MONITORING
   // battery - (expecting 3.7v LiPo)
-  uint32_t batPercent = calcBatPercent(batVoltage,
-                                       MIN_BATTERY_VOLTAGE,
-                                       MAX_BATTERY_VOLTAGE);
+  uint32_t batPercent = battery.percent;
 #if defined(DISP_3C_B) || defined(DISP_7C_F)
   if (batVoltage < WARN_BATTERY_VOLTAGE)
   {
@@ -1294,7 +1294,7 @@ void drawStatusBar(const String &statusStr, const String &refreshTimeStr,
 #endif
   pos -= 24;
   display.drawInvertedBitmap(pos, DISP_HEIGHT - 1 - 17,
-                             getBatBitmap24(batPercent), 24, 24, dataColor);
+                             getBatBitmap24(batVoltage, batPercent), 24, 24, dataColor);
   pos -= sp + 9;
 #endif
 
