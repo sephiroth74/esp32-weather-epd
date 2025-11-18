@@ -281,7 +281,7 @@
 // NUMBER OF LOCATIONS
 //   The number of locations to cycle through. The locations are defined in
 //   config.cpp. It must be greater than 0.
-// #define NUM_LOCATIONS 1
+extern const uint8_t NUM_LOCATIONS;
 
 // Set the below constants in "config.cpp"
 // extern const uint8_t PIN_BAT_ADC;

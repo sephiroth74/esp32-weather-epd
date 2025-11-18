@@ -1,3 +1,6 @@
+> **Fork Notice**: This is a fork of [lmarzen/esp32-weather-epd](https://github.com/lmarzen/esp32-weather-epd) with additional features:
+> - **Multiple location support**: Cycle through different locations on each refresh
+
 # ESP32 E-Paper Weather Display
 
 A low-power weather display using a wifi-enabled ESP32 microcontroller and a 7.5" E-Paper display. Weather data is fetched from the OpenWeatherMap API, and an onboard sensor provides indoor temperature and humidity.
@@ -31,20 +34,23 @@ Here are two (slightly outdated) examples utilizing various configuration option
 
 ## Contents
 
-- [Required Components](#required-components)
-  - [Panel Support](#panel-support)
-  - [Enclosure Options](#enclosure-options)
-  - [Solder-Free Component Selection](#solder-free-component-selection-optional)
-- [Setup Guide](#setup-guide)
-  - [Wiring](#wiring)
-  - [Configuration, Compilation, and Upload](#configuration-compilation-and-upload)
-  - [OpenWeatherMap API Key](#openweathermap-api-key)
-- [Error Messages and Troubleshooting](#error-messages-and-troubleshooting)
-  - [Low Battery](#low-battery)
-  - [WiFi Connection](#wifi-connection)
-  - [API Error](#api-error)
-  - [Time Server Error](#time-server-error)
-- [Licensing](#licensing)
+- [ESP32 E-Paper Weather Display](#esp32-e-paper-weather-display)
+  - [Features](#features)
+  - [Contents](#contents)
+  - [Required Components](#required-components)
+    - [Panel Support](#panel-support)
+    - [Enclosure Options](#enclosure-options)
+    - [Solder-Free Component Selection (Optional)](#solder-free-component-selection-optional)
+  - [Setup Guide](#setup-guide)
+    - [Wiring](#wiring)
+    - [Configuration, Compilation, and Upload](#configuration-compilation-and-upload)
+    - [OpenWeatherMap API Key](#openweathermap-api-key)
+  - [Error Messages and Troubleshooting](#error-messages-and-troubleshooting)
+    - [Low Battery](#low-battery)
+    - [WiFi Connection](#wifi-connection)
+    - [API Error](#api-error)
+    - [Time Server Error](#time-server-error)
+  - [Licensing](#licensing)
 
 
 ## Required Components
