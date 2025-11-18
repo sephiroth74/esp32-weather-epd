@@ -92,8 +92,8 @@ void printWakeupReason()
 
 void enterDeepSleep()
 {
-    // Disable builtin LED
-    disableBuiltinLED();
+    // Stop LED pulsing and turn off LED
+    stopLEDPulsing();
 
 #if defined(DELAY_BEFORE_SLEEP) && DELAY_BEFORE_SLEEP > 0
     Serial.print("Delaying before deep sleep for ");
@@ -130,7 +130,7 @@ void enterDeepSleep()
     Serial.println("Entering deep sleep now!");
     Serial.flush();
     esp_deep_sleep_start();
-#endif // 
+#endif //
 }
 
 /* Put esp32 into ultra low-power deep sleep (<11μA).
@@ -243,8 +243,8 @@ void setup()
 #elif defined(SEEDSTUDIO_ESP32_C6)
     Serial.println("SeedStudio ESP32-C6 detected.");
 #endif
-    // Enable builtin LED
-    enableBuiltinLED();
+    // Start LED pulsing to indicate activity
+    startLEDPulsing();
 
     // Print heap usage for debugging purposes
     printHeapUsage();

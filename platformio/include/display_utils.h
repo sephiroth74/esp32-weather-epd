@@ -79,6 +79,8 @@ const char *getWifiStatusPhrase(wl_status_t status);
 void printHeapUsage();
 void disableBuiltinLED();
 void enableBuiltinLED();
+void startLEDPulsing();
+void stopLEDPulsing();
 
 #endif
 
