@@ -29,9 +29,6 @@
 // 0x76 if SDO -> GND; 0x77 if SDO -> VCC
 #define BME_ADDRESS 0x76
 
-// Built-in LED
-#define HAS_BUILTIN_LED
-
 #define USE_HTTP
 
 // Display type
