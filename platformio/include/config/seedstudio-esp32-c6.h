@@ -81,6 +81,3 @@
 #define LOCALE it_IT
 
 #define FONT_HEADER "fonts/Ubuntu_R.h"
-
-// Location(s)
-#define NUM_LOCATIONS 1

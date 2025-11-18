@@ -116,7 +116,7 @@ const String OWM_ONECALL_VERSION = "3.0";
 // TIME
 // For list of time zones see
 // https://github.com/nayarsystems/posix_tz_db/blob/master/zones.csv
-const String TIMEZONE[NUM_LOCATIONS] = { "CET-1CEST,M3.5.0,M10.5.0/3" };
+// const String TIMEZONE[NUM_LOCATIONS] = { "CET-1CEST,M3.5.0,M10.5.0/3" };
 // Time format used when displaying sunrise/set times. (Max 11 characters)
 // For more information about formatting see
 // https://man7.org/linux/man-pages/man3/strftime.3.html
