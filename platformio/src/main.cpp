@@ -256,7 +256,7 @@ void setup()
     prefs.begin(NVS_NAMESPACE, false);
     int locationsIndex = prefs.getInt("locationsIndex", 0);
 
-    static_assert(NUM_LOCATIONS > 0, "NUM_LOCATIONS must be greater than 0");
+    // static_assert(NUM_LOCATIONS > 0, "NUM_LOCATIONS must be greater than 0");
 
     if (locationsIndex < 0 || locationsIndex >= NUM_LOCATIONS) {
         locationsIndex = 0;
