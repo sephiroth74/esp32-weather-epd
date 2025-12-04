@@ -26,11 +26,13 @@
 //   DISP_BW_V2 - 7.5in e-Paper (v2)      800x480px  Black/White
 //   DISP_3C_B  - 7.5in e-Paper (B)       800x480px  Red/Black/White
 //   DISP_7C_F  - 7.3in ACeP e-Paper (F)  800x480px  7-Color
+//   DISP_6C_F  - 7.3in ACeP e-Paper (F)  800x480px  6-Color
 //   DISP_BW_V1 - 7.5in e-Paper (v1)      640x384px  Black/White
 // Uncomment the macro that identifies your physical panel.
 // #define DISP_BW_V2 // <-- questo quello bianco e nero
 // #define DISP_3C_B
-// #define DISP_7C_F // <-- questo quello a 7 colori
+// #define DISP_7C_F
+// #define DISP_6C_F
 // #define DISP_BW_V1
 
 // E-PAPER DRIVER BOARD
@@ -50,7 +52,7 @@
 
 // 3 COLOR E-INK ACCENT COLOR
 // Defines the 3rd color to be used when a 3+ color display is selected.
-#if defined(DISP_3C_B) || defined(DISP_7C_F)
+#if defined(DISP_3C_B) || defined(DISP_7C_F) || defined(DISP_6C_F)
   // #define ACCENT_COLOR GxEPD_BLACK
   // #define ACCENT_COLOR GxEPD_RED
   // #define ACCENT_COLOR GxEPD_GREEN
@@ -353,6 +355,7 @@ extern const uint32_t BATTERY_DELAY_MS; // 1
 #if !(  defined(DISP_BW_V2)  \
       ^ defined(DISP_3C_B)   \
       ^ defined(DISP_7C_F)   \
+      ^ defined(DISP_6C_F)   \
       ^ defined(DISP_BW_V1))
   #error Invalid configuration. Exactly one display panel must be selected.
 #endif
