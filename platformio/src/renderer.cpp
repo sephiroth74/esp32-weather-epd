@@ -54,6 +54,15 @@
                     PIN_EPD_BUSY));
 #endif
 #ifdef DISP_7C_F
+  GxEPD2_7C<GxEPD2_730c_GDEY073D46,
+      GxEPD2_730c_GDEY073D46::HEIGHT / 4>
+      display(
+          GxEPD2_730c_GDEY073D46(PIN_EPD_CS,
+              PIN_EPD_DC,
+              PIN_EPD_RST,
+              PIN_EPD_BUSY));
+#endif
+#ifdef DISP_6C_F
   GxEPD2_7C<GxEPD2_730c_GDEP073E01,
       GxEPD2_730c_GDEP073E01::HEIGHT / 4>
       display(
@@ -1295,7 +1304,7 @@ void drawStatusBar(const String& statusStr, const String& refreshTimeStr,
 #endif
 #if STATUS_BAR_EXTRAS_BAT_VOLTAGE
   dataStr += " (" + String( std::round(batVoltage / 10.f) / 100.f, 2 ) + "v)";
-  // dataStr += String(battery.raw_millivolts) + "mV";
+  dataStr += String(battery.raw_millivolts) + "mV";
 #endif
   drawString(pos, DISP_HEIGHT - 1 - 2, dataStr, RIGHT, dataColor);
   pos -= getStringWidth(dataStr) + 1;
