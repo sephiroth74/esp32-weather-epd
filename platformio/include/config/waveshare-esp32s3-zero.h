@@ -10,6 +10,7 @@
 #define PIN_EPD_CS (int8_t)SS // 10
 #define PIN_EPD_SCK (int8_t)SCK // 12
 #define PIN_EPD_MOSI (int8_t)MOSI // 11
+#define PIN_EPD_MISO -1
 #define PIN_EPD_PWR -1
 #define PIN_BAT_ADC 1
 
@@ -77,6 +78,3 @@
 #define LOCALE it_IT
 
 #define FONT_HEADER "fonts/OpenSans_Regular.h"
-
-// Location(s)
-#define NUM_LOCATIONS 1

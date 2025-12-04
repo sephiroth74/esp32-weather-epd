@@ -47,7 +47,6 @@
 // #define ACCENT_COLOR GxEPD_ORANGE
 // #define ACCENT_COLOR GxEPD_YELLOW
 
-
 #define ACCENT_COLOR2 GxEPD_GREEN
 
 // HSPI for EPD
@@ -61,14 +60,15 @@
 #define BATTERY_MONITORING 1
 #define BATTERY_POWER_SAVING 1
 
-// R1 = 680kΩ, R2 = 330kΩ (Vout = Vin * R2 / (R1 + R2))
-#define BATTERY_RESISTOR_DIVIDER 0.31984678
+// R1 = 330kΩ, R2 = 180kΩ (Vout = Vin * R2 / (R1 + R2))
+// #define BATTERY_RESISTOR_DIVIDER 0.31984678
+#define BATTERY_RESISTOR_DIVIDER 0.3219753086
 
 // Debug level
 #define DEBUG_LEVEL 1
 
 // Delay before sleep
-#define DELAY_BEFORE_SLEEP 10000
+#define DELAY_BEFORE_SLEEP 1000
 // #define DISABLE_DEEP_SLEEP
 
 // Sleep configuration

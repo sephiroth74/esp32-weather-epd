@@ -28,7 +28,6 @@
 #include <WiFi.h>
 
 // additional libraries
-#include <Adafruit_BusIO_Register.h>
 #include <ArduinoJson.h>
 
 // header files
