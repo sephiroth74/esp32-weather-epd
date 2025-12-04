@@ -33,6 +33,7 @@
 
 // Display type
 #define DISP_7C_F
+// #define DISP_6C_F
 // #define DISP_BW_V2
 
 // Display driver
@@ -69,10 +70,10 @@
 
 // Delay before sleep
 #define DELAY_BEFORE_SLEEP 1000
-// #define DISABLE_DEEP_SLEEP
+#define DISABLE_DEEP_SLEEP
 
 // Sleep configuration
-#define CONFIG_SLEEP_DURATION 180
+#define CONFIG_SLEEP_DURATION 120
 #define CONFIG_BED_TIME 22
 #define CONFIG_WAKE_TIME 5
 
@@ -80,4 +81,4 @@
 
 #define LOCALE it_IT
 
-#define FONT_HEADER "fonts/Ubuntu_R.h"
+#define FONT_HEADER "fonts/Roboto_Regular.h"
