@@ -209,28 +209,27 @@
 //  6   7
 //  8   9
 // if DISP_BW_V1 is used, 6,7,8,9 are not available
-#define POS_SUNRISE     0
-#define POS_SUNSET      1
-#define POS_WIND        2
-#define POS_HUMIDITY    3
-#define POS_UVI         4
-#define POS_PRESSURE    5
-#define POS_AIR_QULITY  6
-#define POS_VISIBILITY  7
+#define POS_SUNRISE     6
+#define POS_SUNSET      7
+#define POS_WIND        0
+#define POS_HUMIDITY    1
+#define POS_UVI         2
+#define POS_PRESSURE    3
+#define POS_AIR_QULITY  4
+#define POS_VISIBILITY  5
 // #define POS_INTEMP      8
 // #define POS_INHUMIDITY  9
-// #define POS_MOONRISE    2
-// #define POS_MOONSET     3
-#define POS_MOONPHASE   8
-#define POS_DEWPOINT    9
-
+#define POS_MOONRISE    8
+#define POS_MOONSET     9
+// #define POS_MOONPHASE   8
+// #define POS_DEWPOINT    9
 
 // Choose the style of moon phase icon you like
 //   Primary     : dark color means where the moon is
 //   Alternative : dark color means where the shadow is
 // Uncomment your preferred moon phase style.
-// #define MOONPHASE_PRIMARY
-#define MOONPHASE_ALTERNATIVE
+#define MOONPHASE_PRIMARY
+// #define MOONPHASE_ALTERNATIVE
 
 
 // FONTS
