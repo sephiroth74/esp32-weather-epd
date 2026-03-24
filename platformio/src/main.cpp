@@ -46,6 +46,11 @@
 #endif
 
 #include <hal/gpio_types.h>
+#include "esp_log.h"
+
+#ifndef USE_EXT1_WAKEUP
+#include "driver/rtc_io.h" // For RTC GPIO functions needed for EXT0 wakeup
+#endif
 
 // too large to allocate locally on stack
 static owm_resp_onecall_t owm_onecall;
@@ -58,35 +63,34 @@ void printWakeupReason()
     esp_sleep_wakeup_cause_t wakeupCause = esp_sleep_get_wakeup_cause();
     switch (wakeupCause) {
     case ESP_SLEEP_WAKEUP_EXT0:
-        Serial.println("[debug] Wakeup caused by external signal using EXT0");
+        ESP_LOGD(LOG_TAG, "Wakeup caused by external signal using EXT0");
         break;
     case ESP_SLEEP_WAKEUP_EXT1:
-        Serial.println("[debug] Wakeup caused by external signal using EXT1");
+        ESP_LOGD(LOG_TAG, "Wakeup caused by external signal using EXT1");
         break;
     case ESP_SLEEP_WAKEUP_TIMER:
-        Serial.println("[debug] Wakeup caused by timer");
+        ESP_LOGD(LOG_TAG, "Wakeup caused by timer");
         break;
     case ESP_SLEEP_WAKEUP_TOUCHPAD:
-        Serial.println("[debug] Wakeup caused by touchpad");
+        ESP_LOGD(LOG_TAG, "Wakeup caused by touchpad");
         break;
     case ESP_SLEEP_WAKEUP_ULP:
-        Serial.println("[debug] Wakeup caused by ULP");
+        ESP_LOGD(LOG_TAG, "Wakeup caused by ULP");
         break;
     default:
-        Serial.println("[debug] Wakeup caused by unknown reason");
+        ESP_LOGD(LOG_TAG, "Wakeup caused by unknown reason");
         break;
     }
 
     if (wakeupCause == ESP_SLEEP_WAKEUP_EXT1) {
         uint64_t GPIO_reason = esp_sleep_get_ext1_wakeup_status();
         // Print the raw value returned by esp_sleep_get_ext1_wakeup_status. This is the bitmask of the pin/s that triggered wake up
-        Serial.print("Raw bitmask value returned: ");
-        Serial.println(GPIO_reason);
+        ESP_LOGD(LOG_TAG, "Raw bitmask value returned: %llu", GPIO_reason);
 
         // Using log method to work out trigger pin. This is the method used by Random Nerd Tutorials
-        Serial.print("GPIO that triggered the wake up calculated using log method: ");
+        ESP_LOGD(LOG_TAG, "GPIO that triggered the wake up calculated using log method: ");
         int wakeupPin = log(GPIO_reason) / log(2);
-        Serial.println(wakeupPin);
+        ESP_LOGD(LOG_TAG, "Wakeup pin: %d", wakeupPin);
     }
 }
 
@@ -96,41 +100,39 @@ void enterDeepSleep()
     stopLEDPulsing();
 
 #if defined(DELAY_BEFORE_SLEEP) && DELAY_BEFORE_SLEEP > 0
-    Serial.print("Delaying before deep sleep for ");
-    Serial.print(DELAY_BEFORE_SLEEP / 1000);
-    Serial.println(" seconds.");
+    ESP_LOGD(LOG_TAG, "Delaying before deep sleep for %d seconds", DELAY_BEFORE_SLEEP / 1000);
     delay(DELAY_BEFORE_SLEEP);
 #endif // DELAY_BEFORE_SLEEP
 
 #ifdef PIN_WAKEUP
     // enable wakeup on GPIO
-    Serial.println("[debug] Enabling wakeup on GPIO " + String(PIN_WAKEUP));
+    ESP_LOGD(LOG_TAG, "Enabling wakeup on GPIO %d", PIN_WAKEUP);
 
 #ifdef USE_EXT1_WAKEUP
-    Serial.println("[debug] Using EXT1 wakeup method (esp_sleep_enable_ext1_wakeup)");
-    Serial.println("[debug] soc supports deep sleep: " + String(SOC_GPIO_SUPPORT_DEEPSLEEP_WAKEUP));
-    esp_err_t result = esp_sleep_enable_ext1_wakeup(BUTTON_PIN_BITMASK(PIN_WAKEUP), ESP_EXT1_WAKEUP_ANY_HIGH);
+    ESP_LOGD(LOG_TAG, "Using EXT1 wakeup method");
+    // Configure GPIO for EXT1 wakeup
+    // Button connected to GPIO2 and GND: when pressed GPIO goes LOW
+    // IMPORTANT: Add external 10kΩ pull-up resistor between GPIO2 and 3V3 for stability!
+    pinMode(PIN_WAKEUP, INPUT_PULLUP);
+
+    esp_err_t result = esp_sleep_enable_ext1_wakeup(BUTTON_PIN_BITMASK(PIN_WAKEUP), ESP_EXT1_WAKEUP_ANY_LOW);
 
     if (result != ESP_OK) {
-        Serial.println("[error] Failed to enable GPIO wakeup");
-    }
-#else // USE_EXT0_WAKEUP
-    Serial.println("[debug] Using EXT0 wakeup method");
-    gpio_pullup_en(PIN_WAKEUP);
-    gpio_pulldown_dis(PIN_WAKEUP);
-    gpio_hold_en(PIN_WAKEUP);
-    esp_err_t result = esp_sleep_enable_ext0_wakeup(PIN_WAKEUP, LOW);
-    if (result != ESP_OK) {
-        Serial.println("[error] Failed to enable EXT0 wakeup");
+        ESP_LOGE(LOG_TAG, "[error] Failed to enable EXT1 wakeup");
     }
 #endif // USE_EXT1_WAKEUP
-#endif
+
+#else
+    ESP_LOGD(LOG_TAG, "No wakeup pin defined, deep sleep will not be exited until reset or power cycle");
+#endif // PIN_WAKEUP
 
 #if !defined(DISABLE_DEEP_SLEEP)
-    Serial.println("Entering deep sleep now!");
+    ESP_LOGD(LOG_TAG, "Entering deep sleep now!");
     Serial.flush();
     esp_deep_sleep_start();
-#endif //
+#else
+    ESP_LOGD(LOG_TAG, "Deep sleep disabled. Staying awake.");
+#endif // DISABLE_DEEP_SLEEP
 }
 
 /* Put esp32 into ultra low-power deep sleep (<11μA).
@@ -139,7 +141,7 @@ void enterDeepSleep()
 void beginDeepSleep(unsigned long startTime, tm* timeInfo)
 {
     if (!getLocalTime(timeInfo)) {
-        Serial.println(TXT_REFERENCING_OLDER_TIME_NOTICE);
+        ESP_LOGD(LOG_TAG, "%s", TXT_REFERENCING_OLDER_TIME_NOTICE);
     }
 
     // To simplify sleep time calculations, the current time stored by timeInfo
@@ -153,7 +155,7 @@ void beginDeepSleep(unsigned long startTime, tm* timeInfo)
         bedtimeHour = (BED_TIME - WAKE_TIME + 24) % 24;
     }
 
-    Serial.println("bedTimeHour: " + String(bedtimeHour));
+    ESP_LOGD(LOG_TAG, "bedTimeHour: %d", bedtimeHour);
 
     // time is relative to wake time
     int curHour = (timeInfo->tm_hour - WAKE_TIME + 24) % 24;
@@ -163,35 +165,35 @@ void beginDeepSleep(unsigned long startTime, tm* timeInfo)
     const int offsetMinutes = curMinute % SLEEP_DURATION;
     const int offsetSeconds = curSecond % desiredSleepSeconds;
 
-    Serial.println("curHour: " + String(curHour));
-    Serial.println("curMinute: " + String(curMinute));
-    Serial.println("curSecond: " + String(curSecond));
-    Serial.println("desiredSleepSeconds: " + String(desiredSleepSeconds));
-    Serial.println("offsetMinutes: " + String(offsetMinutes));
-    Serial.println("offsetSeconds: " + String(offsetSeconds));
+    ESP_LOGD(LOG_TAG, "curHour: %d", curHour);
+    ESP_LOGD(LOG_TAG, "curMinute: %d", curMinute);
+    ESP_LOGD(LOG_TAG, "curSecond: %d", curSecond);
+    ESP_LOGD(LOG_TAG, "desiredSleepSeconds: %d", desiredSleepSeconds);
+    ESP_LOGD(LOG_TAG, "offsetMinutes: %d", offsetMinutes);
+    ESP_LOGD(LOG_TAG, "offsetSeconds: %d", offsetSeconds);
 
     // align wake time to nearest multiple of SLEEP_DURATION
     int sleepMinutes = SLEEP_DURATION - offsetMinutes;
-    Serial.println("sleepMinutes: " + String(sleepMinutes));
+    ESP_LOGD(LOG_TAG, "sleepMinutes: %d", sleepMinutes);
     if (desiredSleepSeconds - offsetSeconds < 120 || offsetSeconds / (float)desiredSleepSeconds > 0.95f) { // if we have a sleep time less than 2 minutes OR less 5% SLEEP_DURATION,
         // skip to next alignment
         sleepMinutes += SLEEP_DURATION;
-        Serial.println("Adjusted sleepMinutes: " + String(sleepMinutes));
+        ESP_LOGD(LOG_TAG, "Adjusted sleepMinutes: %d", sleepMinutes);
     }
 
     // estimated wake time, if this falls in a sleep period then sleepDuration
     // must be adjusted
     const int predictedWakeHour = ((curMinute + sleepMinutes) / 60) % 24;
-    Serial.println("predictedWakeHour: " + String(predictedWakeHour));
+    ESP_LOGD(LOG_TAG, "predictedWakeHour: %d", predictedWakeHour);
 
     uint64_t sleepDuration;
     if (predictedWakeHour < bedtimeHour) {
         sleepDuration = sleepMinutes * 60 - timeInfo->tm_sec;
-        Serial.println("Sleep duration (before bedtime): " + String(sleepDuration));
+        ESP_LOGD(LOG_TAG, "Sleep duration (before bedtime): %llu", sleepDuration);
     } else {
         const int hoursUntilWake = 24 - curHour;
         sleepDuration = hoursUntilWake * 3600ULL - (timeInfo->tm_min * 60ULL + timeInfo->tm_sec);
-        Serial.println("Sleep duration (after bedtime): " + String(sleepDuration));
+        ESP_LOGD(LOG_TAG, "Sleep duration (after bedtime): %llu", sleepDuration);
     }
 
     // add extra delay to compensate for esp32's with fast RTCs.
@@ -199,17 +201,15 @@ void beginDeepSleep(unsigned long startTime, tm* timeInfo)
     sleepDuration *= 1.0015f;
 
     esp_sleep_enable_timer_wakeup(sleepDuration * 1000000ULL);
-    Serial.print(TXT_AWAKE_FOR);
-    Serial.println(" " + String((millis() - startTime) / 1000.0, 3) + "s");
-    Serial.print(TXT_ENTERING_DEEP_SLEEP_FOR);
-    Serial.println(" " + String(sleepDuration) + "s");
+
+    ESP_LOGD(LOG_TAG, "%s %.3f s", TXT_AWAKE_FOR, (millis() - startTime) / 1000.0);
+    ESP_LOGD(LOG_TAG, "%s %llu s", TXT_ENTERING_DEEP_SLEEP_FOR, sleepDuration);
 
 #if DEBUG_LEVEL >= 1
     // Print next wakeup time for debugging purposes
     time_t nextWakeTime = time(nullptr) + sleepDuration;
     struct tm* nextWakeTimeInfo = localtime(&nextWakeTime);
-    Serial.print("Next wakeup time: ");
-    Serial.println(asctime(nextWakeTimeInfo));
+    ESP_LOGD(LOG_TAG, "Next wakeup time: %s", asctime(nextWakeTimeInfo));
 #endif
 
     enterDeepSleep();
@@ -222,27 +222,31 @@ void setup()
     unsigned long startTime = millis();
     Serial.begin(115200);
 
-    delay(4000); // wait for serial monitor to open
+    esp_log_level_set("*", ESP_LOG_WARN);
+    esp_log_level_set(LOG_TAG, ESP_LOG_DEBUG);
 
-    Serial.println("Starting up...");
+    delay(2000); // wait for serial monitor to open
 
-#if defined(ADAFRUIT_FEATHER_ESP32_V2)
-    Serial.println("Adafruit Feather ESP32 V2 detected.");
-#elif defined(NODEMCU_32S)
-    Serial.println("NodeMCU 32S detected.");
-#elif defined(WAVESHARE_ESP32)
-    Serial.println("Waveshare ESP32 Dev Module detected.");
-#elif defined(DFROBOT_FIREBEETLE2_ESP32E)
-    Serial.println("DFRobot FireBeetle2 ESP32-E detected.");
-#elif defined(FIREBEETLE32)
-    Serial.println("DFRobot FireBeetle ESP32 detected.");
-#elif defined(ARDUINO_NANO_ESP32)
-    Serial.println("Arduino Nano ESP32 detected.");
-#elif defined(WAVESHARE_ESP32_S3_ZERO)
-    Serial.println("Waveshare ESP32S3 Zero detected.");
-#elif defined(SEEDSTUDIO_ESP32_C6)
-    Serial.println("SeedStudio ESP32-C6 detected.");
+    ESP_LOGI(LOG_TAG, "Starting up...");
+
+#if defined(BOARD_NAME)
+    ESP_LOGI(LOG_TAG, "Board: %s", BOARD_NAME);
 #endif
+
+    ESP_LOGI(LOG_TAG, "Board Cpu Frequency: %d MHz", getCpuFrequencyMhz());
+    ESP_LOGI(LOG_TAG, "SDK Version: %s", ESP.getSdkVersion());
+    ESP_LOGI(LOG_TAG, "Chip Model: %s", ESP.getChipModel());
+    ESP_LOGI(LOG_TAG, "Chip Revision: %d", ESP.getChipRevision());
+    ESP_LOGI(LOG_TAG, "Flash Size: %d MB", ESP.getFlashChipSize() / (1024 * 1024));
+    ESP_LOGI(LOG_TAG, "Flash Speed: %d MHz", ESP.getFlashChipSpeed() / 1000000);
+    ESP_LOGI(LOG_TAG, "Free Heap: %.2f KB", ESP.getFreeHeap() / 1024.0);
+    ESP_LOGI(LOG_TAG, "Sketch Size: %d KB", ESP.getSketchSize() / 1024);
+
+    ESP_LOGI(LOG_TAG, "MOSI pin: %d", MOSI);
+    ESP_LOGI(LOG_TAG, "MISO pin: %d", MISO);
+    ESP_LOGI(LOG_TAG, "SCK pin: %d", SCK);
+    ESP_LOGI(LOG_TAG, "SS pin: %d", SS);
+
     // Start LED pulsing to indicate activity
     startLEDPulsing();
 
@@ -270,18 +274,18 @@ void setup()
     String currentTimeZone = TIMEZONE[locationsIndex];
 
 #if DEBUG_LEVEL >= 1
-    Serial.println("Location index: " + String(locationsIndex));
-    Serial.println("Location: " + currentCity);
-    Serial.println("Latitude: " + currentLat);
-    Serial.println("Longitude: " + currentLon);
-    Serial.println("Timezone: " + currentTimeZone);
+    ESP_LOGI(LOG_TAG, "Location index: %d", locationsIndex);
+    ESP_LOGI(LOG_TAG, "Location: %s", currentCity.c_str());
+    ESP_LOGI(LOG_TAG, "Latitude: %s", currentLat.c_str());
+    ESP_LOGI(LOG_TAG, "Longitude: %s", currentLon.c_str());
+    ESP_LOGI(LOG_TAG, "Timezone: %s", currentTimeZone.c_str());
 #endif
 
 #if PIN_BAT_ADC > -1
-    Serial.println("Battery ADC pin: " + String(PIN_BAT_ADC));
+    ESP_LOGI(LOG_TAG, "Battery ADC pin: %d", PIN_BAT_ADC);
     battery::battery_info_t battery_info;
 
-    Serial.println("Battery resistor divider: " + String(BATTERY_RESISTOR_DIVIDER));
+    ESP_LOGI(LOG_TAG, "Battery resistor divider: %.8f", BATTERY_RESISTOR_DIVIDER);
 
     battery::BatteryReader battery_reader(PIN_BAT_ADC,
         BATTERY_RESISTOR_DIVIDER,
@@ -291,7 +295,7 @@ void setup()
     battery_reader.init();
     battery_info = battery_reader.read();
 
-    Serial.println(battery_info.to_string());
+    ESP_LOGI(LOG_TAG, "Battery info: %s", battery_info.to_string().c_str());
 
     // When the battery is low, the display should be updated to reflect that, but
     // only the first time we detect low voltage. The next time the display will
@@ -299,14 +303,14 @@ void setup()
     // make use of non-volatile storage.
     bool lowBat = prefs.getBool("lowBat", false);
 
-    Serial.println("lowBat: " + String(lowBat));
+    ESP_LOGI(LOG_TAG, "lowBat: %d", lowBat);
 
 #if BATTERY_POWER_SAVING
     auto batteryVoltage = battery_info.millivolts;
 
     // low battery, deep sleep now
     if (batteryVoltage <= LOW_BATTERY_VOLTAGE) {
-        Serial.println("" + String(batteryVoltage) + " <= " + String(LOW_BATTERY_VOLTAGE));
+        ESP_LOGI(LOG_TAG, "%d <= %d", batteryVoltage, LOW_BATTERY_VOLTAGE);
 
         if (lowBat == false) { // battery is now low for the first time
             prefs.putBool("lowBat", true);
@@ -319,27 +323,26 @@ void setup()
         }
 
         if (batteryVoltage <= CRIT_LOW_BATTERY_VOLTAGE) { // critically low battery
-            Serial.println("" + String(batteryVoltage) + " <= " + String(CRIT_LOW_BATTERY_VOLTAGE));
+            ESP_LOGI(LOG_TAG, "%d <= %d", batteryVoltage, CRIT_LOW_BATTERY_VOLTAGE);
 
             // don't set esp_sleep_enable_timer_wakeup();
             // We won't wake up again until someone manually presses the RST button.
-            Serial.println(TXT_CRIT_LOW_BATTERY_VOLTAGE);
-            Serial.println(TXT_HIBERNATING_INDEFINITELY_NOTICE);
+            ESP_LOGI(LOG_TAG, "%s", TXT_CRIT_LOW_BATTERY_VOLTAGE);
+            ESP_LOGI(LOG_TAG, "%s", TXT_HIBERNATING_INDEFINITELY_NOTICE);
         } else if (batteryVoltage <= VERY_LOW_BATTERY_VOLTAGE) { // very low battery
-            Serial.println("" + String(batteryVoltage) + " <= " + String(VERY_LOW_BATTERY_VOLTAGE));
+            ESP_LOGI(LOG_TAG, "%d <= %d", batteryVoltage, VERY_LOW_BATTERY_VOLTAGE);
 
             esp_sleep_enable_timer_wakeup(VERY_LOW_BATTERY_SLEEP_INTERVAL * 60ULL * 1000000ULL);
-            Serial.println(TXT_VERY_LOW_BATTERY_VOLTAGE);
-            Serial.print(TXT_ENTERING_DEEP_SLEEP_FOR);
-            Serial.println(" " + String(VERY_LOW_BATTERY_SLEEP_INTERVAL) + "min");
+            ESP_LOGI(LOG_TAG, "%s", TXT_VERY_LOW_BATTERY_VOLTAGE);
+            ESP_LOGI(LOG_TAG, "%s %d min", TXT_ENTERING_DEEP_SLEEP_FOR, VERY_LOW_BATTERY_SLEEP_INTERVAL);
         } else { // low battery
-            Serial.println("" + String(batteryVoltage) + " <= " + String(LOW_BATTERY_VOLTAGE));
+            ESP_LOGI(LOG_TAG, "%d <= %d", batteryVoltage, LOW_BATTERY_VOLTAGE);
 
             esp_sleep_enable_timer_wakeup(LOW_BATTERY_SLEEP_INTERVAL * 60ULL * 1000000ULL);
-            Serial.println(TXT_LOW_BATTERY_VOLTAGE);
-            Serial.print(TXT_ENTERING_DEEP_SLEEP_FOR);
-            Serial.println(" " + String(LOW_BATTERY_SLEEP_INTERVAL) + "min");
+            ESP_LOGI(LOG_TAG, "%s", TXT_LOW_BATTERY_VOLTAGE);
+            ESP_LOGI(LOG_TAG, "%s %d min", TXT_ENTERING_DEEP_SLEEP_FOR, LOW_BATTERY_SLEEP_INTERVAL);
         }
+        delay(DELAY_BEFORE_SLEEP);
         enterDeepSleep();
     }
     // battery is no longer low, reset variable in non-volatile storage
@@ -355,9 +358,9 @@ void setup()
     // All data should have been loaded from NVS. Close filesystem.
     prefs.end();
 
-    String statusStr = {};
-    String tmpStr = {};
-    tm timeInfo = {};
+    String statusStr = { };
+    String tmpStr = { };
+    tm timeInfo = { };
 
     // START WIFI
     int wifiRSSI = 0; // “Received Signal Strength Indicator"
@@ -366,12 +369,12 @@ void setup()
         killWiFi();
         initDisplay();
         if (wifiStatus == WL_NO_SSID_AVAIL) {
-            Serial.println(TXT_NETWORK_NOT_AVAILABLE);
+            ESP_LOGI(LOG_TAG, "%s", TXT_NETWORK_NOT_AVAILABLE);
             do {
                 drawError(wifi_x_196x196, TXT_NETWORK_NOT_AVAILABLE);
             } while (display.nextPage());
         } else {
-            Serial.println(TXT_WIFI_CONNECTION_FAILED);
+            ESP_LOGI(LOG_TAG, "%s", TXT_WIFI_CONNECTION_FAILED);
             do {
                 drawError(wifi_x_196x196, TXT_WIFI_CONNECTION_FAILED);
             } while (display.nextPage());
@@ -384,7 +387,7 @@ void setup()
     configTzTime(currentTimeZone.c_str(), NTP_SERVER_1, NTP_SERVER_2);
     bool timeConfigured = waitForSNTPSync(&timeInfo);
     if (!timeConfigured) {
-        Serial.println(TXT_TIME_SYNCHRONIZATION_FAILED);
+        ESP_LOGI(LOG_TAG, "%s", TXT_TIME_SYNCHRONIZATION_FAILED);
         killWiFi();
         initDisplay();
         do {
@@ -395,8 +398,7 @@ void setup()
     }
 
     // Print current local time for debugging purposes
-    Serial.print("Current local time: ");
-    Serial.println(asctime(&timeInfo));
+    ESP_LOGI(LOG_TAG, "Current local time: %s", asctime(&timeInfo));
 
     // MAKE API REQUESTS
 #ifdef USE_HTTP
@@ -422,32 +424,30 @@ void setup()
     }
     rxStatus = getOWMairpollution(client, owm_air_pollution, currentLat, currentLon);
 
-    Serial.print("Air Pollution Success: ");
-    Serial.println(owm_air_pollution.success);
+    ESP_LOGI(LOG_TAG, "Air Pollution Success: %d", owm_air_pollution.success);
 
     killWiFi(); // WiFi no longer needed
 
     // GET INDOOR TEMPERATURE AND HUMIDITY, start BMEx80...
 
-#if PIN_BME_PWR > 0
-    Serial.print("Powering on BME sensor on pin: ");
-    Serial.println(PIN_BME_PWR);
+#if PIN_BME_PWR > -1
+    ESP_LOGI(LOG_TAG, "Powering on BME sensor on pin: %d", PIN_BME_PWR);
     pinMode(PIN_BME_PWR, OUTPUT);
     digitalWrite(PIN_BME_PWR, HIGH);
-#endif // PIN_BME_PWR > 0
+#endif // PIN_BME_PWR
 
     float inTemp = NAN;
     float inHumidity = NAN;
+
+#if defined(SENSOR_BME280) || defined(SENSOR_BME680)
+
 #if defined(SENSOR_BME280)
-    Serial.println(String(TXT_READING_FROM) + " BME280... ");
+    ESP_LOGI(LOG_TAG, "%s BME280... ", TXT_READING_FROM);
     Adafruit_BME280 bme;
 
     TwoWire I2C_bme = TwoWire(0);
 
-    Serial.print("Initializing I2C bus on pins: ");
-    Serial.print(PIN_BME_SDA);
-    Serial.print(", ");
-    Serial.println(PIN_BME_SCL);
+    ESP_LOGI(LOG_TAG, "Initializing I2C bus on pins: %d, %d", PIN_BME_SDA, PIN_BME_SCL);
 
 #ifdef CONFIG_IDF_TARGET_ESP32C6
     I2C_bme.setPins(PIN_BME_SDA, PIN_BME_SCL);
@@ -458,7 +458,7 @@ void setup()
     if (bme.begin(BME_ADDRESS, &I2C_bme)) {
 #endif
 #if defined(SENSOR_BME680)
-        Serial.print(String(TXT_READING_FROM) + " BME680... ");
+        ESP_LOGI(LOG_TAG, "%s BME680... ", TXT_READING_FROM);
         Adafruit_BME680 bme(&I2C_bme);
 
         if (bme.begin(BME_ADDRESS)) {
@@ -472,29 +472,28 @@ void setup()
             //       displayed.
             if (std::isnan(inTemp) || std::isnan(inHumidity)) {
                 statusStr = "BME " + String(TXT_READ_FAILED);
-                Serial.println(statusStr);
+                ESP_LOGI(LOG_TAG, "%s", statusStr.c_str());
             } else {
-                Serial.println(TXT_SUCCESS);
+                ESP_LOGI(LOG_TAG, "%s", TXT_SUCCESS);
             }
         } else {
             statusStr = "BME " + String(TXT_NOT_FOUND); // check wiring
-            Serial.println(statusStr);
+            ESP_LOGI(LOG_TAG, "%s", statusStr.c_str());
         }
 
-#if PIN_BME_PWR > 0
-        Serial.println("Powering off BME sensor.");
+#if PIN_BME_PWR > -1
+        ESP_LOGI(LOG_TAG, "Powering off BME sensor.");
         digitalWrite(PIN_BME_PWR, LOW);
 #endif // PIN_BME_PWR > 0
+
+#endif // SENSOR_BME280 || SENSOR_BME680
+
         Wire.end();
 
 #if DEBUG_LEVEL > 0
-        Serial.println("BME readings: ");
-        Serial.print("  Temperature: ");
-        Serial.print(inTemp);
-        Serial.println(" °C");
-        Serial.print("  Humidity: ");
-        Serial.print(inHumidity);
-        Serial.println(" %");
+        ESP_LOGI(LOG_TAG, "BME readings: ");
+        ESP_LOGI(LOG_TAG, "  Temperature: %.2f °C", inTemp);
+        ESP_LOGI(LOG_TAG, "  Humidity: %.2f %%", inHumidity);
 #endif
 
         String refreshTimeStr;

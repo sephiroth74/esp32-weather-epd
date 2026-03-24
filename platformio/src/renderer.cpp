@@ -37,6 +37,8 @@
 #include "icons/icons_160x160.h"
 #include "icons/icons_196x196.h"
 
+#include "esp_log.h"
+
 #ifdef DISP_BW_V2
   GxEPD2_BW<GxEPD2_750_T7,
             GxEPD2_750_T7::HEIGHT> display(
@@ -109,6 +111,7 @@ uint16_t getStringHeight(const String &text)
 void drawString(int16_t x, int16_t y, const String &text, alignment_t alignment,
                 uint16_t color)
 {
+  ESP_LOGV(LOG_TAG, "Drawing string: %s", text.c_str());
   int16_t x1, y1;
   uint16_t w, h;
   display.setTextColor(color);
@@ -234,9 +237,17 @@ void drawMultiLnString(int16_t x, int16_t y, const String &text,
  */
 void initDisplay()
 {
-  Serial.println("Init display...");
-  pinMode(PIN_EPD_PWR, OUTPUT);
-  digitalWrite(PIN_EPD_PWR, HIGH);
+  ESP_LOGI(LOG_TAG, "Init display...");
+
+  if (PIN_EPD_PWR > -1) {
+    pinMode(PIN_EPD_PWR, OUTPUT);
+    digitalWrite(PIN_EPD_PWR, HIGH);
+  }
+
+  pinMode(PIN_EPD_CS, OUTPUT);
+  pinMode(PIN_EPD_RST, OUTPUT);
+  pinMode(PIN_EPD_DC, OUTPUT);
+
 #ifdef DRIVER_WAVESHARE
   display.init(115200, true, 2, false);
 #endif
@@ -244,11 +255,17 @@ void initDisplay()
   display.init(115200, true, 10, false);
 #endif
   // remap spi
+  ESP_LOGI(LOG_TAG, "Remapping SPI pins...");
+  ESP_LOGD(LOG_TAG, "SCK: %d, MOSI: %d, MISO: %d, CS: %d",
+           PIN_EPD_SCK, PIN_EPD_MOSI, PIN_EPD_MISO, PIN_EPD_CS);
+
   SPI.end();
   SPI.begin(PIN_EPD_SCK,
             PIN_EPD_MISO,
             PIN_EPD_MOSI,
             PIN_EPD_CS);
+
+  ESP_LOGI(LOG_TAG, "SPI pins remapped.");
 
   display.setRotation(0);
   display.setTextSize(1);
@@ -264,9 +281,13 @@ void initDisplay()
  */
 void powerOffDisplay()
 {
-  display.hibernate(); // turns powerOff() and sets controller to deep sleep for
-                       // minimum power use
-  digitalWrite(PIN_EPD_PWR, LOW);
+  ESP_LOGI(LOG_TAG, "Powering off display...");
+  // turns powerOff() and sets controller to deep sleep for minimum power use
+  display.hibernate(); 
+  
+  if (PIN_EPD_PWR > -1) {
+    digitalWrite(PIN_EPD_PWR, LOW);
+  }
   return;
 } // end initDisplay
 
@@ -278,6 +299,7 @@ void drawCurrentConditions(const owm_current_t &current,
                            const owm_resp_air_pollution_t &owm_air_pollution,
                            float inTemp, float inHumidity)
 {
+  ESP_LOGI(LOG_TAG, "Drawing current conditions...");
   String dataStr, unitStr;
   // current weather icon
   display.drawInvertedBitmap(0, 0,
@@ -778,7 +800,7 @@ void drawForecast(const owm_daily_t *daily, tm timeInfo)
                   const String &city, const String &date)
   {
 #if DEBUG_LEVEL >= 1
-  Serial.println("[debug] alerts.size()    : " + String(alerts.size()));
+  ESP_LOGD(LOG_TAG, "alerts.size: %d", alerts.size());
 #endif
   if (alerts.size() == 0)
   { // no alerts to draw
@@ -789,7 +811,7 @@ void drawForecast(const owm_daily_t *daily, tm timeInfo)
   int *alert_indices = (int *) calloc(alerts.size(), sizeof(*alert_indices));
   if (!ignore_list || !alert_indices)
   {
-    Serial.println("Error: Failed to allocate memory while handling alerts.");
+    ESP_LOGE(LOG_TAG, "Failed to allocate memory while handling alerts.");
     free(ignore_list);
     free(alert_indices);
     return;
@@ -810,12 +832,12 @@ void drawForecast(const owm_daily_t *daily, tm timeInfo)
   // find indices of valid alerts
   int num_valid_alerts = 0;
 #if DEBUG_LEVEL >= 1
-  Serial.print("[debug] ignore_list      : [ ");
+  ESP_LOGD(LOG_TAG, "ignore_list      : [ ");
 #endif
   for (int i = 0; i < alerts.size(); ++i)
   {
 #if DEBUG_LEVEL >= 1
-    Serial.print(String(ignore_list[i]) + " ");
+    ESP_LOGD(LOG_TAG, "%d ", ignore_list[i]);
 #endif
     if (!ignore_list[i])
     {
@@ -824,7 +846,7 @@ void drawForecast(const owm_daily_t *daily, tm timeInfo)
     }
   }
 #if DEBUG_LEVEL >= 1
-  Serial.println("]\n[debug] num_valid_alerts : " + String(num_valid_alerts));
+  ESP_LOGD(LOG_TAG, "]\n[debug] num_valid_alerts : %d", num_valid_alerts);
 #endif
 
   if (num_valid_alerts == 1)
@@ -1284,14 +1306,14 @@ void drawStatusBar(const String& statusStr, const String& refreshTimeStr,
   uint32_t batVoltage = battery.millivolts;
 
 #if DEBUG_LEVEL > 0
-  Serial.println("[debug] Battery Voltage : " + String(batVoltage) + " mV");
-  Serial.println("[debug] Battery Raw Voltage : " + String(battery.raw_millivolts) + " mV");
+  ESP_LOGD(LOG_TAG, "[debug] Battery Voltage : %u mV", batVoltage);
+  ESP_LOGD(LOG_TAG, "[debug] Battery Raw Voltage : %u mV", battery.raw_millivolts);
 #endif
 
 #if BATTERY_MONITORING
   // battery - (expecting 3.7v LiPo)
   uint32_t batPercent = battery.percent;
-#if defined(DISP_3C_B) || defined(DISP_7C_F)
+#if defined(DISP_3C_B) || defined(DISP_7C_F) || defined(DISP_6C_F)
   if (batVoltage < WARN_BATTERY_VOLTAGE)
   {
     dataColor = ACCENT_COLOR;
@@ -1304,7 +1326,6 @@ void drawStatusBar(const String& statusStr, const String& refreshTimeStr,
 #endif
 #if STATUS_BAR_EXTRAS_BAT_VOLTAGE
   dataStr += " (" + String( std::round(batVoltage / 10.f) / 100.f, 2 ) + "v)";
-  dataStr += String(battery.raw_millivolts) + "mV";
 #endif
   drawString(pos, DISP_HEIGHT - 1 - 2, dataStr, RIGHT, dataColor);
   pos -= getStringWidth(dataStr) + 1;

@@ -4,22 +4,24 @@
 
 #define WAVESHARE_ESP32_S3_ZERO
 
-#define PIN_EPD_BUSY (int8_t)13
-#define PIN_EPD_RST (int8_t)7
-#define PIN_EPD_DC (int8_t)4
-#define PIN_EPD_CS (int8_t)SS // 10
-#define PIN_EPD_SCK (int8_t)SCK // 12
-#define PIN_EPD_MOSI (int8_t)MOSI // 11
+#define PIN_EPD_BUSY (int8_t)14
+#define PIN_EPD_RST (int8_t)15
+#define PIN_EPD_DC (int8_t)18
+#define PIN_EPD_CS (int8_t)19
+#define PIN_EPD_SCK (int8_t)20
+#define PIN_EPD_MOSI (int8_t)21
 #define PIN_EPD_MISO -1
 #define PIN_EPD_PWR -1
 #define PIN_BAT_ADC 1
 
 #define PIN_BME_SDA (int8_t)SDA // 8
 #define PIN_BME_SCL (int8_t)SCL // 9
-#define PIN_BME_PWR 6
+#define PIN_BME_PWR -1
 
 // Wakeup pin
 #define PIN_WAKEUP GPIO_NUM_2
+
+#define USE_EXT1_WAKEUP
 
 // BME I2C Address
 // 0x76 if SDO -> GND; 0x77 if SDO -> VCC
@@ -57,24 +59,24 @@
 // #define SENSOR_BME680
 
 // Battery monitoring
+#define BATTERY_MONITORING 1
 #define BATTERY_POWER_SAVING 1
+#define BATTERY_RESISTOR_DIVIDER 0.2527075812
 
 // R1 = 680kΩ, R2 = 330kΩ (Vout = Vin * R2 / (R1 + R2))
-#define BATTERY_RESISTOR_DIVIDER 0.4984
+// #define BATTERY_RESISTOR_DIVIDER 0.4984
 
 // Debug level
 #define DEBUG_LEVEL 1
 
 // Delay before sleep
-#define DELAY_BEFORE_SLEEP 0
+#define DELAY_BEFORE_SLEEP 5000
 
 // Sleep configuration
-#define CONFIG_SLEEP_DURATION 120
-#define CONFIG_BED_TIME 23
-#define CONFIG_WAKE_TIME 06
-
-#define CONFIG_HOURLY_GRAPH_MAX 24
+// #define CONFIG_SLEEP_DURATION 120
+// #define CONFIG_BED_TIME 23
+// #define CONFIG_WAKE_TIME 06
+// #define CONFIG_HOURLY_GRAPH_MAX 24
 
 #define LOCALE it_IT
-
-#define FONT_HEADER "fonts/OpenSans_Regular.h"
+#define FONT_HEADER "fonts/Roboto_Regular.h"
