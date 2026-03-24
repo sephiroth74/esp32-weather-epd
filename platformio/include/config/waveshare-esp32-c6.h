@@ -68,7 +68,6 @@
 
 // Battery monitoring
 #define BATTERY_MONITORING 1
-#define BATTERY_POWER_SAVING 1
 // #define DISABLE_DEEP_SLEEP
 #define DELAY_BEFORE_SLEEP 4000
 

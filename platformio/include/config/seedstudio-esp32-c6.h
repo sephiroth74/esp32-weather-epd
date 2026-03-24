@@ -29,7 +29,7 @@
 // 0x76 if SDO -> GND; 0x77 if SDO -> VCC
 #define BME_ADDRESS 0x76
 
-#define USE_HTTP
+#define USE_HTTPS_NO_CERT_VERIF
 
 // Display type
 // #define DISP_7C_F
@@ -60,7 +60,6 @@
 
 // Battery monitoring
 #define BATTERY_MONITORING 1
-#define BATTERY_POWER_SAVING 1
 
 // R1 = 330kΩ, R2 = 180kΩ (Vout = Vin * R2 / (R1 + R2))
 // #define BATTERY_RESISTOR_DIVIDER 0.31984678
