@@ -1,5 +1,5 @@
 /* Display helper utility declarations for esp32-weather-epd.
- * Copyright (C) 2022-2025  Luke Marzen
+ * Copyright (C) 2022-2026  Luke Marzen
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -50,9 +50,9 @@ enum alert_category {
   STRONG_WIND
 };
 
-// uint32_t readBatteryVoltage();
-// uint32_t calcBatPercent(uint32_t v, uint32_t minv, uint32_t maxv);
-const uint8_t *getBatBitmap24(uint32_t millivolts, uint32_t batPercent);
+uint32_t readBatteryVoltage();
+uint32_t calcBatPercent(uint32_t v, uint32_t minv, uint32_t maxv);
+const uint8_t *getBatBitmap24(uint32_t batPercent);
 void getDateStr(String &s, tm *timeInfo);
 void getRefreshTimeStr(String &s, bool timeSuccess, tm *timeInfo);
 void toTitleCase(String &text);
@@ -78,9 +78,8 @@ const char *getHttpResponsePhrase(int code);
 const char *getWifiStatusPhrase(wl_status_t status);
 void printHeapUsage();
 void disableBuiltinLED();
-void enableBuiltinLED();
-void startLEDPulsing();
-void stopLEDPulsing();
+const uint8_t *getMoonPhaseBitmap48(const owm_daily_t &daily);
+const char *getMoonPhaseStr(const owm_daily_t &daily);
 
 #endif
 

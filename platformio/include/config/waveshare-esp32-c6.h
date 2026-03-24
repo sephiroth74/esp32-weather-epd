@@ -19,7 +19,7 @@
 #define PIN_EPD_MOSI (int8_t)19
 #define PIN_EPD_MISO (int8_t)-1 // unused
 #define PIN_EPD_PWR -1
-#define PIN_BAT_ADC (int8_t)1
+#define PIN_BAT_ADC 1
 
 #define PIN_BME_SDA (int8_t)4
 #define PIN_BME_SCL (int8_t)5

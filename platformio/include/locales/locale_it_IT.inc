@@ -1,5 +1,5 @@
 /* Italian locale data for esp32-weather-epd.
- * Copyright (C) 2022-2024  Luke Marzen
+ * Copyright (C) 2022-2026  Luke Marzen
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -81,6 +81,8 @@ const String OWM_LANG = "it";
 const char *TXT_FEELS_LIKE         = "Percepiti";
 const char *TXT_SUNRISE            = "Alba";
 const char *TXT_SUNSET             = "Tramonto";
+const char *TXT_MOONRISE           = "Sorgere della Luna";
+const char *TXT_MOONSET            = "Tramonto della Luna";
 const char *TXT_WIND               = "Vento";
 const char *TXT_HUMIDITY           = "Umidit\340";
 const char *TXT_UV_INDEX           = "Indice UV";
@@ -90,6 +92,18 @@ const char *TXT_AIR_POLLUTION      = "Inquinamento aria";
 const char *TXT_VISIBILITY         = "Visibilit\340";
 const char *TXT_INDOOR_TEMPERATURE = "Temperatura int.";
 const char *TXT_INDOOR_HUMIDITY    = "Umidit\340 int.";
+const char *TXT_DEWPOINT           = "Punto di rugiada";
+
+// MOON PHASE
+const char *TXT_MOONPHASE       = "Fase lunare";
+const char *TXT_NEW_MOON        = "Luna nuova";
+const char *TXT_WAXING_CRESCENT = "Luna crescente";
+const char *TXT_FIRST_QUARTER   = "Primo quarto";
+const char *TXT_WAXING_GIBBOUS  = "Gibbosa crescente";
+const char *TXT_FULL_MOON       = "Luna piena";
+const char *TXT_WANING_GIBBOUS  = "Gibbosa calante";
+const char *TXT_THIRD_QUARTER   = "Ultimo quarto";
+const char *TXT_WANING_CRESCENT = "Luna calante";
 
 // UV INDEX
 const char *TXT_UV_LOW       = "Basso";
@@ -158,9 +172,9 @@ const char *TXT_FAILED_TO_GET_TIME = "Failed to get the time!";
 const char *TXT_HIBERNATING_INDEFINITELY_NOTICE = "Hibernating without wake time!";
 const char *TXT_REFERENCING_OLDER_TIME_NOTICE = "Failed to synchronize time before deep-sleep, referencing older time.";
 const char *TXT_WAITING_FOR_SNTP = "Waiting for SNTP synchronization.";
-const char *TXT_LOW_BATTERY_VOLTAGE = "Livello batteria basso!";
-const char *TXT_VERY_LOW_BATTERY_VOLTAGE = "Batteria scarica!";
-const char *TXT_CRIT_LOW_BATTERY_VOLTAGE = "Bateria quasi scarica!";
+const char *TXT_LOW_BATTERY_VOLTAGE = "Low battery voltage!";
+const char *TXT_VERY_LOW_BATTERY_VOLTAGE = "Very low battery voltage!";
+const char *TXT_CRIT_LOW_BATTERY_VOLTAGE = "Critically low battery voltage!";
 
 // ALERTS
 // The display can show up to 2 alerts, but alerts can be unpredictable in
@@ -239,7 +253,7 @@ const std::vector<String> TERM_HURRICANE =
 const std::vector<String> TERM_DUST =
     {"dust", "sand"};
 const std::vector<String> TERM_STRONG_WIND =
-    {"wind"};
+    {"wind", "monsoon"};
 
 // AIR QUALITY INDEX
 extern "C" {
