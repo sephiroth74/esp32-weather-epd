@@ -1,5 +1,5 @@
 /* Display helper utilities for esp32-weather-epd.
- * Copyright (C) 2022-2025  Luke Marzen
+ * Copyright (C) 2022-2026  Luke Marzen
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,12 +20,12 @@
 #include <Arduino.h>
 
 #ifdef CONFIG_IDF_TARGET_ESP32C6
-#include <esp_adc/adc_cali.h>
 #include <esp_adc/adc_oneshot.h>
+#include <esp_adc/adc_cali.h>
 #else
 #include <driver/adc.h>
 #include <esp_adc_cal.h>
-#endif // CONFIG_IDF_TARGET_ESP32C6
+#endif // end CONFIG_IDF_TARGET_ESP32C6
 
 #include <aqi.h>
 
@@ -40,57 +40,64 @@
 
 /* Returns battery voltage in millivolts (mv).
  */
-// uint32_t readBatteryVoltage()
-// {
-// #if DEBUG_LEVEL >= 1
-//   Serial.println("[debug] Reading battery voltage.");
-// #endif
+uint32_t readBatteryVoltage()
+{
+#if PIN_BAT_ADC < 0
+    return MAX_BATTERY_VOLTAGE; // battery monitoring disabled
+#endif // end PIN_BAT_ADC < 0
 
-//   esp_adc_cal_characteristics_t adc_chars;
-//   // __attribute__((unused)) disables compiler warnings about this variable
-//   // being unused (Clang, GCC) which is the case when DEBUG_LEVEL == 0.
-//   esp_adc_cal_value_t val_type __attribute__((unused));
-//   adc_power_acquire();
-//   uint16_t adc_val = analogRead(PIN_BAT_ADC);
-//   adc_power_release();
+#if CONFIG_IDF_TARGET_ESP32C6
+    // ESP32-C6's ADC is 10-bit, and uses 11db attenuation, which gives it a
+    // measurable input voltage range of 100mV to 1100mV.
 
-// #if DEBUG_LEVEL >= 1
-//   Serial.println("millivolts: " + String(adc_val));
-// #endif
+    pinMode(PIN_BAT_ADC, INPUT);
+    analogSetPinAttenuation(PIN_BAT_ADC, ADC_11db);
 
-//   // We will use the eFuse ADC calibration bits, to get accurate voltage
-//   // readings. The DFRobot FireBeetle Esp32-E V1.0's ADC is 12 bit, and uses
-//   // 11db attenuation, which gives it a measurable input voltage range of 150mV
-//   // to 2450mV.
-//   val_type = esp_adc_cal_characterize(ADC_UNIT_1, ADC_ATTEN_11db,
-//                                       ADC_WIDTH_BIT_12, 1100, &adc_chars);
+    uint32_t raw_millivolts = 0;
+    for (uint8_t i = 0; i < BATTERY_NUM_SAMPLES; ++i) {
+        raw_millivolts += analogReadMilliVolts(PIN_BAT_ADC);
+        delay(BATTERY_DELAY_MS);
+    }
+    raw_millivolts /= BATTERY_NUM_SAMPLES;
 
-// #if DEBUG_LEVEL >= 1
-//   Serial.println("ADC val: " + String(adc_val));
-//   Serial.println("val_type: " + String(val_type));
-// #endif
+    uint32_t batteryVoltage = raw_millivolts;
 
-// #if DEBUG_LEVEL >= 1
-//   if (val_type == ESP_ADC_CAL_VAL_EFUSE_VREF)
-//   {
-//     Serial.println("[debug] ADC Cal eFuse Vref");
-//   }
-//   else if (val_type == ESP_ADC_CAL_VAL_EFUSE_TP)
-//   {
-//     Serial.println("[debug] ADC Cal Two Point");
-//   }
-//   else
-//   {
-//     Serial.println("[debug] ADC Cal Default");
-//   }
-// #endif
+#if DEBUG_LEVEL >= 1
+    ESP_LOGD(LOG_TAG, "C6 raw battery voltage: %u mV", raw_millivolts);
+#endif
 
-//   uint32_t batteryVoltage = esp_adc_cal_raw_to_voltage(adc_val, &adc_chars);
-//   // DFRobot FireBeetle Esp32-E V1.0 voltage divider (1M+1M), so readings are
-//   // multiplied by 2.
-//   batteryVoltage *= 2;
-//   return batteryVoltage;
-// } // end readBatteryVoltage
+#else
+    esp_adc_cal_characteristics_t adc_chars;
+    // __attribute__((unused)) disables compiler warnings about this variable
+    // being unused (Clang, GCC) which is the case when DEBUG_LEVEL == 0.
+    esp_adc_cal_value_t val_type __attribute__((unused));
+    adc_power_acquire();
+    uint16_t adc_val = analogRead(PIN_BAT_ADC);
+    adc_power_release();
+
+    // We will use the eFuse ADC calibration bits, to get accurate voltage
+    // readings. The DFRobot FireBeetle Esp32-E V1.0's ADC is 12 bit, and uses
+    // 11db attenuation, which gives it a measurable input voltage range of 150mV
+    // to 2450mV.
+    val_type = esp_adc_cal_characterize(ADC_UNIT_1, ADC_ATTEN_11db,
+        ADC_WIDTH_BIT_12, 1100, &adc_chars);
+
+#if DEBUG_LEVEL >= 1
+    if (val_type == ESP_ADC_CAL_VAL_EFUSE_VREF) {
+        ESP_LOGD(LOG_TAG, "[debug]", "ADC Cal eFuse Vref");
+    } else if (val_type == ESP_ADC_CAL_VAL_EFUSE_TP) {
+        ESP_LOGD(LOG_TAG, "[debug]", "ADC Cal Two Point");
+    } else {
+        ESP_LOGD(LOG_TAG, "[debug]", "ADC Cal Default");
+    }
+#endif
+
+    uint32_t batteryVoltage = esp_adc_cal_raw_to_voltage(adc_val, &adc_chars);
+
+#endif // end CONFIG_IDF_TARGET_ESP32C6
+    batteryVoltage /= BATTERY_RESISTOR_DIVIDER;
+    return batteryVoltage;
+} // end readBatteryVoltage
 
 /* Returns battery percentage, rounded to the nearest integer.
  * Takes a voltage in millivolts and uses a sigmoidal approximation to find an
@@ -119,38 +126,23 @@ uint32_t calcBatPercent(uint32_t v, uint32_t minv, uint32_t maxv)
 
 /* Returns 24x24 bitmap incidcating battery status.
  */
-const uint8_t *getBatBitmap24(uint32_t batPercent)
+const uint8_t* getBatBitmap24(uint32_t batPercent)
 {
-  if (batPercent >= 93)
-  {
+    if (batPercent >= 93) {
         return battery_full_90deg_24x24;
-  }
-  else if (batPercent >= 79)
-  {
+    } else if (batPercent >= 79) {
         return battery_6_bar_90deg_24x24;
-  }
-  else if (batPercent >= 65)
-  {
+    } else if (batPercent >= 65) {
         return battery_5_bar_90deg_24x24;
-  }
-  else if (batPercent >= 50)
-  {
+    } else if (batPercent >= 50) {
         return battery_4_bar_90deg_24x24;
-  }
-  else if (batPercent >= 36)
-  {
+    } else if (batPercent >= 36) {
         return battery_3_bar_90deg_24x24;
-  }
-  else if (batPercent >= 22)
-  {
+    } else if (batPercent >= 22) {
         return battery_2_bar_90deg_24x24;
-  }
-  else if (batPercent >= 8)
-  {
+    } else if (batPercent >= 8) {
         return battery_1_bar_90deg_24x24;
-  }
-  else
-  {  // batPercent < 8
+    } else { // batPercent < 8
         return battery_0_bar_90deg_24x24;
     }
 } // end getBatBitmap24
@@ -159,7 +151,7 @@ const uint8_t *getBatBitmap24(uint32_t batPercent)
  */
 void getDateStr(String& s, tm* timeInfo)
 {
-    char buf[48] = {};
+    char buf[48] = { };
     _strftime(buf, sizeof(buf), DATE_FORMAT, timeInfo);
     s = buf;
 
@@ -177,7 +169,7 @@ void getRefreshTimeStr(String& s, bool timeSuccess, tm* timeInfo)
         return;
     }
 
-    char buf[48] = {};
+    char buf[48] = { };
     _strftime(buf, sizeof(buf), REFRESH_TIME_FORMAT, timeInfo);
     s = buf;
 
@@ -746,7 +738,7 @@ const uint8_t* getAlertBitmap32(const owm_alerts_t& alert)
 {
     enum alert_category c = getAlertCategory(alert);
     switch (c) {
-    // this is the default if an alert wasn't associated with a catagory
+        // this is the default if an alert wasn't associated with a catagory
     case NOT_FOUND:
         return warning_icon_32x32;
 
@@ -799,7 +791,7 @@ const uint8_t* getAlertBitmap32(const owm_alerts_t& alert)
     case STRONG_WIND:
         return wi_strong_wind_32x32;
 
-    // this code will never be reached
+        // this code will never be reached
     default:
         return wi_na_48x48;
     }
@@ -817,7 +809,7 @@ const uint8_t* getAlertBitmap48(const owm_alerts_t& alert)
 {
     enum alert_category c = getAlertCategory(alert);
     switch (c) {
-    // this is the default if an alert wasn't associated with a catagory
+        // this is the default if an alert wasn't associated with a catagory
     case NOT_FOUND:
         return warning_icon_48x48;
 
@@ -870,7 +862,7 @@ const uint8_t* getAlertBitmap48(const owm_alerts_t& alert)
     case STRONG_WIND:
         return wi_strong_wind_48x48;
 
-    // this code will never be reached
+        // this code will never be reached
     default:
         return wi_na_48x48;
     }
@@ -1480,7 +1472,7 @@ const char* getCompassPointNotation(int windDeg)
 const char* getHttpResponsePhrase(int code)
 {
     switch (code) {
-    // 1xx - Informational Responses
+        // 1xx - Informational Responses
     case 100:
         return TXT_HTTP_RESPONSE_100;
     case 101:
@@ -1490,7 +1482,7 @@ const char* getHttpResponsePhrase(int code)
     case 103:
         return TXT_HTTP_RESPONSE_103;
 
-    // 2xx - Successful Responses
+        // 2xx - Successful Responses
     case 200:
         return TXT_HTTP_RESPONSE_200;
     case 201:
@@ -1512,7 +1504,7 @@ const char* getHttpResponsePhrase(int code)
     case 226:
         return TXT_HTTP_RESPONSE_226;
 
-    // 3xx - Redirection Responses
+        // 3xx - Redirection Responses
     case 300:
         return TXT_HTTP_RESPONSE_300;
     case 301:
@@ -1530,7 +1522,7 @@ const char* getHttpResponsePhrase(int code)
     case 308:
         return TXT_HTTP_RESPONSE_308;
 
-    // 4xx - Client Error Responses
+        // 4xx - Client Error Responses
     case 400:
         return TXT_HTTP_RESPONSE_400;
     case 401:
@@ -1590,7 +1582,7 @@ const char* getHttpResponsePhrase(int code)
     case 451:
         return TXT_HTTP_RESPONSE_451;
 
-    // 5xx - Server Error Responses
+        // 5xx - Server Error Responses
     case 500:
         return TXT_HTTP_RESPONSE_500;
     case 501:
@@ -1614,7 +1606,7 @@ const char* getHttpResponsePhrase(int code)
     case 511:
         return TXT_HTTP_RESPONSE_511;
 
-    // HTTP client errors [0, -255]
+        // HTTP client errors [0, -255]
     case HTTPC_ERROR_CONNECTION_REFUSED:
         return TXT_HTTPC_ERROR_CONNECTION_REFUSED;
     case HTTPC_ERROR_SEND_HEADER_FAILED:
@@ -1638,7 +1630,7 @@ const char* getHttpResponsePhrase(int code)
     case HTTPC_ERROR_READ_TIMEOUT:
         return TXT_HTTPC_ERROR_READ_TIMEOUT;
 
-    // ArduinoJson DeserializationError codes  [-256, -511]
+        // ArduinoJson DeserializationError codes  [-256, -511]
     case -256 - (DeserializationError::Code::Ok):
         return TXT_DESERIALIZATION_ERROR_OK;
     case -256 - (DeserializationError::Code::EmptyInput):
@@ -1652,10 +1644,10 @@ const char* getHttpResponsePhrase(int code)
     case -256 - (DeserializationError::Code::TooDeep):
         return TXT_DESERIALIZATION_ERROR_TOO_DEEP;
 
-    // WiFi Status codes [-512, -767]
+        // WiFi Status codes [-512, -767]
     case -512 - WL_NO_SHIELD:
         return TXT_WL_NO_SHIELD;
-    // case -512 - WL_STOPPED:       return TXT_WL_STOPPED; // future
+        // case -512 - WL_STOPPED:       return TXT_WL_STOPPED; // future
     case -512 - WL_IDLE_STATUS:
         return TXT_WL_IDLE_STATUS;
     case -512 - WL_NO_SSID_AVAIL:
@@ -1687,7 +1679,7 @@ const char* getWifiStatusPhrase(wl_status_t status)
     switch (status) {
     case WL_NO_SHIELD:
         return TXT_WL_NO_SHIELD;
-    // case WL_STOPPED:       return TXT_WL_STOPPED; // future
+        // case WL_STOPPED:       return TXT_WL_STOPPED; // future
     case WL_IDLE_STATUS:
         return TXT_WL_IDLE_STATUS;
     case WL_NO_SSID_AVAIL:
@@ -1714,21 +1706,164 @@ const char* getWifiStatusPhrase(wl_status_t status)
 void disableBuiltinLED()
 {
 #if defined(LED_BUILTIN) && defined(HAS_BUILTIN_LED)
-    Serial.print("Disabling built-in LED");
-    Serial.print(" (");
-    Serial.print(LED_BUILTIN);
-    Serial.println(")");
-
     pinMode(LED_BUILTIN, OUTPUT);
     digitalWrite(LED_BUILTIN, LOW);
     // gpio_hold_en(static_cast<gpio_num_t>(LED_BUILTIN));
-#else
-#if !defined(CONFIG_IDF_TARGET_ESP32C6)
-    Serial.print("Disabling deep sleep hold");
-    gpio_deep_sleep_hold_en();
-#endif // CONFIG_IDF_TARGET_ESP32C6
-#endif // HAS_BUILTIN_LED
+#endif // end LED_BUILTIN && HAS_BUILTIN_LED
 
+#if !defined(CONFIG_IDF_TARGET_ESP32C6)
+    gpio_deep_sleep_hold_en();
+#endif // end !CONFIG_IDF_TARGET_ESP32C6
+    return;
 } // end disableBuiltinLED
 
+// Define the set of moon phase icon base on the chosen moon phase style
+#ifdef MOONPHASE_PRIMARY
+static const unsigned char* moon_phase_icon_arr[] = {
+    wi_moon_new_48x48,
+    wi_moon_waxing_crescent_1_48x48,
+    wi_moon_waxing_crescent_2_48x48,
+    wi_moon_waxing_crescent_3_48x48,
+    wi_moon_waxing_crescent_4_48x48,
+    wi_moon_waxing_crescent_5_48x48,
+    wi_moon_waxing_6_48x48,
+    wi_moon_first_quarter_48x48,
+    wi_moon_waxing_gibbous_1_48x48,
+    wi_moon_waxing_gibbous_2_48x48,
+    wi_moon_waxing_gibbous_3_48x48,
+    wi_moon_waxing_gibbous_4_48x48,
+    wi_moon_waxing_gibbous_5_48x48,
+    wi_moon_waxing_gibbous_6_48x48,
+    wi_moon_full_48x48,
+    wi_moon_waning_gibbous_1_48x48,
+    wi_moon_waning_gibbous_2_48x48,
+    wi_moon_waning_gibbous_3_48x48,
+    wi_moon_waning_gibbous_4_48x48,
+    wi_moon_waning_gibbous_5_48x48,
+    wi_moon_waning_gibbous_6_48x48,
+    wi_moon_third_quarter_48x48,
+    wi_moon_waning_crescent_1_48x48,
+    wi_moon_waning_crescent_2_48x48,
+    wi_moon_waning_crescent_3_48x48,
+    wi_moon_waning_crescent_4_48x48,
+    wi_moon_waning_crescent_5_48x48,
+    wi_moon_waning_crescent_6_48x48,
+    wi_moon_new_48x48
+};
+#endif
+// end MOONPHASE_PRIMARY
 
+#ifdef MOONPHASE_ALTERNATIVE
+static const unsigned char* moon_phase_icon_arr[] = {
+    wi_moon_alt_new_48x48,
+    wi_moon_alt_waxing_crescent_1_48x48,
+    wi_moon_alt_waxing_crescent_2_48x48,
+    wi_moon_alt_waxing_crescent_3_48x48,
+    wi_moon_alt_waxing_crescent_4_48x48,
+    wi_moon_alt_waxing_crescent_5_48x48,
+    wi_moon_alt_waxing_crescent_6_48x48,
+    wi_moon_alt_first_quarter_48x48,
+    wi_moon_alt_waxing_gibbous_1_48x48,
+    wi_moon_alt_waxing_gibbous_2_48x48,
+    wi_moon_alt_waxing_gibbous_3_48x48,
+    wi_moon_alt_waxing_gibbous_4_48x48,
+    wi_moon_alt_waxing_gibbous_5_48x48,
+    wi_moon_alt_waxing_gibbous_6_48x48,
+    wi_moon_alt_full_48x48,
+    wi_moon_alt_waning_gibbous_1_48x48,
+    wi_moon_alt_waning_gibbous_2_48x48,
+    wi_moon_alt_waning_gibbous_3_48x48,
+    wi_moon_alt_waning_gibbous_4_48x48,
+    wi_moon_alt_waning_gibbous_5_48x48,
+    wi_moon_alt_waning_gibbous_6_48x48,
+    wi_moon_alt_third_quarter_48x48,
+    wi_moon_alt_waning_crescent_1_48x48,
+    wi_moon_alt_waning_crescent_2_48x48,
+    wi_moon_alt_waning_crescent_3_48x48,
+    wi_moon_alt_waning_crescent_4_48x48,
+    wi_moon_alt_waning_crescent_5_48x48,
+    wi_moon_alt_waning_crescent_6_48x48,
+    wi_moon_alt_new_48x48
+};
+#endif
+// end MOONPHASE_ALTERNATIVE
+
+/*  Returns the 48x48 moon phase icon bitmap based on api response between 0 and 1
+ *  0 and 1 means new moon
+ *  0.5 means full moon
+ *  scale range to match 28 numbers of different icons
+ *  offset +0.5 to shift icon to center of moon phase period
+ */
+const uint8_t* getMoonPhaseBitmap48(const owm_daily_t& daily)
+{
+    int n = static_cast<int>(daily.moon_phase * 28 + 0.5);
+    return moon_phase_icon_arr[n];
+} // end getMoonPhaseBitmap48
+
+// Returns the current moon phase string
+const char* getMoonPhaseStr(const owm_daily_t& daily)
+{
+    int n = static_cast<int>(daily.moon_phase * 28 + 0.5);
+    switch (n) {
+    case 0:
+        return TXT_NEW_MOON;
+    case 1:
+        return TXT_WAXING_CRESCENT;
+    case 2:
+        return TXT_WAXING_CRESCENT;
+    case 3:
+        return TXT_WAXING_CRESCENT;
+    case 4:
+        return TXT_WAXING_CRESCENT;
+    case 5:
+        return TXT_WAXING_CRESCENT;
+    case 6:
+        return TXT_WAXING_CRESCENT;
+    case 7:
+        return TXT_FIRST_QUARTER;
+    case 8:
+        return TXT_WAXING_GIBBOUS;
+    case 9:
+        return TXT_WAXING_GIBBOUS;
+    case 10:
+        return TXT_WAXING_GIBBOUS;
+    case 11:
+        return TXT_WAXING_GIBBOUS;
+    case 12:
+        return TXT_WAXING_GIBBOUS;
+    case 13:
+        return TXT_WAXING_GIBBOUS;
+    case 14:
+        return TXT_FULL_MOON;
+    case 15:
+        return TXT_WANING_GIBBOUS;
+    case 16:
+        return TXT_WANING_GIBBOUS;
+    case 17:
+        return TXT_WANING_GIBBOUS;
+    case 18:
+        return TXT_WANING_GIBBOUS;
+    case 19:
+        return TXT_WANING_GIBBOUS;
+    case 20:
+        return TXT_WANING_GIBBOUS;
+    case 21:
+        return TXT_THIRD_QUARTER;
+    case 22:
+        return TXT_WANING_CRESCENT;
+    case 23:
+        return TXT_WANING_CRESCENT;
+    case 24:
+        return TXT_WANING_CRESCENT;
+    case 25:
+        return TXT_WANING_CRESCENT;
+    case 26:
+        return TXT_WANING_CRESCENT;
+    case 27:
+        return TXT_WANING_CRESCENT;
+    case 28:
+        return TXT_NEW_MOON;
+    default:
+        return "";
+    }
+} // end getMoonPhaseStr

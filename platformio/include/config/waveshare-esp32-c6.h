@@ -63,7 +63,7 @@
 // #define USE_HSPI_FOR_EPD
 
 // Temperature sensor
-#define SENSOR_BME280
+// #define SENSOR_BME280
 // #define SENSOR_BME680
 
 // Battery monitoring

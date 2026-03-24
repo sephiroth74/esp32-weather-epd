@@ -28,6 +28,7 @@
 #include <WiFi.h>
 
 // additional libraries
+#include <Adafruit_BusIO_Register.h>
 #include <ArduinoJson.h>
 
 // header files
@@ -39,13 +40,13 @@
 #include "display_utils.h"
 #include "renderer.h"
 #ifndef USE_HTTP
-  #include <WiFiClientSecure.h>
+#include <WiFiClientSecure.h>
 #endif
 
 #ifdef USE_HTTP
-  static const uint16_t OWM_PORT = 80;
+static const uint16_t OWM_PORT = 80;
 #else
-  static const uint16_t OWM_PORT = 443;
+static const uint16_t OWM_PORT = 443;
 #endif
 
 /* Power-on and connect WiFi.
@@ -54,59 +55,54 @@
  *
  * Returns WiFi status.
  */
-wl_status_t startWiFi(int &wifiRSSI)
+wl_status_t startWiFi(int& wifiRSSI)
 {
-  WiFi.mode(WIFI_STA);
-  Serial.printf("%s '%s'", TXT_CONNECTING_TO, WIFI_SSID);
-  WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
+    WiFi.mode(WIFI_STA);
+    Serial.printf("%s '%s'", TXT_CONNECTING_TO, WIFI_SSID);
+    WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
 
-  // timeout if WiFi does not connect in WIFI_TIMEOUT ms from now
-  unsigned long timeout = millis() + WIFI_TIMEOUT;
-  wl_status_t connection_status = WiFi.status();
+    // timeout if WiFi does not connect in WIFI_TIMEOUT ms from now
+    unsigned long timeout = millis() + WIFI_TIMEOUT;
+    wl_status_t connection_status = WiFi.status();
 
-  while ((connection_status != WL_CONNECTED) && (millis() < timeout))
-  {
-    Serial.print(".");
-    delay(50);
-    connection_status = WiFi.status();
-  }
-  Serial.println();
+    while ((connection_status != WL_CONNECTED) && (millis() < timeout)) {
+        Serial.print(".");
+        delay(50);
+        connection_status = WiFi.status();
+    }
+    Serial.println();
 
-  if (connection_status == WL_CONNECTED)
-  {
-    wifiRSSI = WiFi.RSSI(); // get WiFi signal strength now, because the WiFi
-                            // will be turned off to save power!
-    Serial.println("IP: " + WiFi.localIP().toString());
-  }
-  else
-  {
-    Serial.printf("%s '%s'\n", TXT_COULD_NOT_CONNECT_TO, WIFI_SSID);
-  }
-  return connection_status;
+    if (connection_status == WL_CONNECTED) {
+        wifiRSSI = WiFi.RSSI(); // get WiFi signal strength now, because the WiFi
+                                // will be turned off to save power!
+        Serial.println("IP: " + WiFi.localIP().toString());
+    } else {
+        Serial.printf("%s '%s'\n", TXT_COULD_NOT_CONNECT_TO, WIFI_SSID);
+    }
+    return connection_status;
 } // startWiFi
 
 /* Disconnect and power-off WiFi.
  */
 void killWiFi()
 {
-  WiFi.disconnect();
-  WiFi.mode(WIFI_OFF);
+    WiFi.disconnect();
+    WiFi.mode(WIFI_OFF);
 } // killWiFi
 
 /* Prints the local time to serial monitor.
  *
  * Returns true if getting local time was a success, otherwise false.
  */
-bool printLocalTime(tm *timeInfo)
+bool printLocalTime(tm* timeInfo)
 {
-  int attempts = 0;
-  while (!getLocalTime(timeInfo) && attempts++ < 3)
-  {
-    Serial.println(TXT_FAILED_TO_GET_TIME);
-    return false;
-  }
-  Serial.println(timeInfo, "%A, %B %d, %Y %H:%M:%S");
-  return true;
+    int attempts = 0;
+    while (!getLocalTime(timeInfo) && attempts++ < 3) {
+        Serial.println(TXT_FAILED_TO_GET_TIME);
+        return false;
+    }
+    Serial.println(timeInfo, "%A, %B %d, %Y %H:%M:%S");
+    return true;
 } // printLocalTime
 
 /* Waits for NTP server time sync, adjusted for the time zone specified in
@@ -116,24 +112,22 @@ bool printLocalTime(tm *timeInfo)
  *
  * Note: Must be connected to WiFi to get time from NTP server.
  */
-bool waitForSNTPSync(tm *timeInfo)
+bool waitForSNTPSync(tm* timeInfo)
 {
-  // Wait for SNTP synchronization to complete
-  unsigned long timeout = millis() + NTP_TIMEOUT;
-  if ((sntp_get_sync_status() == SNTP_SYNC_STATUS_RESET)
-      && (millis() < timeout))
-  {
-    Serial.print(TXT_WAITING_FOR_SNTP);
-    delay(100); // ms
-    while ((sntp_get_sync_status() == SNTP_SYNC_STATUS_RESET)
-        && (millis() < timeout))
-    {
-      Serial.print(".");
-      delay(100); // ms
+    // Wait for SNTP synchronization to complete
+    unsigned long timeout = millis() + NTP_TIMEOUT;
+    if ((sntp_get_sync_status() == SNTP_SYNC_STATUS_RESET)
+        && (millis() < timeout)) {
+        Serial.print(TXT_WAITING_FOR_SNTP);
+        delay(100); // ms
+        while ((sntp_get_sync_status() == SNTP_SYNC_STATUS_RESET)
+            && (millis() < timeout)) {
+            Serial.print(".");
+            delay(100); // ms
+        }
+        Serial.println();
     }
-    Serial.println();
-  }
-  return printLocalTime(timeInfo);
+    return printLocalTime(timeInfo);
 } // waitForSNTPSync
 
 /* Perform an HTTP GET request to OpenWeatherMap's "One Call" API
@@ -143,63 +137,59 @@ bool waitForSNTPSync(tm *timeInfo)
  * Returns the HTTP Status Code.
  */
 #ifdef USE_HTTP
-  int getOWMonecall(WiFiClient &client, owm_resp_onecall_t &r, String &latitude, String &longitude)
+int getOWMonecall(WiFiClient& client, owm_resp_onecall_t& r, String& latitude, String& longitude)
 #else
-  int getOWMonecall(WiFiClientSecure &client, owm_resp_onecall_t &r, String &latitude, String & longitude)
+int getOWMonecall(WiFiClientSecure& client, owm_resp_onecall_t& r, String& latitude, String& longitude)
 #endif
 {
-  int attempts = 0;
-  bool rxSuccess = false;
-  DeserializationError jsonErr = {};
-  String uri = "/data/" + OWM_ONECALL_VERSION
-               + "/onecall?lat=" + latitude + "&lon=" + longitude + "&lang=" + OWM_LANG
-               + "&units=standard&exclude=minutely";
+    int attempts = 0;
+    bool rxSuccess = false;
+    DeserializationError jsonErr = { };
+    String uri = "/data/" + OWM_ONECALL_VERSION
+        + "/onecall?lat=" + latitude + "&lon=" + longitude + "&lang=" + OWM_LANG
+        + "&units=standard&exclude=minutely";
 #if !DISPLAY_ALERTS
-  // exclude alerts
-  uri += ",alerts";
+    // exclude alerts
+    uri += ",alerts";
 #endif
 
-  // This string is printed to terminal to help with debugging. The API key is
-  // censored to reduce the risk of users exposing their key.
-  String sanitizedUri = OWM_ENDPOINT + uri + "&appid={API key}";
+    // This string is printed to terminal to help with debugging. The API key is
+    // censored to reduce the risk of users exposing their key.
+    String sanitizedUri = OWM_ENDPOINT + uri + "&appid={API key}";
 
-  uri += "&appid=" + OWM_APIKEY;
+    uri += "&appid=" + OWM_APIKEY;
 
-  Serial.print(TXT_ATTEMPTING_HTTP_REQ);
-  Serial.println(": " + sanitizedUri);
-  int httpResponse = 0;
-  while (!rxSuccess && attempts < 3)
-  {
-    wl_status_t connection_status = WiFi.status();
-    if (connection_status != WL_CONNECTED)
-    {
-      // -512 offset distinguishes these errors from httpClient errors
-      return -512 - static_cast<int>(connection_status);
+    Serial.print(TXT_ATTEMPTING_HTTP_REQ);
+    Serial.println(": " + sanitizedUri);
+    int httpResponse = 0;
+    while (!rxSuccess && attempts < 3) {
+        wl_status_t connection_status = WiFi.status();
+        if (connection_status != WL_CONNECTED) {
+            // -512 offset distinguishes these errors from httpClient errors
+            return -512 - static_cast<int>(connection_status);
+        }
+
+        HTTPClient http;
+        http.setConnectTimeout(HTTP_CLIENT_TCP_TIMEOUT); // default 5000ms
+        http.setTimeout(HTTP_CLIENT_TCP_TIMEOUT); // default 5000ms
+        http.begin(client, OWM_ENDPOINT, OWM_PORT, uri);
+        httpResponse = http.GET();
+        if (httpResponse == HTTP_CODE_OK) {
+            jsonErr = deserializeOneCall(http.getStream(), r);
+            if (jsonErr) {
+                // -256 offset distinguishes these errors from httpClient errors
+                httpResponse = -256 - static_cast<int>(jsonErr.code());
+            }
+            rxSuccess = !jsonErr;
+        }
+        client.stop();
+        http.end();
+        Serial.println("  " + String(httpResponse, DEC) + " "
+            + getHttpResponsePhrase(httpResponse));
+        ++attempts;
     }
 
-    HTTPClient http;
-    http.setConnectTimeout(HTTP_CLIENT_TCP_TIMEOUT); // default 5000ms
-    http.setTimeout(HTTP_CLIENT_TCP_TIMEOUT); // default 5000ms
-    http.begin(client, OWM_ENDPOINT, OWM_PORT, uri);
-    httpResponse = http.GET();
-    if (httpResponse == HTTP_CODE_OK)
-    {
-      jsonErr = deserializeOneCall(http.getStream(), r);
-      if (jsonErr)
-      {
-        // -256 offset distinguishes these errors from httpClient errors
-        httpResponse = -256 - static_cast<int>(jsonErr.code());
-      }
-      rxSuccess = !jsonErr;
-    }
-    client.stop();
-    http.end();
-    Serial.println("  " + String(httpResponse, DEC) + " "
-                   + getHttpResponsePhrase(httpResponse));
-    ++attempts;
-  }
-
-  return httpResponse;
+    return httpResponse;
 } // getOWMonecall
 
 /* Perform an HTTP GET request to OpenWeatherMap's "Air Pollution" API
@@ -209,96 +199,91 @@ bool waitForSNTPSync(tm *timeInfo)
  * Returns the HTTP Status Code.
  */
 #ifdef USE_HTTP
-  int getOWMairpollution(WiFiClient &client, owm_resp_air_pollution_t &r, String &latitude, String &longitude)
+int getOWMairpollution(WiFiClient& client, owm_resp_air_pollution_t& r, String& latitude, String& longitude)
 #else
-  int getOWMairpollution(WiFiClientSecure &client, owm_resp_air_pollution_t &r, String &latitude, String &longitude)
+int getOWMairpollution(WiFiClientSecure& client, owm_resp_air_pollution_t& r, String& latitude, String& longitude)
 #endif
 {
-  int attempts = 0;
-  bool rxSuccess = false;
-  DeserializationError jsonErr = {};
+    int attempts = 0;
+    bool rxSuccess = false;
+    DeserializationError jsonErr = { };
 
-  // set start and end to appropriate values so that the last 24 hours of air
-  // pollution history is returned. Unix, UTC.
-  time_t now;
-  time_t end = time(&now);
-  // minus 1 is important here, otherwise we could get an extra hour of history
-  time_t start = end - ((3600 * OWM_NUM_AIR_POLLUTION) - 1);
+    // set start and end to appropriate values so that the last 24 hours of air
+    // pollution history is returned. Unix, UTC.
+    time_t now;
+    int64_t end = time(&now);
+    // minus 1 is important here, otherwise we could get an extra hour of history
+    int64_t start = end - ((3600 * OWM_NUM_AIR_POLLUTION) - 1);
 
-  char endStr[22];
-  char startStr[22];
+    char endStr[22];
+    char startStr[22];
 
-  // if it's ESP32-C6 use long long int
+    // if it's ESP32-C6 use long long int
 #ifdef CONFIG_IDF_TARGET_ESP32C6
-  sprintf(endStr, "%lld", end);
-  sprintf(startStr, "%lld", start);
+    sprintf(endStr, "%lld", end);
+    sprintf(startStr, "%lld", start);
 #else
-  sprintf(endStr, "%ld", end);
-  sprintf(startStr, "%ld", start);
+    sprintf(endStr, "%ld", end);
+    sprintf(startStr, "%ld", start);
 #endif // CONFIG_IDF_TARGET_ESP32C6
 
-  Serial.print("Start: ");
-  Serial.println(startStr);
-  Serial.print("End: ");
-  Serial.println(endStr);
+    Serial.print("Start: ");
+    Serial.println(startStr);
+    Serial.print("End: ");
+    Serial.println(endStr);
 
-  String uri = "/data/2.5/air_pollution/history?lat=" + latitude + "&lon=" + longitude
-      + "&start=" + startStr + "&end=" + endStr
-      + "&appid=" + OWM_APIKEY;
-  // This string is printed to terminal to help with debugging. The API key is
-  // censored to reduce the risk of users exposing their key.
+    String uri = "/data/2.5/air_pollution/history?lat=" + latitude + "&lon=" + longitude
+        + "&start=" + startStr + "&end=" + endStr
+        + "&appid=" + OWM_APIKEY;
+    // This string is printed to terminal to help with debugging. The API key is
+    // censored to reduce the risk of users exposing their key.
 
-  String sanitizedUri = OWM_ENDPOINT + "/data/2.5/air_pollution/history?lat=" + latitude + "&lon=" + longitude
-      + "&start=" + startStr + "&end=" + endStr
-      + "&appid={API key}";
+    String sanitizedUri = OWM_ENDPOINT + "/data/2.5/air_pollution/history?lat=" + latitude + "&lon=" + longitude
+        + "&start=" + startStr + "&end=" + endStr
+        + "&appid={API key}";
 
-  Serial.print(TXT_ATTEMPTING_HTTP_REQ);
-  Serial.print(": ");
-  Serial.println(sanitizedUri);
-  int httpResponse = 0;
-  while (!rxSuccess && attempts < 3) {
-      wl_status_t connection_status = WiFi.status();
-      if (connection_status != WL_CONNECTED) {
-          // -512 offset distinguishes these errors from httpClient errors
-          r.success = false;
-          return -512 - static_cast<int>(connection_status);
-      }
+    Serial.print(TXT_ATTEMPTING_HTTP_REQ);
+    Serial.println(": " + sanitizedUri);
+    int httpResponse = 0;
+    while (!rxSuccess && attempts < 3) {
+        wl_status_t connection_status = WiFi.status();
+        if (connection_status != WL_CONNECTED) {
+            // -512 offset distinguishes these errors from httpClient errors
+            r.success = false;
+            return -512 - static_cast<int>(connection_status);
+        }
 
-      HTTPClient http;
-      http.setConnectTimeout(HTTP_CLIENT_TCP_TIMEOUT); // default 5000ms
-      http.setTimeout(HTTP_CLIENT_TCP_TIMEOUT); // default 5000ms
-      http.begin(client, OWM_ENDPOINT, OWM_PORT, uri);
-      httpResponse = http.GET();
-      if (httpResponse == HTTP_CODE_OK) {
-          jsonErr = deserializeAirQuality(http.getStream(), r);
-          if (jsonErr) {
-              // -256 offset to distinguishes these errors from httpClient errors
-              r.success = false;
-              httpResponse = -256 - static_cast<int>(jsonErr.code());
-          }
-          rxSuccess = !jsonErr;
-      }
-      client.stop();
-      http.end();
-      Serial.println("  " + String(httpResponse, DEC) + " "
-          + getHttpResponsePhrase(httpResponse));
-      ++attempts;
-  }
+        HTTPClient http;
+        http.setConnectTimeout(HTTP_CLIENT_TCP_TIMEOUT); // default 5000ms
+        http.setTimeout(HTTP_CLIENT_TCP_TIMEOUT); // default 5000ms
+        http.begin(client, OWM_ENDPOINT, OWM_PORT, uri);
+        httpResponse = http.GET();
+        if (httpResponse == HTTP_CODE_OK) {
+            jsonErr = deserializeAirQuality(http.getStream(), r);
+            if (jsonErr) {
+                // -256 offset to distinguishes these errors from httpClient errors
+                r.success = false;
+                httpResponse = -256 - static_cast<int>(jsonErr.code());
+            }
+            rxSuccess = !jsonErr;
+        }
+        client.stop();
+        http.end();
+        Serial.println("  " + String(httpResponse, DEC) + " "
+            + getHttpResponsePhrase(httpResponse));
+        ++attempts;
+    }
 
     return httpResponse;
 } // getOWMairpollution
 
 /* Prints debug information about heap usage.
  */
-void printHeapUsage() {
-  Serial.println("[debug] Heap Size       : "
-                 + String(ESP.getHeapSize()) + " B");
-  Serial.println("[debug] Available Heap  : "
-                 + String(ESP.getFreeHeap()) + " B");
-  Serial.println("[debug] Min Free Heap   : "
-                 + String(ESP.getMinFreeHeap()) + " B");
-  Serial.println("[debug] Max Allocatable : "
-                 + String(ESP.getMaxAllocHeap()) + " B");
-  return;
+void printHeapUsage()
+{
+    ESP_LOGD(LOG_TAG, "[debug] Heap Size       : %u B", ESP.getHeapSize());
+    ESP_LOGD(LOG_TAG, "[debug] Available Heap  : %u B", ESP.getFreeHeap());
+    ESP_LOGD(LOG_TAG, "[debug] Min Free Heap   : %u B", ESP.getMinFreeHeap());
+    ESP_LOGD(LOG_TAG, "[debug] Max Allocatable : %u B", ESP.getMaxAllocHeap());
+    return;
 }
-
