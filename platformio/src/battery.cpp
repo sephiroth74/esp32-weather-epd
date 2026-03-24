@@ -75,16 +75,14 @@ String battery_info_t::to_string() const
 
 void BatteryReader::init() const
 {
-    Serial.print(F("Initializing BatteryReader on pin "));
-    Serial.println(pin);
+    ESP_LOGD(LOG_TAG, "Initializing BatteryReader on pin %d", pin);
     pinMode(pin, INPUT);
     // Set the pin to use the ADC with no attenuation
     analogSetPinAttenuation(pin, ADC_11db);
     delay(200); // Allow some time for the ADC to stabilize
 
 #if DEBUG_LEVEL > 0
-    Serial.print(F("BatteryReader initialized on pin "));
-    Serial.println(pin);
+    ESP_LOGD(LOG_TAG, "BatteryReader initialized on pin %d", pin);
 #endif // DEBUG_LEVEL
 } // init
 
@@ -104,18 +102,13 @@ battery_info_t BatteryReader::read() const
     uint8_t percent = calc_battery_percentage(voltage);
 
 #if DEBUG_LEVEL > 1
-    Serial.println("Battery readings: ");
-    Serial.print("resistor_ratio: ");
-    Serial.printf("%4f", resistor_ratio);
-    Serial.print("raw: ");
-    Serial.println(raw_analog);
-    Serial.print("millivolts: ");
-    Serial.println(raw_millivolts);
-    Serial.print("voltage (millivolts/ratio): ");
-    Serial.println(voltage);
-    Serial.print("percent: ");
-    Serial.println(percent);
-    Serial.println("--------------------------------------");
+    ESP_LOGD(LOG_TAG, "Battery readings: ");
+    ESP_LOGD(LOG_TAG, "resistor_ratio: %4f", resistor_ratio);
+    ESP_LOGD(LOG_TAG, "raw: %u", raw_analog);
+    ESP_LOGD(LOG_TAG, "millivolts: %u", raw_millivolts);
+    ESP_LOGD(LOG_TAG, "voltage (millivolts/ratio): %u", voltage);
+    ESP_LOGD(LOG_TAG, "percent: %u", percent);
+    ESP_LOGD(LOG_TAG, "--------------------------------------");
 #endif // DEBUG_LEVEL
 
     return battery_info(

@@ -53,7 +53,7 @@
 #define BATTERY_POWER_SAVING 1
 
 // R1 = 680kΩ, R2 = 330kΩ (Vout = Vin * R2 / (R1 + R2))
-#define BATTERY_RESISTOR_DIVIDER 0.3247030879 
+// #define BATTERY_RESISTOR_DIVIDER 0.3247030879 
 
 // Debug level
 #define DEBUG_LEVEL 1

@@ -363,10 +363,6 @@ extern const uint32_t BATTERY_DELAY_MS; // 1
       ^ defined(DRIVER_DESPI_C02))
   #error Invalid configuration. Exactly one driver board must be selected.
 #endif
-#if !(  defined(SENSOR_BME280) \
-      ^ defined(SENSOR_BME680))
-  #error Invalid configuration. Exactly one sensor must be selected.
-#endif
 #if !(defined(LOCALE))
   #error Invalid configuration. Locale not selected.
 #endif

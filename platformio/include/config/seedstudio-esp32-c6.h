@@ -32,23 +32,24 @@
 #define USE_HTTP
 
 // Display type
-#define DISP_7C_F
+// #define DISP_7C_F
 // #define DISP_6C_F
-// #define DISP_BW_V2
+#define DISP_BW_V2
 
 // Display driver
 #define DRIVER_DESPI_C02
 // #define DRIVER_WAVESHARE
 
 // Accent color
-// #define ACCENT_COLOR GxEPD_BLACK
-#define ACCENT_COLOR GxEPD_RED
+#define ACCENT_COLOR GxEPD_BLACK
+// #define ACCENT_COLOR GxEPD_RED
 // #define ACCENT_COLOR GxEPD_GREEN
 // #define ACCENT_COLOR GxEPD_BLUE
 // #define ACCENT_COLOR GxEPD_ORANGE
 // #define ACCENT_COLOR GxEPD_YELLOW
 
-#define ACCENT_COLOR2 GxEPD_GREEN
+// #define ACCENT_COLOR2 GxEPD_GREEN
+#define ACCENT_COLOR2 GxEPD_BLACK
 
 // HSPI for EPD
 // #define USE_HSPI_FOR_EPD
@@ -63,22 +64,15 @@
 
 // R1 = 330kΩ, R2 = 180kΩ (Vout = Vin * R2 / (R1 + R2))
 // #define BATTERY_RESISTOR_DIVIDER 0.31984678
-#define BATTERY_RESISTOR_DIVIDER 0.3219753086
+// #define BATTERY_RESISTOR_DIVIDER 0.3219753086 // casa gavirate
+#define BATTERY_RESISTOR_DIVIDER 0.2527075812
 
 // Debug level
 #define DEBUG_LEVEL 1
 
 // Delay before sleep
-#define DELAY_BEFORE_SLEEP 1000
-#define DISABLE_DEEP_SLEEP
-
-// Sleep configuration
-#define CONFIG_SLEEP_DURATION 120
-#define CONFIG_BED_TIME 22
-#define CONFIG_WAKE_TIME 5
-
-#define CONFIG_HOURLY_GRAPH_MAX 24
+#define DELAY_BEFORE_SLEEP 5000
+// #define DISABLE_DEEP_SLEEP
 
 #define LOCALE it_IT
-
 #define FONT_HEADER "fonts/Roboto_Regular.h"
