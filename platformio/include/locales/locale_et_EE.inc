@@ -1,5 +1,5 @@
 /* Estonian locale data for esp32-weather-epd.
- * Copyright (C) 2022-2024  Luke Marzen
+ * Copyright (C) 2022-2026  Luke Marzen
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -59,11 +59,11 @@ const char *LC_MON[12]     = {"Jaanuar",    "Veebruar", "M\xE4rts", "Aprill",
                                "Mai",       "Juuni",    "Juuli",    "August",
                                "September", "Oktoober", "November", "Detsember"};
 // ABMON_{1-12}            abbreviated name of the n-th month of the year
-const char *LC_ABMON[12]   = {"Jaan", "Veebr", "M\xE4rts", "Apr", "Mai", "Juuni",
-                              "Juuli", "Aug", "Sept", "Okt", "Nov", "Dets"};
+const char *LC_ABMON[12]   = {"Jaan",  "Veebr", "M\xE4rts", "Apr", "Mai", "Juuni",
+                              "Juuli", "Aug",   "Sept",     "Okt", "Nov", "Dets"};
 // ERA                     era description segments
 const char *LC_ERA         = "";
-// ERA_D_FMT               era date format string
+// ERA_D_FMT               era date fort string
 const char *LC_ERA_D_FMT   = "";
 // ERA_D_T_FMT             era date and time format string
 const char *LC_ERA_D_T_FMT = "";
@@ -80,6 +80,8 @@ const String OWM_LANG = "en";
 const char *TXT_FEELS_LIKE         = "Tunnetuslik";
 const char *TXT_SUNRISE            = "P\xE4ikeset\xF5us";
 const char *TXT_SUNSET             = "Loojang";
+const char *TXT_MOONRISE           = "Kuut\xF5us";
+const char *TXT_MOONSET            = "Kuuloojang";
 const char *TXT_WIND               = "Tuul";
 const char *TXT_HUMIDITY           = "\xD5huniiskus";
 const char *TXT_UV_INDEX           = "UV Indeks";
@@ -89,6 +91,18 @@ const char *TXT_AIR_POLLUTION      = "\xD5husaaste";
 const char *TXT_VISIBILITY         = "N\xE4htavus";
 const char *TXT_INDOOR_TEMPERATURE = "Temperatuur";
 const char *TXT_INDOOR_HUMIDITY    = "\xD5huniiskus";
+const char *TXT_DEWPOINT           = "Kastepunkt";
+
+// MOON PHASE
+const char *TXT_MOONPHASE       = "Kuufaas";
+const char *TXT_NEW_MOON        = "Noorkuu";
+const char *TXT_WAXING_CRESCENT = "Kasvav poolkuu";
+const char *TXT_FIRST_QUARTER   = "Esimene veerand";
+const char *TXT_WAXING_GIBBOUS  = "Kasvav k\xFC\xFCrus kuu";
+const char *TXT_FULL_MOON       = "T\xE4iskuu";
+const char *TXT_WANING_GIBBOUS  = "Kahanev k\xFC\xFCrus kuu";
+const char *TXT_THIRD_QUARTER   = "Viimane veerand";
+const char *TXT_WANING_CRESCENT = "Kahanev poolkuu";
 
 // UV INDEX
 const char *TXT_UV_LOW       = "Madal";
@@ -238,7 +252,7 @@ const std::vector<String> TERM_HURRICANE =
 const std::vector<String> TERM_DUST =
     {"dust", "sand"};
 const std::vector<String> TERM_STRONG_WIND =
-    {"wind"};
+    {"wind", "monsoon"};
 
 // AIR QUALITY INDEX
 extern "C" {

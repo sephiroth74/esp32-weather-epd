@@ -1332,7 +1332,7 @@ void drawStatusBar(const String& statusStr, const String& refreshTimeStr,
 #endif
   pos -= 24;
   display.drawInvertedBitmap(pos, DISP_HEIGHT - 1 - 17,
-                             getBatBitmap24(batVoltage, batPercent), 24, 24, dataColor);
+                             getBatBitmap24(batPercent), 24, 24, dataColor);
   pos -= sp + 9;
 #endif
 

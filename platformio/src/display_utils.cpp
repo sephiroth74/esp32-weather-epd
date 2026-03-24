@@ -38,12 +38,6 @@
 // icon header files
 #include "icons/icons.h"
 
-#if defined(LED_BUILTIN) && defined(HAS_BUILTIN_LED)
-// LED pulsing task variables (declared unconditionally to avoid scope issues)
-static TaskHandle_t ledPulsingTaskHandle = NULL;
-static const uint32_t LED_PULSE_INTERVAL_MS = 500; // Pulse every 500ms (on/off cycle)
-#endif // defined(LED_BUILTIN) && defined(HAS_BUILTIN_LED)
-
 /* Returns battery voltage in millivolts (mv).
  */
 // uint32_t readBatteryVoltage()
@@ -125,28 +119,38 @@ uint32_t calcBatPercent(uint32_t v, uint32_t minv, uint32_t maxv)
 
 /* Returns 24x24 bitmap incidcating battery status.
  */
-const uint8_t* getBatBitmap24(uint32_t millivolts, uint32_t batPercent)
+const uint8_t *getBatBitmap24(uint32_t batPercent)
 {
-    if (millivolts > MAX_BATTERY_VOLTAGE + 100) {
-        // battery is charging
-        return battery_charging_full_90deg_24x24;
-    }
-
-    if (batPercent >= 93) {
+  if (batPercent >= 93)
+  {
         return battery_full_90deg_24x24;
-    } else if (batPercent >= 79) {
+  }
+  else if (batPercent >= 79)
+  {
         return battery_6_bar_90deg_24x24;
-    } else if (batPercent >= 65) {
+  }
+  else if (batPercent >= 65)
+  {
         return battery_5_bar_90deg_24x24;
-    } else if (batPercent >= 50) {
+  }
+  else if (batPercent >= 50)
+  {
         return battery_4_bar_90deg_24x24;
-    } else if (batPercent >= 36) {
+  }
+  else if (batPercent >= 36)
+  {
         return battery_3_bar_90deg_24x24;
-    } else if (batPercent >= 22) {
+  }
+  else if (batPercent >= 22)
+  {
         return battery_2_bar_90deg_24x24;
-    } else if (batPercent >= 8) {
+  }
+  else if (batPercent >= 8)
+  {
         return battery_1_bar_90deg_24x24;
-    } else { // batPercent < 8
+  }
+  else
+  {  // batPercent < 8
         return battery_0_bar_90deg_24x24;
     }
 } // end getBatBitmap24
@@ -1727,85 +1731,4 @@ void disableBuiltinLED()
 
 } // end disableBuiltinLED
 
-void enableBuiltinLED()
-{
-#if defined(LED_BUILTIN) && defined(HAS_BUILTIN_LED)
-    Serial.print("Enabling builtin LED");
-    Serial.print(" (");
-    Serial.print(LED_BUILTIN);
-    Serial.println(")");
 
-    pinMode(LED_BUILTIN, OUTPUT);
-    digitalWrite(LED_BUILTIN, HIGH);
-#endif
-}
-
-#if defined(LED_BUILTIN) && defined(HAS_BUILTIN_LED)
-/* LED pulsing task - toggles LED on/off at regular intervals
- */
-void ledPulsingTask(void* parameter)
-{
-    bool ledState = false;
-    pinMode(LED_BUILTIN, OUTPUT);
-
-    while (true) {
-        ledState = !ledState;
-        digitalWrite(LED_BUILTIN, ledState ? HIGH : LOW);
-        vTaskDelay(pdMS_TO_TICKS(LED_PULSE_INTERVAL_MS));
-    }
-} // end ledPulsingTask
-
-/* Starts LED pulsing task
- */
-void startLEDPulsing()
-{
-    Serial.print("Starting LED pulsing on pin ");
-    Serial.println(LED_BUILTIN);
-
-    if (ledPulsingTaskHandle == NULL) {
-        xTaskCreate(
-            ledPulsingTask, // Task function
-            "LEDPulse", // Task name
-            2048, // Stack size (bytes)
-            NULL, // Task parameter
-            1, // Priority
-            &ledPulsingTaskHandle // Task handle
-        );
-    }
-} // end startLEDPulsing
-
-/* Stops LED pulsing task and turns off LED
- */
-void stopLEDPulsing()
-{
-    Serial.println("Stopping LED pulsing");
-
-    if (ledPulsingTaskHandle != NULL) {
-        vTaskDelete(ledPulsingTaskHandle);
-        ledPulsingTaskHandle = NULL;
-    }
-
-    // Turn off LED
-    pinMode(LED_BUILTIN, OUTPUT);
-    digitalWrite(LED_BUILTIN, LOW);
-} // end stopLEDPulsing
-
-#else
-
-/* Dummy functions when LED is not available
- */
-void startLEDPulsing()
-{
-#if !defined(CONFIG_IDF_TARGET_ESP32C6)
-    // Nothing to do
-#endif
-} // end startLEDPulsing
-
-void stopLEDPulsing()
-{
-#if !defined(CONFIG_IDF_TARGET_ESP32C6)
-    gpio_deep_sleep_hold_en();
-#endif
-} // end stopLEDPulsing
-
-#endif // defined(LED_BUILTIN) && defined(HAS_BUILTIN_LED)

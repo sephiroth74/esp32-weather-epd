@@ -29,6 +29,7 @@
 #include "client_utils.h"
 #include "config.h"
 #include "display_utils.h"
+#include "display_utils_extra.h"
 #include "icons/icons_196x196.h"
 #include "renderer.h"
 
