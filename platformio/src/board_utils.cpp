@@ -63,7 +63,12 @@ void enterDeepSleep()
     // IMPORTANT: Add external 10kΩ pull-up resistor between GPIO2 and 3V3 for stability!
     pinMode(PIN_WAKEUP, INPUT_PULLUP);
 
-    esp_err_t result = esp_sleep_enable_ext1_wakeup(BUTTON_PIN_BITMASK(PIN_WAKEUP), ESP_EXT1_WAKEUP_ANY_LOW);
+#ifndef WAKEUP_PIN_MODE
+    #error "WAKEUP_PIN_MODE not defined. Please define it as either ESP_EXT1_WAKEUP_ANY_LOW or ESP_EXT1_WAKEUP_ANY_HIGH."
+#endif
+
+    // esp_err_t result = esp_sleep_enable_ext1_wakeup(BUTTON_PIN_BITMASK(PIN_WAKEUP), ESP_EXT1_WAKEUP_ANY_LOW);
+    esp_err_t result = esp_sleep_enable_ext1_wakeup(BUTTON_PIN_BITMASK(PIN_WAKEUP), WAKEUP_PIN_MODE);
 
     if (result != ESP_OK) {
         ESP_LOGE(LOG_TAG, "[error] Failed to enable EXT1 wakeup");
