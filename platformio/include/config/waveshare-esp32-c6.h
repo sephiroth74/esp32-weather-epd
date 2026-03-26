@@ -5,12 +5,6 @@
 #define WAVESHARE_ESP32_C6
 #define BOARD_NAME "Waveshare ESP32-C6"
 
-// sda=22 scl=23
-// MOSI pin: 19
-// MISO pin: 20
-// SCK pin: 21
-// SS pin: 18
-
 #define PIN_EPD_BUSY (int8_t)14
 #define PIN_EPD_RST (int8_t)15
 #define PIN_EPD_DC (int8_t)22
@@ -32,44 +26,31 @@
 // Not used if PIN_WAKEUP is -1
 #define USE_EXT1_WAKEUP
 
+// Reset button to GND and PIN to PIN_WAKEUP with a 10kΩ pull-down resistor to VCC, so wakeup is triggered when button is pressed and GPIO goes LOW
+#define WAKEUP_PIN_MODE ESP_EXT1_WAKEUP_ANY_LOW
+
 // BME I2C Address
 // 0x76 if SDO -> GND; 0x77 if SDO -> VCC
 #define BME_ADDRESS 0x76
 
-// #define USE_HTTP
 #define USE_HTTPS_NO_CERT_VERIF
 
 // Display type
-// #define DISP_7C_F
-// #define DISP_6C_F
 #define DISP_BW_V2
 
 // Display driver
 #define DRIVER_DESPI_C02
-// #define DRIVER_WAVESHARE
 
 // Accent color
 #define ACCENT_COLOR GxEPD_BLACK
-// #define ACCENT_COLOR GxEPD_RED
-// #define ACCENT_COLOR GxEPD_GREEN
-// #define ACCENT_COLOR GxEPD_BLUE
-// #define ACCENT_COLOR GxEPD_ORANGE
-// #define ACCENT_COLOR GxEPD_YELLOW
-
-// #define ACCENT_COLOR2 GxEPD_GREEN
 #define ACCENT_COLOR2 GxEPD_BLACK
 
-// HSPI for EPD
-// #define USE_HSPI_FOR_EPD
-
 // Temperature sensor
-// #define SENSOR_BME280
-// #define SENSOR_BME680
+#define SENSOR_BME280
 
 // Battery monitoring
 #define BATTERY_MONITORING 1
-// #define DISABLE_DEEP_SLEEP
-#define DELAY_BEFORE_SLEEP 4000
+#define DELAY_BEFORE_SLEEP 5000
 
 // R1 = 680kΩ, R2 = 330kΩ (Vout = Vin * R2 / (R1 + R2))
 // #define BATTERY_RESISTOR_DIVIDER 0.31984678
@@ -78,8 +59,6 @@
 
 // Debug level
 #define DEBUG_LEVEL 1
-
-// Delay before sleep
 
 #define LOCALE it_IT
 #define FONT_HEADER "fonts/Roboto_Regular.h"
