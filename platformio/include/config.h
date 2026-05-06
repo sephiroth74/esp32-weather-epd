@@ -209,18 +209,18 @@
 //  6   7
 //  8   9
 // if DISP_BW_V1 is used, 6,7,8,9 are not available
-#define POS_SUNRISE     6
-#define POS_SUNSET      7
+#define POS_SUNRISE     4
+#define POS_SUNSET      5
 #define POS_WIND        0
 #define POS_HUMIDITY    1
 #define POS_UVI         2
 #define POS_PRESSURE    3
-#define POS_AIR_QULITY  4
-#define POS_VISIBILITY  5
-// #define POS_INTEMP      8
-// #define POS_INHUMIDITY  9
-#define POS_MOONRISE    8
-#define POS_MOONSET     9
+// #define POS_AIR_QULITY  4
+// #define POS_VISIBILITY  5
+#define POS_INTEMP      8
+#define POS_INHUMIDITY  9
+#define POS_MOONRISE    6
+#define POS_MOONSET     7
 // #define POS_MOONPHASE   8
 // #define POS_DEWPOINT    9
 
@@ -317,10 +317,13 @@
 //   level 0: basic status information, assists troubleshooting (default)
 //   level 1: increased verbosity for debugging
 //   level 2: print api responses to serial monitor
-// #define DEBUG_LEVEL 1
+#define DEBUG_LEVEL 1
 
 // Delay before entering deep sleep mode (in milliseconds)
-// #define DELAY_BEFORE_SLEEP 20000
+#define DELAY_BEFORE_SLEEP 5000
+#define DELAY_AFTER_WAKEUP 1000
+
+// #define DISABLE_DEEP_SLEEP
 
 // NUMBER OF LOCATIONS
 //   The number of locations to cycle through. The locations are defined in

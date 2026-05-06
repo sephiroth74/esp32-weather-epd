@@ -7,8 +7,8 @@
 #define PIN_EPD_BUSY (int8_t)14
 #define PIN_EPD_RST (int8_t)15
 #define PIN_EPD_DC (int8_t)18
-#define PIN_EPD_CS (int8_t)19
-#define PIN_EPD_SCK (int8_t)20
+#define PIN_EPD_CS (int8_t)4
+#define PIN_EPD_SCK (int8_t)5
 #define PIN_EPD_MOSI (int8_t)21
 #define PIN_EPD_MISO -1
 #define PIN_EPD_PWR -1
@@ -23,6 +23,8 @@
 
 #define USE_EXT1_WAKEUP
 
+#define WAKEUP_PIN_MODE ESP_EXT1_WAKEUP_ANY_HIGH
+
 // BME I2C Address
 // 0x76 if SDO -> GND; 0x77 if SDO -> VCC
 #define BME_ADDRESS 0x76
@@ -33,23 +35,12 @@
 #define USE_HTTPS_NO_CERT_VERIF
 
 // Display type
-#define DISP_7C_F
-// #define DISP_BW_V2
+// #define DISP_7C_F
+#define DISP_BW_V2
 
 // Display driver
 #define DRIVER_DESPI_C02
 // #define DRIVER_WAVESHARE
-
-// Accent color
-// #define ACCENT_COLOR GxEPD_BLACK
-#define ACCENT_COLOR GxEPD_RED
-// #define ACCENT_COLOR GxEPD_GREEN
-// #define ACCENT_COLOR GxEPD_BLUE
-// #define ACCENT_COLOR GxEPD_ORANGE
-// #define ACCENT_COLOR GxEPD_YELLOW
-
-
-#define ACCENT_COLOR2 GxEPD_GREEN
 
 // HSPI for EPD
 // #define USE_HSPI_FOR_EPD
@@ -59,24 +50,10 @@
 // #define SENSOR_BME680
 
 // Battery monitoring
-#define BATTERY_MONITORING 1
-#define BATTERY_POWER_SAVING 1
 #define BATTERY_RESISTOR_DIVIDER 0.2527075812
 
 // R1 = 680kΩ, R2 = 330kΩ (Vout = Vin * R2 / (R1 + R2))
 // #define BATTERY_RESISTOR_DIVIDER 0.4984
-
-// Debug level
-#define DEBUG_LEVEL 1
-
-// Delay before sleep
-#define DELAY_BEFORE_SLEEP 5000
-
-// Sleep configuration
-// #define CONFIG_SLEEP_DURATION 120
-// #define CONFIG_BED_TIME 23
-// #define CONFIG_WAKE_TIME 06
-// #define CONFIG_HOURLY_GRAPH_MAX 24
 
 #define LOCALE it_IT
 #define FONT_HEADER "fonts/Roboto_Regular.h"

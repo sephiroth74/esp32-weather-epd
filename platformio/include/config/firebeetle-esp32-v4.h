@@ -66,7 +66,6 @@
 // #define SENSOR_BME680
 
 // Battery monitoring
-#define DISABLE_DEEP_SLEEP
 // #define BATTERY_MONITORING 1
 // #define BATTERY_POWER_SAVING 1
 
@@ -74,13 +73,6 @@
 // #define BATTERY_RESISTOR_DIVIDER 0.31984678
 // #define BATTERY_RESISTOR_DIVIDER 0.3219753086 // casa gavirate
 #define BATTERY_RESISTOR_DIVIDER 0.2527075812
-
-// Debug level
-#define DEBUG_LEVEL 1
-
-// Delay before sleep
-#define DELAY_BEFORE_SLEEP 5000
-// #define DISABLE_DEEP_SLEEP
 
 #define LOCALE it_IT
 #define FONT_HEADER "fonts/Roboto_Regular.h"

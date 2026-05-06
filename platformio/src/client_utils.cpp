@@ -86,8 +86,14 @@ wl_status_t startWiFi(int& wifiRSSI)
  */
 void killWiFi()
 {
-    WiFi.disconnect();
+    if (WiFi.getMode() == WIFI_OFF) {
+        return;
+    }
+
+    // On ESP32-S3, forcing disconnect can trip a DHCP/lwIP teardown panic.
+    // Power the radio down directly once requests are complete.
     WiFi.mode(WIFI_OFF);
+    delay(100);
 } // killWiFi
 
 /* Prints the local time to serial monitor.

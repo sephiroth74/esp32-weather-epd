@@ -131,6 +131,10 @@ void setup()
     unsigned long startTime = millis();
     Serial.begin(115200);
 
+#ifdef DELAY_AFTER_WAKEUP
+    delay(DELAY_AFTER_WAKEUP);
+#endif // DELAY_AFTER_WAKEUP
+
     esp_log_level_set("*", ESP_LOG_WARN);
     esp_log_level_set(LOG_TAG, ESP_LOG_DEBUG);
 
@@ -225,22 +229,23 @@ void setup()
         if (batteryVoltage <= CRIT_LOW_BATTERY_VOLTAGE) { // critically low battery
                                                           // don't set esp_sleep_enable_timer_wakeup();
                                                           // We won't wake up again until someone manually presses the RST button.
-            Serial.println(TXT_CRIT_LOW_BATTERY_VOLTAGE);
-            Serial.println(TXT_HIBERNATING_INDEFINITELY_NOTICE);
+            ESP_LOGD(LOG_TAG, "%s", TXT_CRIT_LOW_BATTERY_VOLTAGE);
+            ESP_LOGD(LOG_TAG, "%s", TXT_HIBERNATING_INDEFINITELY_NOTICE);
         } else if (batteryVoltage <= VERY_LOW_BATTERY_VOLTAGE) { // very low battery
             esp_sleep_enable_timer_wakeup(VERY_LOW_BATTERY_SLEEP_INTERVAL
                 * 60ULL * 1000000ULL);
-            Serial.println(TXT_VERY_LOW_BATTERY_VOLTAGE);
-            Serial.print(TXT_ENTERING_DEEP_SLEEP_FOR);
-            Serial.println(" " + String(VERY_LOW_BATTERY_SLEEP_INTERVAL) + "min");
+            ESP_LOGD(LOG_TAG, "%s", TXT_VERY_LOW_BATTERY_VOLTAGE);
+            ESP_LOGD(LOG_TAG, "%s", TXT_ENTERING_DEEP_SLEEP_FOR);
+            ESP_LOGD(LOG_TAG, "%d min", VERY_LOW_BATTERY_SLEEP_INTERVAL);
         } else { // low battery
             esp_sleep_enable_timer_wakeup(LOW_BATTERY_SLEEP_INTERVAL
                 * 60ULL * 1000000ULL);
-            Serial.println(TXT_LOW_BATTERY_VOLTAGE);
-            Serial.print(TXT_ENTERING_DEEP_SLEEP_FOR);
-            Serial.println(" " + String(LOW_BATTERY_SLEEP_INTERVAL) + "min");
+            ESP_LOGD(LOG_TAG, "%s", TXT_LOW_BATTERY_VOLTAGE);
+            ESP_LOGD(LOG_TAG, "%s", TXT_ENTERING_DEEP_SLEEP_FOR);
+            ESP_LOGD(LOG_TAG, "%d min", LOW_BATTERY_SLEEP_INTERVAL);
         }
         enterDeepSleep();
+        return;
     }
     // battery is no longer low, reset variable in non-volatile storage
     if (lowBat == true) {
@@ -276,6 +281,7 @@ void setup()
         }
         powerOffDisplay();
         beginDeepSleep(startTime, &timeInfo);
+        return;
     }
 
     // TIME SYNCHRONIZATION
@@ -290,6 +296,7 @@ void setup()
         } while (display.nextPage());
         powerOffDisplay();
         beginDeepSleep(startTime, &timeInfo);
+        return;
     }
 
     // MAKE API REQUESTS
@@ -313,6 +320,7 @@ void setup()
         } while (display.nextPage());
         powerOffDisplay();
         beginDeepSleep(startTime, &timeInfo);
+        return;
     }
     rxStatus = getOWMairpollution(client, owm_air_pollution, currentLat, currentLon);
     //   if (rxStatus != HTTP_CODE_OK)

@@ -48,17 +48,10 @@
 // Temperature sensor
 #define SENSOR_BME280
 
-// Battery monitoring
-#define BATTERY_MONITORING 1
-#define DELAY_BEFORE_SLEEP 5000
-
 // R1 = 680kΩ, R2 = 330kΩ (Vout = Vin * R2 / (R1 + R2))
 // #define BATTERY_RESISTOR_DIVIDER 0.31984678
 // #define BATTERY_RESISTOR_DIVIDER 0.3219753086 // casa gavirate
 #define BATTERY_RESISTOR_DIVIDER 0.3261845387
-
-// Debug level
-#define DEBUG_LEVEL 1
 
 #define LOCALE it_IT
 #define FONT_HEADER "fonts/Roboto_Regular.h"

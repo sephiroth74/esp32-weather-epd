@@ -111,7 +111,7 @@ uint16_t getStringHeight(const String &text)
 void drawString(int16_t x, int16_t y, const String &text, alignment_t alignment,
                 uint16_t color)
 {
-  ESP_LOGV(LOG_TAG, "Drawing string: %s", text.c_str());
+  //ESP_LOGV(LOG_TAG, "Drawing string: %s", text.c_str());
   int16_t x1, y1;
   uint16_t w, h;
   display.setTextColor(color);
@@ -237,7 +237,7 @@ void drawMultiLnString(int16_t x, int16_t y, const String &text,
  */
 void initDisplay()
 {
-  ESP_LOGI(LOG_TAG, "Init display...");
+  ESP_LOGI(LOG_TAG, "Init display now...");
 
   if (PIN_EPD_PWR > -1) {
     pinMode(PIN_EPD_PWR, OUTPUT);
@@ -249,9 +249,10 @@ void initDisplay()
   pinMode(PIN_EPD_DC, OUTPUT);
 
 #ifdef DRIVER_WAVESHARE
+  ESP_LOGI(LOG_TAG, "Initializing display in WAVESHARE mode...");
   display.init(115200, true, 2, false);
-#endif
-#ifdef DRIVER_DESPI_C02
+#elif defined(DRIVER_DESPI_C02)
+  ESP_LOGI(LOG_TAG, "Initializing display in DESPI_C02 mode...");
   display.init(115200, true, 10, false);
 #endif
   // remap spi

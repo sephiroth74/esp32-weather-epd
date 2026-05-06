@@ -47,6 +47,11 @@ void enterDeepSleep()
     // Stop LED pulsing and turn off LED
     stopLEDPulsing();
 
+#ifdef DISABLE_DEEP_SLEEP
+    ESP_LOGD(LOG_TAG, "Deep sleep disabled. Staying awake.");
+    return;
+#endif
+
 #if defined(DELAY_BEFORE_SLEEP) && DELAY_BEFORE_SLEEP > 0
     ESP_LOGD(LOG_TAG, "Delaying before deep sleep for %d seconds", DELAY_BEFORE_SLEEP / 1000);
     delay(DELAY_BEFORE_SLEEP);
@@ -79,11 +84,5 @@ void enterDeepSleep()
     ESP_LOGD(LOG_TAG, "No wakeup pin defined, deep sleep will not be exited until reset or power cycle");
 #endif // PIN_WAKEUP
 
-#if !defined(DISABLE_DEEP_SLEEP)
-    ESP_LOGD(LOG_TAG, "Entering deep sleep now!");
-    Serial.flush();
     esp_deep_sleep_start();
-#else
-    ESP_LOGD(LOG_TAG, "Deep sleep disabled. Staying awake.");
-#endif // DISABLE_DEEP_SLEEP
 }

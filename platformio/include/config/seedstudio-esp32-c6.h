@@ -39,7 +39,8 @@
 #define DISP_BW_V2
 
 // Display driver
-#define DRIVER_DESPI_C02// #define DRIVER_WAVESHARE
+#define DRIVER_DESPI_C02
+// #define DRIVER_WAVESHARE
 
 // Accent color
 #define ACCENT_COLOR GxEPD_BLACK
@@ -47,10 +48,6 @@
 
 // Temperature sensor
 #define SENSOR_BME280
-
-// Battery monitoring
-#define BATTERY_MONITORING 1
-#define DELAY_BEFORE_SLEEP 5000
 
 // R1 = 330kΩ, R2 = 180kΩ (Vout = Vin * R2 / (R1 + R2))
 // #define BATTERY_RESISTOR_DIVIDER 0.31984678
@@ -61,4 +58,4 @@
 #define DEBUG_LEVEL 1
 
 #define LOCALE it_IT
-#define FONT_HEADER "fonts/Roboto_Regular.h"
+#define FONT_HEADER "fonts/Lato_Regular.h"
