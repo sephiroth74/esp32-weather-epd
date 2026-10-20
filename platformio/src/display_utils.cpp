@@ -377,16 +377,18 @@ bool isCloudy(int clouds)
     return clouds > 60.25; // partly cloudy / partly sunny
 }
 
-/* Takes wind speed and wind gust speed and returns true if it is windy, false
- * otherwise.
+/* Takes wind speed and wind gust speed, in m/s as returned by the API
+ * (units=standard), and returns true if it is windy, false otherwise.
+ *
+ * Windy: sustained wind of at least 20 mph, or gusts of at least 25 mph.
  *
  * References:
  *   https://www.weather.gov/ajk/ForecastTerms
  */
 bool isWindy(float wind_speed, float wind_gust)
 {
-    return (wind_speed >= 32.2 /*m/s*/
-        || wind_gust >= 40.2 /*m/s*/);
+    return (wind_speed >= 8.94 /*m/s, 20 mph*/
+        || wind_gust >= 11.18 /*m/s, 25 mph*/);
 }
 
 /* Takes the current weather and today's daily weather forcast (from
