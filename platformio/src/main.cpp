@@ -360,11 +360,6 @@ void setup()
     float inHumidity = NAN;
 
 #if defined(SENSOR_BME280) || defined(SENSOR_BME680)
-
-#if defined(SENSOR_BME280)
-    ESP_LOGI(LOG_TAG, "%s BME280... ", TXT_READING_FROM);
-    Adafruit_BME280 bme;
-
     TwoWire I2C_bme = TwoWire(0);
 
     ESP_LOGI(LOG_TAG, "Initializing I2C bus on pins: %d, %d", PIN_BME_SDA, PIN_BME_SCL);
@@ -372,70 +367,73 @@ void setup()
     // the sensor library's begin() starts the bus (100kHz) on these pins
     I2C_bme.setPins(PIN_BME_SDA, PIN_BME_SCL);
 
-    if (bme.begin(BME_ADDRESS, &I2C_bme)) {
+#if defined(SENSOR_BME280)
+    ESP_LOGI(LOG_TAG, "%s BME280... ", TXT_READING_FROM);
+    Adafruit_BME280 bme;
+    bool bmeFound = bme.begin(BME_ADDRESS, &I2C_bme);
+#else
+    ESP_LOGI(LOG_TAG, "%s BME680... ", TXT_READING_FROM);
+    Adafruit_BME680 bme(&I2C_bme);
+    bool bmeFound = bme.begin(BME_ADDRESS);
 #endif
-#if defined(SENSOR_BME680)
-        ESP_LOGI(LOG_TAG, "%s BME680... ", TXT_READING_FROM);
-        Adafruit_BME680 bme(&I2C_bme);
 
-        if (bme.begin(BME_ADDRESS)) {
-#endif
-            inTemp = bme.readTemperature(); // Celsius
-            inHumidity = bme.readHumidity(); // %
+    if (bmeFound) {
+        inTemp = bme.readTemperature(); // Celsius
+        inHumidity = bme.readHumidity(); // %
 
-            // check if BME readings are valid
-            // note: readings are checked again before drawing to screen. If a reading
-            //       is not a number (NAN) then an error occurred, a dash '-' will be
-            //       displayed.
-            if (std::isnan(inTemp) || std::isnan(inHumidity)) {
-                statusStr = "BME " + String(TXT_READ_FAILED);
-            }
-        } else {
-            statusStr = "BME " + String(TXT_NOT_FOUND); // check wiring
-            ESP_LOGI(LOG_TAG, "%s", statusStr.c_str());
+        // check if BME readings are valid
+        // note: readings are checked again before drawing to screen. If a reading
+        //       is not a number (NAN) then an error occurred, a dash '-' will be
+        //       displayed.
+        if (std::isnan(inTemp) || std::isnan(inHumidity)) {
+            statusStr = "BME " + String(TXT_READ_FAILED);
         }
+    } else {
+        statusStr = "BME " + String(TXT_NOT_FOUND); // check wiring
+        ESP_LOGI(LOG_TAG, "%s", statusStr.c_str());
+    }
+
+    I2C_bme.end();
 
 #if PIN_BME_PWR > -1
-        ESP_LOGI(LOG_TAG, "Powering off BME sensor.");
-        digitalWrite(PIN_BME_PWR, LOW);
-#endif // PIN_BME_PWR > 0
+    ESP_LOGI(LOG_TAG, "Powering off BME sensor.");
+    digitalWrite(PIN_BME_PWR, LOW);
+#endif // PIN_BME_PWR > -1
 
 #endif // SENSOR_BME280 || SENSOR_BME680
 
-        Wire.end();
-
 #if DEBUG_LEVEL > 0
-        ESP_LOGI(LOG_TAG, "BME readings: ");
-        ESP_LOGI(LOG_TAG, "  Temperature: %.2f °C", inTemp);
-        ESP_LOGI(LOG_TAG, "  Humidity: %.2f %%", inHumidity);
+    ESP_LOGI(LOG_TAG, "BME readings: ");
+    ESP_LOGI(LOG_TAG, "  Temperature: %.2f °C", inTemp);
+    ESP_LOGI(LOG_TAG, "  Humidity: %.2f %%", inHumidity);
 #endif
 
-        String refreshTimeStr;
-        getRefreshTimeStr(refreshTimeStr, timeConfigured, &timeInfo);
-        String dateStr;
-        getDateStr(dateStr, &timeInfo);
+    String refreshTimeStr;
+    getRefreshTimeStr(refreshTimeStr, timeConfigured, &timeInfo);
+    String dateStr;
+    getDateStr(dateStr, &timeInfo);
 
-        // RENDER FULL REFRESH
-        initDisplay();
-        do {
-            drawCurrentConditions(owm_onecall.current, owm_onecall.daily[0],
-                owm_air_pollution, inTemp, inHumidity);
-            drawOutlookGraph(owm_onecall.hourly, owm_onecall.daily, timeInfo);
-            drawForecast(owm_onecall.daily, timeInfo);
-            drawLocationDate(currentCity, dateStr);
+    // RENDER FULL REFRESH
+    initDisplay();
+    do {
+        drawCurrentConditions(owm_onecall.current, owm_onecall.daily[0],
+            owm_air_pollution, inTemp, inHumidity);
+        drawOutlookGraph(owm_onecall.hourly, owm_onecall.daily, timeInfo);
+        drawForecast(owm_onecall.daily, timeInfo);
+        drawLocationDate(currentCity, dateStr);
 #if DISPLAY_ALERTS
-            drawAlerts(owm_onecall.alerts, currentCity, dateStr);
+        drawAlerts(owm_onecall.alerts, currentCity, dateStr);
 #endif
-            drawStatusBar(statusStr, refreshTimeStr, wifiRSSI, batteryVoltage);
-        } while (display.nextPage());
-        powerOffDisplay();
+        drawStatusBar(statusStr, refreshTimeStr, wifiRSSI, batteryVoltage);
+    } while (display.nextPage());
+    powerOffDisplay();
 
-        // DEEP SLEEP
-        beginDeepSleep(startTime, &timeInfo);
-    } // end setup
+    // DEEP SLEEP
+    beginDeepSleep(startTime, &timeInfo);
+} // end setup
 
-    /* This will never run
-     */
-    void loop()
-    {
-    } // end loop
+/* This will never run
+ */
+void loop()
+{
+} // end loop
