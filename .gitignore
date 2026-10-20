@@ -3,9 +3,9 @@ kicad/Esp32-Weather-EPD/Esp32-Weather-EPD-backups/
 kicad/Esp32-Weather-EPD/jlcpcb/gerber/
 kicad/Esp32-Weather-EPD/jlcpcb/
 kicad/Esp32-Weather-EPD/fp-info-cache
-platformio/include/config/locations/gavirate_4.cpp
-platformio/include/config/locations/zurigo.cpp
-platformio/include/config/locations/
+# location files hold credentials; only the template is committed
+platformio/include/config/locations/*
+!platformio/include/config/locations/example.cpp
 platformio/.cache/
 .DS_Store
 platformio/.github/

@@ -17,7 +17,18 @@
 
 #include <Arduino.h>
 #include "config.h"
+
+// Location files are gitignored. ALLOW_EXAMPLE_LOCATION (used by CI) builds
+// with the committed template when the env's own file is missing.
+#if __has_include(CONFIG_CPP_LOCAL_FILE)
 #include CONFIG_CPP_LOCAL_FILE
+#elif defined(ALLOW_EXAMPLE_LOCATION)
+#pragma message ("Location file " CONFIG_CPP_LOCAL_FILE " not found, using config/locations/example.cpp")
+#include "config/locations/example.cpp"
+#else
+#pragma message ("Location file " CONFIG_CPP_LOCAL_FILE " not found")
+#error "Create it from include/config/locations/example.cpp"
+#endif
 
 // PINS
 // The configuration below is intended for use with the project's official
