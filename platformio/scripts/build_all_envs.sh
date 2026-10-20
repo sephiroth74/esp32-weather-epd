@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/usr/bin/env zsh
 # Builds every firmware env in platformio.ini, one `pio run` per env, and
 # prints a summary.
 #

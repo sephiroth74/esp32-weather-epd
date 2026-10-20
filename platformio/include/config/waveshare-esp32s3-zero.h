@@ -4,6 +4,8 @@
 
 #define WAVESHARE_ESP32_S3_ZERO
 
+#define BOARD_NAME "Waveshare ESP32-S3 Zero"
+
 #define PIN_EPD_BUSY (int8_t)14
 #define PIN_EPD_RST (int8_t)15
 #define PIN_EPD_DC (int8_t)18
