@@ -132,14 +132,12 @@ void setup()
     unsigned long startTime = millis();
     Serial.begin(115200);
 
-#ifdef DELAY_AFTER_WAKEUP
-    delay(DELAY_AFTER_WAKEUP);
+#if defined(DELAY_AFTER_WAKEUP) && DELAY_AFTER_WAKEUP > 0
+    waitForSerialMonitor(DELAY_AFTER_WAKEUP); // only with a computer attached
 #endif // DELAY_AFTER_WAKEUP
 
     esp_log_level_set("*", ESP_LOG_WARN);
     esp_log_level_set(LOG_TAG, ESP_LOG_DEBUG);
-
-    delay(2000); // wait for serial monitor to open
 
     ESP_LOGI(LOG_TAG, "Starting up...");
 

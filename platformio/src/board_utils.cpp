@@ -42,6 +42,45 @@ void printWakeupReason()
     }
 }
 
+// Right after wakeup the host needs a moment to see the board on USB again.
+static const unsigned long USB_HOST_DETECT_MS = 500;
+
+/* Returns true if a USB host (a computer, not a charger: it is detected by its
+ * USB frames) is attached, waiting up to timeoutMs for it to show up.
+ * Always false on boards without native USB: their USB-UART bridge stays
+ * connected through deep sleep, so the development delays aren't needed.
+ */
+bool usbHostAttached(unsigned long timeoutMs)
+{
+#if ARDUINO_USB_MODE && ARDUINO_USB_CDC_ON_BOOT
+    unsigned long start = millis();
+    while (!HWCDC::isPlugged()) {
+        if (millis() - start >= timeoutMs) {
+            return false;
+        }
+        delay(10);
+    }
+    return true;
+#else
+    return false;
+#endif
+}
+
+/* With a USB host attached, waits up to timeoutMs for a serial monitor to be
+ * opened: boards with native USB drop off USB in deep sleep, and whatever is
+ * logged before the monitor reconnects after wakeup is lost.
+ */
+void waitForSerialMonitor(unsigned long timeoutMs)
+{
+    if (!usbHostAttached(USB_HOST_DETECT_MS)) {
+        return;
+    }
+    unsigned long start = millis();
+    while (!Serial && millis() - start < timeoutMs) {
+        delay(10);
+    }
+}
+
 void enterDeepSleep()
 {
     // Stop LED pulsing and turn off LED
@@ -53,8 +92,12 @@ void enterDeepSleep()
 #endif
 
 #if defined(DELAY_BEFORE_SLEEP) && DELAY_BEFORE_SLEEP > 0
-    ESP_LOGD(LOG_TAG, "Delaying before deep sleep for %d seconds", DELAY_BEFORE_SLEEP / 1000);
-    delay(DELAY_BEFORE_SLEEP);
+    // time to flash the board before it drops off USB, only with a computer
+    // attached
+    if (usbHostAttached(0)) {
+        ESP_LOGD(LOG_TAG, "Delaying before deep sleep for %d seconds", DELAY_BEFORE_SLEEP / 1000);
+        delay(DELAY_BEFORE_SLEEP);
+    }
 #endif // DELAY_BEFORE_SLEEP
 
 #ifdef PIN_WAKEUP

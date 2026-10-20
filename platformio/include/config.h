@@ -319,9 +319,17 @@
 //   level 2: print api responses to serial monitor
 #define DEBUG_LEVEL 1
 
-// Delay before entering deep sleep mode (in milliseconds)
+// DEVELOPMENT DELAYS (in milliseconds)
+//   Applied only while a computer is attached over USB (boards with native
+//   USB), never on battery or a charger, so they cost no power in the field.
+//   DELAY_AFTER_WAKEUP  maximum wait for a serial monitor after wakeup, so the
+//                       first logs aren't lost while USB reconnects. Ends as
+//                       soon as the monitor is open.
+//   DELAY_BEFORE_SLEEP  time to flash the board before deep sleep drops it off
+//                       USB.
+//   Set to 0 to disable.
+#define DELAY_AFTER_WAKEUP 3000
 #define DELAY_BEFORE_SLEEP 5000
-#define DELAY_AFTER_WAKEUP 1000
 
 // #define DISABLE_DEEP_SLEEP
 
