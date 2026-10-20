@@ -369,11 +369,8 @@ void setup()
 
     ESP_LOGI(LOG_TAG, "Initializing I2C bus on pins: %d, %d", PIN_BME_SDA, PIN_BME_SCL);
 
-#ifdef CONFIG_IDF_TARGET_ESP32C6
+    // the sensor library's begin() starts the bus (100kHz) on these pins
     I2C_bme.setPins(PIN_BME_SDA, PIN_BME_SCL);
-#else
-    I2C_bme.begin(PIN_BME_SDA, PIN_BME_SCL, 100'000); // 100kHz
-#endif
 
     if (bme.begin(BME_ADDRESS, &I2C_bme)) {
 #endif

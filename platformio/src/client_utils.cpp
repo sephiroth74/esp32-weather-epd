@@ -224,14 +224,8 @@ int getOWMairpollution(WiFiClientSecure& client, owm_resp_air_pollution_t& r, St
     char endStr[22];
     char startStr[22];
 
-    // if it's ESP32-C6 use long long int
-#ifdef CONFIG_IDF_TARGET_ESP32C6
-    sprintf(endStr, "%lld", end);
-    sprintf(startStr, "%lld", start);
-#else
-    sprintf(endStr, "%ld", end);
-    sprintf(startStr, "%ld", start);
-#endif // CONFIG_IDF_TARGET_ESP32C6
+    sprintf(endStr, "%lld", static_cast<long long>(end));
+    sprintf(startStr, "%lld", static_cast<long long>(start));
 
     Serial.print("Start: ");
     Serial.println(startStr);

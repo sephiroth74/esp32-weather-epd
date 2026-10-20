@@ -19,14 +19,7 @@
 #include <vector>
 #include <Arduino.h>
 #include <HTTPClient.h>
-
-#ifdef CONFIG_IDF_TARGET_ESP32C6
-#include <esp_adc/adc_oneshot.h>
-#include <esp_adc/adc_cali.h>
-#else
-#include <driver/adc.h>
-#include <esp_adc_cal.h>
-#endif // end CONFIG_IDF_TARGET_ESP32C6
+#include <driver/gpio.h>
 
 #include <aqi.h>
 
@@ -47,12 +40,11 @@ uint32_t readBatteryVoltage()
     return MAX_BATTERY_VOLTAGE; // battery monitoring disabled
 #endif // end PIN_BAT_ADC < 0
 
-#if CONFIG_IDF_TARGET_ESP32C6
-    // ESP32-C6's ADC is 10-bit, and uses 11db attenuation, which gives it a
-    // measurable input voltage range of 100mV to 1100mV.
-
-    pinMode(PIN_BAT_ADC, INPUT);
-    analogSetPinAttenuation(PIN_BAT_ADC, ADC_11db);
+    // analogReadMilliVolts() applies the chip's eFuse calibration. 11dB is the
+    // core's default attenuation, set explicitly because the voltage divider is
+    // sized for its range. Not analogSetPinAttenuation(): it only applies to a
+    // pin that a previous analogRead() already configured.
+    analogSetAttenuation(ADC_11db);
 
     uint32_t raw_millivolts = 0;
     for (uint8_t i = 0; i < BATTERY_NUM_SAMPLES; ++i) {
@@ -61,43 +53,11 @@ uint32_t readBatteryVoltage()
     }
     raw_millivolts /= BATTERY_NUM_SAMPLES;
 
-    uint32_t batteryVoltage = raw_millivolts;
-
 #if DEBUG_LEVEL >= 1
-    ESP_LOGD(LOG_TAG, "C6 raw battery voltage: %u mV", raw_millivolts);
+    ESP_LOGD(LOG_TAG, "Raw battery voltage: %u mV", (unsigned)raw_millivolts);
 #endif
 
-#else
-    esp_adc_cal_characteristics_t adc_chars;
-    // __attribute__((unused)) disables compiler warnings about this variable
-    // being unused (Clang, GCC) which is the case when DEBUG_LEVEL == 0.
-    esp_adc_cal_value_t val_type __attribute__((unused));
-    adc_power_acquire();
-    uint16_t adc_val = analogRead(PIN_BAT_ADC);
-    adc_power_release();
-
-    // We will use the eFuse ADC calibration bits, to get accurate voltage
-    // readings. The DFRobot FireBeetle Esp32-E V1.0's ADC is 12 bit, and uses
-    // 11db attenuation, which gives it a measurable input voltage range of 150mV
-    // to 2450mV.
-    val_type = esp_adc_cal_characterize(ADC_UNIT_1, ADC_ATTEN_11db,
-        ADC_WIDTH_BIT_12, 1100, &adc_chars);
-
-#if DEBUG_LEVEL >= 1
-    if (val_type == ESP_ADC_CAL_VAL_EFUSE_VREF) {
-        ESP_LOGD(LOG_TAG, "[debug]", "ADC Cal eFuse Vref");
-    } else if (val_type == ESP_ADC_CAL_VAL_EFUSE_TP) {
-        ESP_LOGD(LOG_TAG, "[debug]", "ADC Cal Two Point");
-    } else {
-        ESP_LOGD(LOG_TAG, "[debug]", "ADC Cal Default");
-    }
-#endif
-
-    uint32_t batteryVoltage = esp_adc_cal_raw_to_voltage(adc_val, &adc_chars);
-
-#endif // end CONFIG_IDF_TARGET_ESP32C6
-    batteryVoltage /= BATTERY_RESISTOR_DIVIDER;
-    return batteryVoltage;
+    return raw_millivolts / BATTERY_RESISTOR_DIVIDER;
 } // end readBatteryVoltage
 
 /* Returns battery percentage, rounded to the nearest integer.
@@ -1712,9 +1672,10 @@ void disableBuiltinLED()
     // gpio_hold_en(static_cast<gpio_num_t>(LED_BUILTIN));
 #endif // end LED_BUILTIN && HAS_BUILTIN_LED
 
-#if !defined(CONFIG_IDF_TARGET_ESP32C6)
+    // only chips that can't hold single pins in deep sleep have it (not the C6)
+#if !SOC_GPIO_SUPPORT_HOLD_SINGLE_IO_IN_DSLP
     gpio_deep_sleep_hold_en();
-#endif // end !CONFIG_IDF_TARGET_ESP32C6
+#endif
     return;
 } // end disableBuiltinLED
 

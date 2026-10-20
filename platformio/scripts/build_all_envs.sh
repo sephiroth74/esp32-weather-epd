@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# Builds every firmware env in platformio.ini, each in its own `pio run`:
-# mixing espressif32 and pioarduino envs in one run breaks PlatformIO's tooling.
+# Builds every firmware env in platformio.ini, one `pio run` per env, and
+# prints a summary.
 #
 #   scripts/build_all_envs.sh          build all envs and print a summary
 #   scripts/build_all_envs.sh --list   print the env names as a JSON array
@@ -30,9 +30,7 @@ summary=""
 failed=0
 for env in $envs; do
   echo "=== $env"
-  # After an espressif32 env, a pioarduino env reinstalls its tools: doing that
-  # in the same process as the build fails with a TypeError, so do it first.
-  if pio pkg install -e "$env" > /dev/null && pio run -e "$env"; then
+  if pio run -e "$env"; then
     status="OK"
   else
     status="FAILED"
