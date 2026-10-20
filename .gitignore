@@ -7,3 +7,5 @@ platformio/include/config/locations/gavirate_4.cpp
 platformio/include/config/locations/zurigo.cpp
 platformio/include/config/locations/
 platformio/.cache/
+.DS_Store
+platformio/.github/
