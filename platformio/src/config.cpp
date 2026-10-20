@@ -154,6 +154,10 @@ const unsigned long VERY_LOW_BATTERY_SLEEP_INTERVAL = 120; // (minutes)
 // Battery voltage calculations are based on a typical 3.7v LiPo.
 const uint32_t MAX_BATTERY_VOLTAGE = 4200; // (millivolts)
 const uint32_t MIN_BATTERY_VOLTAGE = 3000; // (millivolts)
+// No battery can power the board below this voltage, so a lower reading means
+// the ADC read failed or no battery is connected. Battery protection is then
+// skipped instead of hibernating on a bogus reading.
+const uint32_t MIN_VALID_BATTERY_VOLTAGE = 1000; // (millivolts)
 
 // See config.h for the below options
 // E-PAPER PANEL

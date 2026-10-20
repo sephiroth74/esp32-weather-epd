@@ -375,6 +375,7 @@ extern const unsigned long LOW_BATTERY_SLEEP_INTERVAL;
 extern const unsigned long VERY_LOW_BATTERY_SLEEP_INTERVAL;
 extern const uint32_t MAX_BATTERY_VOLTAGE;
 extern const uint32_t MIN_BATTERY_VOLTAGE;
+extern const uint32_t MIN_VALID_BATTERY_VOLTAGE;
 extern const double BATTERY_RESISTOR_DIVIDER;
 extern const uint8_t BATTERY_NUM_SAMPLES; // 20
 extern const uint32_t BATTERY_DELAY_MS; // 1

@@ -1689,30 +1689,34 @@ void drawStatusBar(const String &statusStr, const String &refreshTimeStr,
 
 #if BATTERY_MONITORING
   // battery - (expecting 3.7v LiPo)
-  uint32_t batPercent = calcBatPercent(batVoltage,
-                                       MIN_BATTERY_VOLTAGE,
-                                       MAX_BATTERY_VOLTAGE);
-#if defined(DISP_3C_B) || defined(DISP_7C_F) || defined(DISP_6C_F)
-  if (batVoltage < WARN_BATTERY_VOLTAGE)
+  // UINT32_MAX means there is no valid reading, so nothing is drawn.
+  if (batVoltage != UINT32_MAX)
   {
-    dataColor = ACCENT_COLOR;
-  }
+    uint32_t batPercent = calcBatPercent(batVoltage,
+                                         MIN_BATTERY_VOLTAGE,
+                                         MAX_BATTERY_VOLTAGE);
+#if defined(DISP_3C_B) || defined(DISP_7C_F) || defined(DISP_6C_F)
+    if (batVoltage < WARN_BATTERY_VOLTAGE)
+    {
+      dataColor = ACCENT_COLOR;
+    }
 #endif
 #if STATUS_BAR_EXTRAS_BAT_PERCENTAGE || STATUS_BAR_EXTRAS_BAT_VOLTAGE
-  dataStr = "";
+    dataStr = "";
 #if STATUS_BAR_EXTRAS_BAT_PERCENTAGE
-  dataStr += String(batPercent) + "%";
+    dataStr += String(batPercent) + "%";
 #endif
 #if STATUS_BAR_EXTRAS_BAT_VOLTAGE
-  dataStr += " (" + String( std::round(batVoltage / 10.f) / 100.f, 2 ) + "v)";
+    dataStr += " (" + String( std::round(batVoltage / 10.f) / 100.f, 2 ) + "v)";
 #endif
-  drawString(pos, DISP_HEIGHT - 1 - 2, dataStr, RIGHT, dataColor);
-  pos -= getStringWidth(dataStr) + 1;
+    drawString(pos, DISP_HEIGHT - 1 - 2, dataStr, RIGHT, dataColor);
+    pos -= getStringWidth(dataStr) + 1;
 #endif
-  pos -= 24;
-  display.drawInvertedBitmap(pos, DISP_HEIGHT - 1 - 17,
-                             getBatBitmap24(batPercent), 24, 24, dataColor);
-  pos -= sp + 9;
+    pos -= 24;
+    display.drawInvertedBitmap(pos, DISP_HEIGHT - 1 - 17,
+                               getBatBitmap24(batPercent), 24, 24, dataColor);
+    pos -= sp + 9;
+  }
 #endif
 
   // WiFi

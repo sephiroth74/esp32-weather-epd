@@ -207,6 +207,12 @@ void setup()
     ESP_LOGI(LOG_TAG, "Battery resistor divider: %.8f", BATTERY_RESISTOR_DIVIDER);
     ESP_LOGD(LOG_TAG, "Battery Voltage: %d mV", batteryVoltage);
 
+    if (batteryVoltage < MIN_VALID_BATTERY_VOLTAGE) {
+        ESP_LOGW(LOG_TAG, "Ignoring implausible battery voltage: %u mV",
+            (unsigned)batteryVoltage);
+        batteryVoltage = UINT32_MAX; // no reading, see drawStatusBar()
+    }
+
     // When the battery is low, the display should be updated to reflect that, but
     // only the first time we detect low voltage. The next time the display will
     // refresh is when voltage is no longer low. To keep track of that we will
@@ -249,7 +255,7 @@ void setup()
         return;
     }
     // battery is no longer low, reset variable in non-volatile storage
-    if (lowBat == true) {
+    if (lowBat == true && batteryVoltage != UINT32_MAX) {
         prefs.putBool("lowBat", false);
     }
 #else
