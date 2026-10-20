@@ -19,6 +19,7 @@
 #define __CLIENT_UTILS_H__
 
 #include <Arduino.h>
+#include <WiFi.h>
 #include "api_response.h"
 #include "config.h"
 #ifdef USE_HTTP

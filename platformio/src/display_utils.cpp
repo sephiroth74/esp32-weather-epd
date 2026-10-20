@@ -18,6 +18,7 @@
 #include <cmath>
 #include <vector>
 #include <Arduino.h>
+#include <HTTPClient.h>
 
 #ifdef CONFIG_IDF_TARGET_ESP32C6
 #include <esp_adc/adc_oneshot.h>

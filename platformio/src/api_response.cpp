@@ -20,12 +20,16 @@
 #include "api_response.h"
 #include "config.h"
 
-DeserializationError deserializeOneCall(WiFiClient &json,
+DeserializationError deserializeOneCall(Stream &json,
                                         owm_resp_onecall_t &r)
 {
   int i;
 
   JsonDocument filter;
+  filter["lat"]             = true;
+  filter["lon"]             = true;
+  filter["timezone"]        = true;
+  filter["timezone_offset"] = true;
   filter["current"]  = true;
   filter["minutely"] = false;
   filter["hourly"]   = true;
@@ -59,6 +63,10 @@ DeserializationError deserializeOneCall(WiFiClient &json,
 #endif
   if (error) {
     return error;
+  }
+  // with a filter, ArduinoJson skips over non-JSON input instead of rejecting it
+  if (!doc.is<JsonObject>()) {
+    return DeserializationError::InvalidInput;
   }
 
   r.lat             = doc["lat"]            .as<float>();
@@ -204,7 +212,7 @@ DeserializationError deserializeOneCall(WiFiClient &json,
   return error;
 } // end deserializeOneCall
 
-DeserializationError deserializeAirQuality(WiFiClient &json,
+DeserializationError deserializeAirQuality(Stream &json,
                                            owm_resp_air_pollution_t &r)
 {
   int i = 0;

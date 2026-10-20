@@ -18,6 +18,7 @@
 #include "config.h"
 #include <Arduino.h>
 #include <Adafruit_Sensor.h>
+#include <HTTPClient.h>
 #include <Preferences.h>
 #include <time.h>
 #include <WiFi.h>

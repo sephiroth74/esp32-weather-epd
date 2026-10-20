@@ -22,8 +22,6 @@
 #include <vector>
 #include <Arduino.h>
 #include <ArduinoJson.h>
-#include <HTTPClient.h>
-#include <WiFi.h>
 
 #define OWM_NUM_MINUTELY       1 // 61
 #define OWM_NUM_HOURLY        48 // 48
@@ -212,9 +210,9 @@ typedef struct owm_resp_air_pollution
   int64_t          dt[OWM_NUM_AIR_POLLUTION];         // Date and time, Unix, UTC;
 } owm_resp_air_pollution_t;
 
-DeserializationError deserializeOneCall(WiFiClient &json,
+DeserializationError deserializeOneCall(Stream &json,
                                         owm_resp_onecall_t &r);
-DeserializationError deserializeAirQuality(WiFiClient &json,
+DeserializationError deserializeAirQuality(Stream &json,
                                            owm_resp_air_pollution_t &r);
 
 
