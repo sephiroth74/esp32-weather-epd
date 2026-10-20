@@ -40,11 +40,6 @@ done
 shift $((OPTIND - 1))
 name=${1:-board}
 
-if [ -z "$port" ]; then
-  port=$(detect_port) || exit 1
-fi
-read_board_info "$port" || exit 1
-
 # relative to where the script was started, not to the project
 case $BACKUP_DIR in
   /*) ;;
@@ -59,6 +54,12 @@ if git -C "$BACKUP_DIR" rev-parse --is-inside-work-tree > /dev/null 2>&1 \
   rmdir "$BACKUP_DIR" 2> /dev/null
   exit 1
 fi
+
+if [ -z "$port" ]; then
+  port=$(detect_port) || exit 1
+fi
+read_board_info "$port" || exit 1
+
 file="$BACKUP_DIR/${name}_${CHIP}_${MAC}_$(date +%Y%m%d-%H%M%S).bin"
 
 echo "Backing up $((FLASH_BYTES / 1024 / 1024)) MB of flash of $CHIP ($MAC) on $port"
