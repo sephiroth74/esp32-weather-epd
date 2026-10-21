@@ -312,6 +312,18 @@
 // NON-VOLATILE STORAGE (NVS) NAMESPACE
 #define NVS_NAMESPACE "weather_epd"
 
+// API CALL RATE LIMIT
+//   Minimum time between two updates from OpenWeatherMap, in seconds. A board
+//   that keeps rebooting (e.g. brownouts from a weak battery) would otherwise
+//   call the API on every boot and could exceed the daily quota (1,000 calls
+//   for One Call 3.0). An update requested sooner, by any wakeup or reset
+//   (wakeup button included), is skipped: the display keeps the previous one
+//   and the board goes back to sleep. Must be shorter than SLEEP_DURATION.
+//   For development, override it, e.g. -D MIN_API_CALL_INTERVAL=40
+#ifndef MIN_API_CALL_INTERVAL
+#define MIN_API_CALL_INTERVAL 300
+#endif
+
 // DEBUG
 //   If defined, enables increase verbosity over the serial port.
 //   level 0: basic status information, assists troubleshooting (default)

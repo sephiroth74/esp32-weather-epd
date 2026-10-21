@@ -304,6 +304,25 @@ void setup()
         return;
     }
 
+    // API CALL RATE LIMIT, see MIN_API_CALL_INTERVAL in config.h. The time of
+    // the last attempt is kept in NVS, so it survives resets and brownouts, and
+    // it is saved before the requests: a reboot during them counts too.
+    const int64_t now = time(nullptr);
+    prefs.begin(NVS_NAMESPACE, false);
+    const int64_t lastApiCall = prefs.getLong64("lastApiCall", 0);
+    if (lastApiCall > 0 && now >= lastApiCall
+        && now - lastApiCall < MIN_API_CALL_INTERVAL) {
+        ESP_LOGW(LOG_TAG, "Last API call %lld s ago, less than %d s: skipping this update",
+            (long long)(now - lastApiCall), MIN_API_CALL_INTERVAL);
+        prefs.putInt("locationsIndex", locationsIndex); // not shown, keep it next
+        prefs.end();
+        killWiFi();
+        beginDeepSleep(startTime, &timeInfo);
+        return;
+    }
+    prefs.putLong64("lastApiCall", now);
+    prefs.end();
+
     // MAKE API REQUESTS
 #ifdef USE_HTTP
     WiFiClient client;

@@ -30,6 +30,11 @@
 #error "Create it from include/config/locations/example.cpp"
 #endif
 
+// Scheduled updates come SLEEP_DURATION apart (minus a few seconds of jitter):
+// with a shorter one than MIN_API_CALL_INTERVAL they would all be skipped.
+static_assert(SLEEP_DURATION * 60 >= MIN_API_CALL_INTERVAL + 60,
+              "SLEEP_DURATION must exceed MIN_API_CALL_INTERVAL by at least a minute");
+
 // PINS
 // The configuration below is intended for use with the project's official
 // wiring diagrams using the FireBeetle 2 ESP32-E microcontroller board.
