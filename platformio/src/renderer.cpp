@@ -1543,11 +1543,9 @@ void drawOutlookGraph(const owm_hourly_t *hourly, const owm_daily_t *daily,
   // precalculate all x and y coordinates for temperature values
   float yPxPerUnit = (yPos1 - yPos0)
                      / static_cast<float>(tempBoundMax - tempBoundMin);
-  std::vector<int> x_t;
-  std::vector<int> y_t;
-  x_t.reserve(HOURLY_GRAPH_MAX);
-  y_t.reserve(HOURLY_GRAPH_MAX);
-    for (int i = 0; i < HOURLY_GRAPH_MAX; ++i)
+  std::vector<int> x_t(HOURLY_GRAPH_MAX);
+  std::vector<int> y_t(HOURLY_GRAPH_MAX);
+  for (int i = 0; i < HOURLY_GRAPH_MAX; ++i)
   {
     y_t[i] = kelvin_to_plot_y(hourly[i].temp, tempBoundMin, yPxPerUnit, yPos1);
     x_t[i] = static_cast<int>(std::round(xPos0 + (i * xInterval)
