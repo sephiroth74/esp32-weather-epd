@@ -9,3 +9,5 @@ platformio/include/config/locations/*
 platformio/.cache/
 .DS_Store
 platformio/.github/
+backups/
+kicad/
