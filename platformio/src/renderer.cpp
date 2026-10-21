@@ -811,12 +811,15 @@ void drawCurrentMoonrise(const owm_daily_t &today)
   display.setFont(&FONT_7pt8b);
   drawString(48 + (162 * PosX), 204 + 10 + (48 + 8) * PosY, TXT_MOONRISE, LEFT);
 
-  // moonrise
+  // moonrise, 0 on the days the moon doesn't rise
   display.setFont(&FONT_12pt8b);
-  char timeBuffer[12] = {}; // big enough to accommodate "hh:mm:ss am"
+  char timeBuffer[12] = "--"; // big enough to accommodate "hh:mm:ss am"
   time_t ts = today.moonrise;
-  tm *timeInfo = localtime(&ts);
-  _strftime(timeBuffer, sizeof(timeBuffer), TIME_FORMAT, timeInfo);
+  if (ts != 0)
+  {
+    tm *timeInfo = localtime(&ts);
+    _strftime(timeBuffer, sizeof(timeBuffer), TIME_FORMAT, timeInfo);
+  }
   drawString(48 + (162 * PosX), 204 + 17 / 2 + (48 + 8) * PosY + 48 / 2, timeBuffer, LEFT);
 
   return;
@@ -839,12 +842,15 @@ void drawCurrentMoonset(const owm_daily_t &today)
   display.setFont(&FONT_7pt8b);
   drawString(48 + (162 * PosX), 204 + 10 + (48 + 8) * PosY, TXT_MOONSET, LEFT);
 
-  // moonset
+  // moonset, 0 on the days the moon doesn't set
   display.setFont(&FONT_12pt8b);
-  char timeBuffer[12] = {}; // big enough to accommodate "hh:mm:ss am"
+  char timeBuffer[12] = "--"; // big enough to accommodate "hh:mm:ss am"
   time_t ts = today.moonset;
-  tm *timeInfo = localtime(&ts);
-  _strftime(timeBuffer, sizeof(timeBuffer), TIME_FORMAT, timeInfo);
+  if (ts != 0)
+  {
+    tm *timeInfo = localtime(&ts);
+    _strftime(timeBuffer, sizeof(timeBuffer), TIME_FORMAT, timeInfo);
+  }
   drawString(48 + (162 * PosX), 204 + 17 / 2 + (48 + 8) * PosY + 48 / 2, timeBuffer, LEFT);
 
   return;
