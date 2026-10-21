@@ -25,18 +25,19 @@ if [ "${1:-}" = "--list" ]; then
   exit
 fi
 
-envs=$(list_envs | python3 -I -c 'import json, sys; print(" ".join(json.load(sys.stdin)))')
 summary=""
 failed=0
-for env in $envs; do
+# a command substitution is word-split by both bash and zsh (unlike a variable
+# in zsh)
+for env in $(list_envs | python3 -I -c 'import json, sys; print(" ".join(json.load(sys.stdin)))'); do
   echo "=== $env"
   if pio run -e "$env"; then
-    status="OK"
+    result="OK"
   else
-    status="FAILED"
+    result="FAILED"
     failed=1
   fi
-  summary="$summary$(printf '%-32s %s' "$env" "$status")\n"
+  summary="$summary$(printf '%-32s %s' "$env" "$result")\n"
 done
 
 printf '\n%b' "$summary"

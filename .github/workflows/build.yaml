@@ -23,7 +23,7 @@ jobs:
       - name: Install PlatformIO Core
         run: pip install --upgrade platformio
       - id: list
-        run: echo "envs=$(scripts/build_all_envs.sh --list)" >> "$GITHUB_OUTPUT"
+        run: echo "envs=$(bash scripts/build_all_envs.sh --list)" >> "$GITHUB_OUTPUT"
 
   build:
     needs: list-envs
