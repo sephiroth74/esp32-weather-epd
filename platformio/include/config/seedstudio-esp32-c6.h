@@ -51,10 +51,13 @@
 // Temperature sensor
 #define SENSOR_BME280
 
-// R1 = 330kΩ, R2 = 180kΩ (Vout = Vin * R2 / (R1 + R2))
-// #define BATTERY_RESISTOR_DIVIDER 0.31984678
-// #define BATTERY_RESISTOR_DIVIDER 0.3219753086 // casa gavirate
-#define BATTERY_RESISTOR_DIVIDER 0.2527075812
+// Battery voltage divider, measured: ADC mV ("Raw battery voltage" in the log)
+// / battery mV on a multimeter at the same time, e.g. 1192 / 3700. Every
+// board has its own resistors: override it per env with
+// -D BATTERY_RESISTOR_DIVIDER=<value> when one differs.
+#ifndef BATTERY_RESISTOR_DIVIDER
+#define BATTERY_RESISTOR_DIVIDER 0.322
+#endif
 
 // Debug level
 #define DEBUG_LEVEL 1
