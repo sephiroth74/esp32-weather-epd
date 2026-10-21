@@ -2,9 +2,7 @@
 #include "board_utils.h"
 #include "display_utils_extra.h"
 
-#ifndef USE_EXT1_WAKEUP
-#include "driver/rtc_io.h" // For RTC GPIO functions needed for EXT0 wakeup
-#endif
+#include "driver/rtc_io.h" // RTC GPIO pulls for the wakeup pin
 
 void printWakeupReason()
 {
@@ -106,16 +104,25 @@ void enterDeepSleep()
 
 #ifdef USE_EXT1_WAKEUP
     ESP_LOGD(LOG_TAG, "Using EXT1 wakeup method");
-    // Configure GPIO for EXT1 wakeup
-    // Button connected to GPIO2 and GND: when pressed GPIO goes LOW
-    // IMPORTANT: Add external 10kΩ pull-up resistor between GPIO2 and 3V3 for stability!
-    pinMode(PIN_WAKEUP, INPUT_PULLUP);
 
 #ifndef WAKEUP_PIN_MODE
     #error "WAKEUP_PIN_MODE not defined. Please define it as either ESP_EXT1_WAKEUP_ANY_LOW or ESP_EXT1_WAKEUP_ANY_HIGH."
 #endif
 
-    // esp_err_t result = esp_sleep_enable_ext1_wakeup(BUTTON_PIN_BITMASK(PIN_WAKEUP), ESP_EXT1_WAKEUP_ANY_LOW);
+    // In deep sleep the pin is moved to the RTC (LP) IO domain, where only its
+    // RTC pull resistors apply, not the ones set with pinMode(). Hold it at its
+    // idle level: pulled down for ANY_HIGH (button to 3V3), pulled up for
+    // ANY_LOW (button to GND). An external 10kΩ resistor to the same level is
+    // still recommended, the internal ones are weak.
+    const gpio_num_t wakeupPin = static_cast<gpio_num_t>(PIN_WAKEUP);
+    if (WAKEUP_PIN_MODE == ESP_EXT1_WAKEUP_ANY_HIGH) {
+        rtc_gpio_pullup_dis(wakeupPin);
+        rtc_gpio_pulldown_en(wakeupPin);
+    } else {
+        rtc_gpio_pulldown_dis(wakeupPin);
+        rtc_gpio_pullup_en(wakeupPin);
+    }
+
     esp_err_t result = esp_sleep_enable_ext1_wakeup(BUTTON_PIN_BITMASK(PIN_WAKEUP), WAKEUP_PIN_MODE);
 
     if (result != ESP_OK) {

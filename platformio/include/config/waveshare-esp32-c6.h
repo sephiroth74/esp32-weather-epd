@@ -26,7 +26,9 @@
 // Not used if PIN_WAKEUP is -1
 #define USE_EXT1_WAKEUP
 
-// Reset button to GND and PIN to PIN_WAKEUP with a 10kΩ pull-down resistor to VCC, so wakeup is triggered when button is pressed and GPIO goes LOW
+// Wakeup button between PIN_WAKEUP and GND, with a 10kΩ pull-up resistor
+// from PIN_WAKEUP to 3V3: pressing the button drives the pin LOW and wakes
+// the board. The internal pull-up is also enabled during deep sleep.
 #define WAKEUP_PIN_MODE ESP_EXT1_WAKEUP_ANY_LOW
 
 // BME I2C Address

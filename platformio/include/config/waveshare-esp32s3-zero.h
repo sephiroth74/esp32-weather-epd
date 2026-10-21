@@ -25,6 +25,9 @@
 
 #define USE_EXT1_WAKEUP
 
+// Wakeup on HIGH: the button goes between PIN_WAKEUP and 3V3, a 10kΩ
+// pull-down resistor from PIN_WAKEUP to GND is recommended. The internal
+// pull-down is also enabled during deep sleep.
 #define WAKEUP_PIN_MODE ESP_EXT1_WAKEUP_ANY_HIGH
 
 // BME I2C Address
