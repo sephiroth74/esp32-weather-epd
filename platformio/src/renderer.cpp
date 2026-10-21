@@ -1626,18 +1626,22 @@ void drawOutlookGraph(const owm_hourly_t *hourly, const owm_daily_t *daily,
 #endif
 #endif
 
-    x0_t = static_cast<int>(std::round( xPos0 + 1 + (i * xInterval)));
-    x1_t = static_cast<int>(std::round( xPos0 + 1 + ((i + 1) * xInterval) ));
-    yPxPerUnit = (yPos1 - yPos0) / precipBoundMax;
-    y0_t = static_cast<int>(std::round( yPos1 - (yPxPerUnit * (precipVal)) ));
-    y1_t = yPos1;
-
-    // graph Precipitation
-    for (int y = y1_t - 1; y > y0_t; y -= 2)
+    // graph Precipitation. precipBoundMax is 0 when every hour is dry: no
+    // bars, and no division by 0
+    if (precipBoundMax > 0)
     {
-      for (int x = x0_t + (x0_t % 2); x < x1_t; x += 2)
+      x0_t = static_cast<int>(std::round( xPos0 + 1 + (i * xInterval)));
+      x1_t = static_cast<int>(std::round( xPos0 + 1 + ((i + 1) * xInterval) ));
+      yPxPerUnit = (yPos1 - yPos0) / precipBoundMax;
+      y0_t = static_cast<int>(std::round( yPos1 - (yPxPerUnit * (precipVal)) ));
+      y1_t = yPos1;
+
+      for (int y = y1_t - 1; y > y0_t; y -= 2)
       {
-        display.drawPixel(x, y, GxEPD_BLACK);
+        for (int x = x0_t + (x0_t % 2); x < x1_t; x += 2)
+        {
+          display.drawPixel(x, y, GxEPD_BLACK);
+        }
       }
     }
 
