@@ -56,14 +56,50 @@ static owm_resp_air_pollution_t owm_air_pollution;
 
 Preferences prefs;
 
+// consecutive deep sleeps with the clock not set; kept across deep sleep
+static RTC_DATA_ATTR uint8_t clockUnsetRetries = 0;
+
+/* Deep-sleeps for sleepDuration seconds, see enterDeepSleep().
+ */
+static void sleepFor(unsigned long startTime, uint64_t sleepDuration)
+{
+#if DEBUG_LEVEL >= 1
+    printHeapUsage();
+#endif
+
+    esp_sleep_enable_timer_wakeup(sleepDuration * 1000000ULL);
+    Serial.print(TXT_AWAKE_FOR);
+    Serial.println(" " + String((millis() - startTime) / 1000.0, 3) + "s");
+    Serial.print(TXT_ENTERING_DEEP_SLEEP_FOR);
+    Serial.println(" " + String(sleepDuration) + "s");
+    enterDeepSleep();
+} // end sleepFor
+
 /* Put esp32 into ultra low-power deep sleep (<11μA).
- * Aligns wake time to the minute. Sleep times defined in config.cpp.
+ * Aligns wake time to the minute, or retries soon if the clock was never set.
+ * Sleep times defined in config.cpp.
  */
 void beginDeepSleep(unsigned long startTime, tm* timeInfo)
 {
-    if (!getLocalTime(timeInfo)) {
-        ESP_LOGD(LOG_TAG, "%s", TXT_REFERENCING_OLDER_TIME_NOTICE);
+    // 0 ms: don't wait, only SNTP earlier in this boot could have set it
+    if (!getLocalTime(timeInfo, 0)) {
+        // The clock was never set, e.g. the first boot after a power loss
+        // with WiFi or NTP failing. The schedule can't be computed (the unset
+        // clock reads as midnight and would wait until WAKE_TIME): retry soon,
+        // doubling the wait while it keeps failing, up to SLEEP_DURATION.
+        uint64_t retryMinutes = (uint64_t)TIME_UNKNOWN_RETRY_MINUTES
+            << (clockUnsetRetries < 8 ? clockUnsetRetries : 8);
+        if (retryMinutes > (uint64_t)SLEEP_DURATION) {
+            retryMinutes = SLEEP_DURATION;
+        }
+        if (clockUnsetRetries < UINT8_MAX) {
+            ++clockUnsetRetries;
+        }
+        ESP_LOGW(LOG_TAG, "Clock not set, retrying in %u min", (unsigned)retryMinutes);
+        sleepFor(startTime, retryMinutes * 60);
+        return;
     }
+    clockUnsetRetries = 0;
 
     // To simplify sleep time calculations, the current time stored by timeInfo
     // will be converted to time relative to the WAKE_TIME. This way if a
@@ -113,16 +149,7 @@ void beginDeepSleep(unsigned long startTime, tm* timeInfo)
     sleepDuration += 3ULL;
     sleepDuration *= 1.0015f;
 
-#if DEBUG_LEVEL >= 1
-    printHeapUsage();
-#endif
-
-    esp_sleep_enable_timer_wakeup(sleepDuration * 1000000ULL);
-    Serial.print(TXT_AWAKE_FOR);
-    Serial.println(" " + String((millis() - startTime) / 1000.0, 3) + "s");
-    Serial.print(TXT_ENTERING_DEEP_SLEEP_FOR);
-    Serial.println(" " + String(sleepDuration) + "s");
-    enterDeepSleep();
+    sleepFor(startTime, sleepDuration);
 } // end beginDeepSleep
 
 /* Program entry point.
@@ -187,6 +214,11 @@ void setup()
     String currentLon = LON[locationsIndex];
     String currentCity = CITY_STRING[locationsIndex];
     String currentTimeZone = TIMEZONE[locationsIndex];
+
+    // Local time also on the paths that fail before SNTP (configTzTime() sets
+    // it again below): the RTC keeps the time across deep sleep.
+    setenv("TZ", currentTimeZone.c_str(), 1);
+    tzset();
 
 #if DEBUG_LEVEL >= 1
     ESP_LOGI(LOG_TAG, "Location index: %d", locationsIndex);

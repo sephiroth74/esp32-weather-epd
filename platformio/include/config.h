@@ -324,6 +324,15 @@
 #define MIN_API_CALL_INTERVAL 300
 #endif
 
+// RETRY WITHOUT A VALID CLOCK
+//   If WiFi or NTP fail before the clock was ever set (e.g. the first boot
+//   after a power loss, with the router still starting), the update schedule
+//   can't be computed. Retry after this many minutes, doubling the wait at
+//   each consecutive failure, up to SLEEP_DURATION.
+#ifndef TIME_UNKNOWN_RETRY_MINUTES
+#define TIME_UNKNOWN_RETRY_MINUTES 10
+#endif
+
 // DEBUG
 //   If defined, enables increase verbosity over the serial port.
 //   level 0: basic status information, assists troubleshooting (default)
